@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -21,12 +22,15 @@ const NAV_ITEMS: NavItem[] = [
     label: '총회소개',
     href: '/about',
     subItems: [
-      { label: '설립경과', href: '/about/history' },
-      { label: '새 마스터스개혁파총회를 사랑하는 사람들', href: '/about/people' },
-      { label: '총회 및 노회 소속 교회 사역자', href: '/about/ministers' },
-      { label: '총회로고', href: '/about/logo' },
-      { label: '총회마크 및 사역표어', href: '/about/mark' },
-      { label: '모노블로그', href: '/about/blog' },
+      { label: '신앙고백', href: '/about/confession' },
+      { label: '왜 마스터스개혁파총회를 시작하는가?', href: '/about/reason' },
+      { label: '우리는 누구인가?', href: '/about/identity' },
+      { label: '이사장', href: '/about/chairman' },
+      { label: '연혁 및 주요 행사', href: '/about/history' },
+      { label: '총회조직 및 사역원칙', href: '/about/organization' },
+      { label: '임원', href: '/about/officers' },
+      { label: '교단로고', href: '/about/logo' },
+      { label: '오시는 길', href: '/about/directions' },
     ],
   },
   {
@@ -102,10 +106,18 @@ const megaMenuVariants = {
 }
 
 export function Header() {
+  const pathname = usePathname()
   const [isHeaderVisible, setIsHeaderVisible] = useState(true)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [openAccordion, setOpenAccordion] = useState<string | null>(null)
+
+  // 페이지 이동 시 모든 메뉴 초기화
+  useEffect(() => {
+    setIsMenuOpen(false)
+    setIsMobileOpen(false)
+    setOpenAccordion(null)
+  }, [pathname])
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastScrollYRef = useRef(0)
   // ref로 isMenuOpen 값을 스크롤 핸들러에서 참조 (클로저 stale 방지)
