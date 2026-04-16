@@ -137,6 +137,16 @@ src/
 
 ---
 
+## TODO (미해결 이슈)
+
+- **[미해결] 404/500 페이지에서 "이전 페이지" 버튼(BackButton) 클릭 후 GNB 애니메이션·인터랙션 불작동**
+  - 증상: 404/500 같은 하드 네비게이션 페이지에서 `router.back()` 또는 `history.back()` 사용 시 이전 페이지로 돌아왔을 때 Header의 Framer Motion 애니메이션 및 hover 인터랙션이 동작하지 않음
+  - "홈으로 가기"(`Link href="/"`) 클릭 시에는 정상 동작
+  - 시도한 접근: bfcache `pageshow` 감지, `useEffect` → `useLayoutEffect` 변경, `isNavigatingRef` 네비게이션 가드, `BackButton` popstate+reload — 모두 미해결
+  - 관련 파일: `src/components/shared/Header.tsx`, `src/components/shared/BackButton.tsx`, `src/app/not-found.tsx`, `src/app/error.tsx`
+
+---
+
 ## 하지 말아야 할 것
 - `any` 타입 사용 금지
 - `useEffect`로 데이터 페칭 금지 → Server Component 또는 Server Action 사용

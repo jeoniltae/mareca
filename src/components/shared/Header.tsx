@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useLayoutEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
@@ -112,25 +112,49 @@ export function Header() {
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [openAccordion, setOpenAccordion] = useState<string | null>(null)
 
-  // 페이지 이동 시 모든 메뉴 초기화
-  useEffect(() => {
-    setIsMenuOpen(false)
-    setIsMobileOpen(false)
-    setOpenAccordion(null)
-  }, [pathname])
+  // refs는 이를 사용하는 effect보다 먼저 선언
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastScrollYRef = useRef(0)
-  // ref로 isMenuOpen 값을 스크롤 핸들러에서 참조 (클로저 stale 방지)
   const isMenuOpenRef = useRef(false)
+  const isNavigatingRef = useRef(false)
 
   useEffect(() => {
     isMenuOpenRef.current = isMenuOpen
   }, [isMenuOpen])
 
+  // useLayoutEffect: 페인트 전에 실행 → Next.js 스크롤 복원(useEffect)보다 먼저 가드 설정
+  // useEffect는 자식→부모 순서라 page의 스크롤 복원 effect가 Header effect보다 먼저 실행됨
+  // useLayoutEffect는 페인트 전 실행이므로 스크롤 복원 전에 isNavigatingRef를 true로 설정 가능
+  useLayoutEffect(() => {
+    isNavigatingRef.current = true
+    setIsMenuOpen(false)
+    setIsMobileOpen(false)
+    setOpenAccordion(null)
+    setIsHeaderVisible(true)
+
+    const timer = setTimeout(() => {
+      lastScrollYRef.current = window.scrollY
+      isNavigatingRef.current = false
+    }, 150)
+
+    return () => clearTimeout(timer)
+  }, [pathname])
+
+  // bfcache 복원 감지 — 복원 시 강제 리로드로 Framer Motion 재초기화
+  useEffect(() => {
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) {
+        window.location.reload()
+      }
+    }
+    window.addEventListener('pageshow', handlePageShow)
+    return () => window.removeEventListener('pageshow', handlePageShow)
+  }, [])
+
   useEffect(() => {
     const handleScroll = () => {
-      // 메가 메뉴가 열려있으면 헤더 숨김 방지
-      if (isMenuOpenRef.current) return
+      // 메가 메뉴 열림 또는 페이지 전환 직후면 무시
+      if (isMenuOpenRef.current || isNavigatingRef.current) return
 
       const currentScrollY = window.scrollY
 
@@ -139,13 +163,10 @@ export function Header() {
       setOpenAccordion(null)
 
       if (currentScrollY < 10) {
-        // 최상단 — 항상 표시
         setIsHeaderVisible(true)
       } else if (currentScrollY > lastScrollYRef.current) {
-        // 아래로 스크롤 — 헤더 숨김
         setIsHeaderVisible(false)
       } else {
-        // 위로 스크롤 — 헤더 표시
         setIsHeaderVisible(true)
       }
 
