@@ -1,65 +1,392 @@
-import Image from "next/image";
+import Link from 'next/link'
+import {
+  ArrowRight,
+  ChevronRight,
+  FileText,
+  Users,
+  Calendar,
+  BookOpen,
+  Phone,
+  MapPin,
+  Video,
+} from 'lucide-react'
 
-export default function Home() {
+// ─── 히어로 ────────────────────────────────────────────────────────────────────
+function HeroSection() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <section className="relative h-[60vh] min-h-[400px] flex items-center justify-center overflow-hidden bg-linear-to-br from-slate-800 via-slate-700 to-slate-600">
+      {/* 실제 이미지로 교체 예정: /images/hero-bg.jpg */}
+      <div className="absolute inset-0 bg-[url('/images/hero-bg.jpg')] bg-cover bg-center opacity-30" />
+
+      <div className="relative z-10 text-center text-white px-4">
+        <p className="text-xs font-semibold tracking-[0.3em] text-sky-300 mb-4 uppercase">
+          Masters Reformed Assembly
+        </p>
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-5">
+          마스터스개혁파총회
+        </h1>
+        <p className="text-slate-300 text-sm sm:text-base max-w-sm mx-auto leading-relaxed">
+          성경의 진리 위에 세워진 개혁파 신앙 공동체
+        </p>
+      </div>
+    </section>
+  )
+}
+
+// ─── 총회소식 + 일정 + 바로가기 ────────────────────────────────────────────────
+function QuickInfoSection() {
+  const notices = [
+    { title: '부활절연합예배 안내', date: '03-31' },
+    { title: '제62회 임시 총회 소집 공고', date: '02-27' },
+    { title: '총회 창립 7주년 기념행사', date: '02-14' },
+  ]
+
+  const events = [
+    { title: '정기노회 / 청관의결', date: '2024-04-01' },
+    { title: '총회식', date: '2024-11-26' },
+    { title: 'MRT 아카데미/세미나', date: '2024-12-09' },
+  ]
+
+  const quickLinks = [
+    { label: '인사말', href: '/about/greeting', icon: Users },
+    { label: '자유게시판', href: '/community/board', icon: FileText },
+    { label: '행사자료', href: '/resources/events', icon: Calendar },
+    { label: '회원보증', href: '/membership', icon: BookOpen },
+  ]
+
+  return (
+    <section className="bg-white border-b border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* 총회소식 */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-semibold text-slate-800 text-sm">총회소식</h2>
+              <Link
+                href="/news"
+                className="text-xs text-sky-600 hover:underline flex items-center gap-0.5"
+              >
+                더보기 <ChevronRight size={12} />
+              </Link>
+            </div>
+            <ul className="space-y-3">
+              {notices.map((item, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="text-slate-400 text-xs shrink-0 mt-0.5 tabular-nums">
+                    {item.date}
+                  </span>
+                  <Link
+                    href="/news"
+                    className="text-sm text-slate-600 hover:text-slate-900 line-clamp-1"
+                  >
+                    {item.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* 주요 일정 */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-semibold text-slate-800 text-sm">주요 일정</h2>
+              <Link
+                href="/calendar"
+                className="text-xs text-sky-600 hover:underline flex items-center gap-0.5"
+              >
+                더보기 <ChevronRight size={12} />
+              </Link>
+            </div>
+            <ul className="space-y-3">
+              {events.map((item, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="text-slate-400 text-xs shrink-0 mt-0.5 tabular-nums">
+                    {item.date}
+                  </span>
+                  <Link
+                    href="/calendar"
+                    className="text-sm text-slate-600 hover:text-slate-900 line-clamp-1"
+                  >
+                    {item.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* 바로가기 */}
+          <div>
+            <h2 className="font-semibold text-slate-800 text-sm mb-4">바로가기</h2>
+            <div className="grid grid-cols-2 gap-2">
+              {quickLinks.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex items-center gap-2 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 text-sm text-slate-700 transition-colors"
+                >
+                  <item.icon size={14} className="text-sky-600 shrink-0" />
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─── 자주찾는 서비스 ────────────────────────────────────────────────────────────
+function ServicesSection() {
+  const services = [
+    { label: '행정자료', href: '/resources/admin' },
+    { label: '회의자료', href: '/resources/meeting' },
+    { label: '교육자료', href: '/resources/education' },
+    { label: '캘린더', href: '/calendar' },
+    { label: '홈페이지', href: '/' },
+    { label: '구인구직', href: '/community/jobs' },
+  ]
+
+  return (
+    <section className="bg-slate-50 py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-5">
+          자주찾는 서비스
+        </p>
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+          {services.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="flex items-center justify-center py-3 bg-white rounded-lg border border-slate-200 text-sm text-slate-600 hover:border-sky-300 hover:text-sky-700 transition-colors text-center"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─── 퀵 메뉴 ────────────────────────────────────────────────────────────────────
+function QuickMenuSection() {
+  const menus = [
+    { label: '연락처', href: '/contact', icon: Phone },
+    { label: '주소록', href: '/address', icon: MapPin },
+    { label: '교단로고', href: '/resources/logo', icon: BookOpen },
+    { label: '총회헌법', href: '/constitution', icon: FileText },
+    { label: '노회소식', href: '/presbytery/news', icon: Users },
+    { label: '후원하기', href: '/support', icon: ArrowRight },
+  ]
+
+  return (
+    <section className="bg-slate-800 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <p className="text-xs font-bold tracking-widest text-slate-400 uppercase mb-5">
+          Quick Menu
+        </p>
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+          {menus.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="flex flex-col items-center gap-2 py-4 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors"
             >
-              Learning
-            </a>{" "}
-            center.
+              <item.icon size={18} />
+              <span className="text-xs">{item.label}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─── 회원교회모집 배너 ──────────────────────────────────────────────────────────
+function MembershipBanner() {
+  return (
+    <section className="bg-sky-600 py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="text-white">
+          <h2 className="text-lg font-bold mb-1">
+            회원교회모집{' '}
+            <span className="font-light italic text-sky-200">Membership</span>
+          </h2>
+          <p className="text-sky-100 text-sm leading-relaxed">
+            누구나 멤버가 될 수 있습니다. 그러나 아무나 멤버가 될 수는 없습니다.
+            <br className="hidden sm:block" />
+            성경의 하나님의 말씀을 믿는 참된 그리스도인을 찾습니다.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        <Link
+          href="/membership"
+          className="shrink-0 inline-flex items-center gap-2 px-6 py-3 bg-white text-sky-700 font-semibold text-sm rounded-lg hover:bg-sky-50 transition-colors"
+        >
+          총회가입 신청하기 <ArrowRight size={15} />
+        </Link>
+      </div>
+    </section>
+  )
+}
+
+// ─── 포토갤러리 ─────────────────────────────────────────────────────────────────
+function GallerySection() {
+  return (
+    <section className="py-12 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="font-bold text-slate-800">포토갤러리</h2>
+          <Link
+            href="/gallery"
+            className="text-sm text-sky-600 hover:underline flex items-center gap-1"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            더보기 <ChevronRight size={14} />
+          </Link>
         </div>
-      </main>
-    </div>
-  );
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="aspect-video bg-slate-100 rounded-lg flex items-center justify-center text-slate-300 text-xs"
+            >
+              {/* 실제 이미지로 교체 예정 */}
+              사진 {i}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─── 신학 CTA ────────────────────────────────────────────────────────────────────
+function SeminaryCTA() {
+  return (
+    <section className="bg-slate-50 border-y border-slate-200 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+        <div>
+          <h2 className="text-xl font-bold text-slate-800 mb-2">신학하러 가자</h2>
+          <p className="text-slate-500 text-sm leading-relaxed max-w-lg">
+            예수님을 사랑하고{' '}
+            <span className="text-sky-600 font-medium">개혁신학</span>을 배우고 가르치는
+            것입니다.
+            <br />
+            7인의 개혁파 신학교수가 전신합니다. 3년 과정 졸업, 주 학사수 및 학원수
+          </p>
+        </div>
+        <Link
+          href="/seminary"
+          className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 border border-slate-300 text-slate-700 text-sm rounded-lg hover:bg-white transition-colors"
+        >
+          문의하기 <ArrowRight size={14} />
+        </Link>
+      </div>
+    </section>
+  )
+}
+
+// ─── 소개/미션 ──────────────────────────────────────────────────────────────────
+function AboutSection() {
+  return (
+    <section className="relative py-20 bg-slate-900 text-white overflow-hidden">
+      {/* 실제 이미지로 교체 예정: /images/about-bg.jpg */}
+      <div className="absolute inset-0 bg-[url('/images/about-bg.jpg')] bg-cover bg-center opacity-20" />
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 className="text-2xl sm:text-3xl font-bold mb-5">마스터스가 출발합니다!</h2>
+        <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto mb-8">
+          우리는 종교개혁의 후손으로서 개혁파 신앙을 고수합니다.
+          <br className="hidden sm:block" />
+          우리는 성경의 정박지를 벗어난 한국교회를 바로잡고자 합니다.
+          <br className="hidden sm:block" />
+          우리는 오직 말씀과 사랑으로 한국교회를 섬기고자 합니다.
+        </p>
+        <Link
+          href="/about"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-white text-slate-900 font-semibold text-sm rounded-lg hover:bg-slate-100 transition-colors"
+        >
+          더보기 <ArrowRight size={15} />
+        </Link>
+      </div>
+    </section>
+  )
+}
+
+// ─── 게시판 목록 ─────────────────────────────────────────────────────────────────
+function PostsSection() {
+  const boards = [
+    { title: '주말 인사', href: '/posts/greeting' },
+    { title: '자유 게시판', href: '/community/board' },
+    { title: '마스터스 메시지', href: '/posts/message' },
+    { title: 'PLUS VOICE', href: '/posts/voice' },
+  ]
+
+  return (
+    <section className="py-12 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {boards.map((board) => (
+            <div key={board.href}>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-semibold text-slate-800 text-sm">{board.title}</h2>
+                <Link href={board.href} className="text-xs text-sky-600 hover:underline">
+                  더보기
+                </Link>
+              </div>
+              <div className="h-28 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-center text-slate-300 text-xs">
+                게시글 없음
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─── 영상 ────────────────────────────────────────────────────────────────────────
+function VideosSection() {
+  return (
+    <section className="py-12 bg-slate-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="font-semibold text-slate-800">Masters Videos</h2>
+          <Link
+            href="/videos"
+            className="text-xs text-sky-600 hover:underline flex items-center gap-1"
+          >
+            더보기 <ChevronRight size={12} />
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="aspect-video bg-slate-200 rounded-lg flex items-center justify-center text-slate-400"
+            >
+              <Video size={28} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─── 홈 페이지 ──────────────────────────────────────────────────────────────────
+export default function HomePage() {
+  return (
+    <>
+      <HeroSection />
+      <QuickInfoSection />
+      <ServicesSection />
+      <QuickMenuSection />
+      <MembershipBanner />
+      <GallerySection />
+      <SeminaryCTA />
+      <AboutSection />
+      <PostsSection />
+      <VideosSection />
+    </>
+  )
 }
