@@ -14,18 +14,18 @@ import {
 // ─── 히어로 ────────────────────────────────────────────────────────────────────
 function HeroSection() {
   return (
-    <section className="relative h-[60vh] min-h-[400px] flex items-center justify-center overflow-hidden bg-linear-to-br from-slate-800 via-slate-700 to-slate-600">
+    <section className="relative h-[60vh] min-h-[420px] flex items-center justify-center overflow-hidden bg-linear-to-br from-slate-800 via-slate-700 to-slate-600">
       {/* 실제 이미지로 교체 예정: /images/hero-bg.jpg */}
       <div className="absolute inset-0 bg-[url('/images/hero-bg.jpg')] bg-cover bg-center opacity-30" />
 
       <div className="relative z-10 text-center text-white px-4">
-        <p className="text-xs font-semibold tracking-[0.3em] text-sky-300 mb-4 uppercase">
+        <p className="text-sm font-semibold tracking-[0.3em] text-sky-300 mb-4 uppercase">
           Masters Reformed Assembly
         </p>
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-5">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-5">
           마스터스개혁파총회
         </h1>
-        <p className="text-slate-300 text-sm sm:text-base max-w-sm mx-auto leading-relaxed">
+        <p className="text-slate-300 text-base sm:text-lg max-w-sm mx-auto leading-relaxed">
           성경의 진리 위에 세워진 개혁파 신앙 공동체
         </p>
       </div>
@@ -61,23 +61,23 @@ function QuickInfoSection() {
           {/* 총회소식 */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-slate-800 text-sm">총회소식</h2>
+              <h2 className="font-semibold text-slate-800 text-base">총회소식</h2>
               <Link
                 href="/news"
-                className="text-xs text-sky-600 hover:underline flex items-center gap-0.5"
+                className="text-sm text-sky-600 hover:underline flex items-center gap-0.5"
               >
-                더보기 <ChevronRight size={12} />
+                더보기 <ChevronRight size={14} />
               </Link>
             </div>
             <ul className="space-y-3">
               {notices.map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <span className="text-slate-400 text-xs shrink-0 mt-0.5 tabular-nums">
+                  <span className="text-slate-400 text-sm shrink-0 mt-0.5 tabular-nums">
                     {item.date}
                   </span>
                   <Link
                     href="/news"
-                    className="text-sm text-slate-600 hover:text-slate-900 line-clamp-1"
+                    className="text-base text-slate-600 hover:text-slate-900 line-clamp-1"
                   >
                     {item.title}
                   </Link>
@@ -89,23 +89,23 @@ function QuickInfoSection() {
           {/* 주요 일정 */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-slate-800 text-sm">주요 일정</h2>
+              <h2 className="font-semibold text-slate-800 text-base">주요 일정</h2>
               <Link
                 href="/calendar"
-                className="text-xs text-sky-600 hover:underline flex items-center gap-0.5"
+                className="text-sm text-sky-600 hover:underline flex items-center gap-0.5"
               >
-                더보기 <ChevronRight size={12} />
+                더보기 <ChevronRight size={14} />
               </Link>
             </div>
             <ul className="space-y-3">
               {events.map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <span className="text-slate-400 text-xs shrink-0 mt-0.5 tabular-nums">
+                  <span className="text-slate-400 text-sm shrink-0 mt-0.5 tabular-nums">
                     {item.date}
                   </span>
                   <Link
                     href="/calendar"
-                    className="text-sm text-slate-600 hover:text-slate-900 line-clamp-1"
+                    className="text-base text-slate-600 hover:text-slate-900 line-clamp-1"
                   >
                     {item.title}
                   </Link>
@@ -116,15 +116,15 @@ function QuickInfoSection() {
 
           {/* 바로가기 */}
           <div>
-            <h2 className="font-semibold text-slate-800 text-sm mb-4">바로가기</h2>
+            <h2 className="font-semibold text-slate-800 text-base mb-4">바로가기</h2>
             <div className="grid grid-cols-2 gap-2">
               {quickLinks.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="flex items-center gap-2 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 text-sm text-slate-700 transition-colors"
+                  className="flex items-center gap-2 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 text-base text-slate-700 transition-colors"
                 >
-                  <item.icon size={14} className="text-sky-600 shrink-0" />
+                  <item.icon size={16} className="text-sky-600 shrink-0" />
                   {item.label}
                 </Link>
               ))}
@@ -150,7 +150,7 @@ function ServicesSection() {
   return (
     <section className="bg-slate-50 py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-5">
+        <p className="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-5">
           자주찾는 서비스
         </p>
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
@@ -158,7 +158,7 @@ function ServicesSection() {
             <Link
               key={item.href}
               href={item.href}
-              className="flex items-center justify-center py-3 bg-white rounded-lg border border-slate-200 text-sm text-slate-600 hover:border-sky-300 hover:text-sky-700 transition-colors text-center"
+              className="flex items-center justify-center py-3.5 bg-white rounded-lg border border-slate-200 text-base text-slate-600 hover:border-sky-300 hover:text-sky-700 transition-colors text-center"
             >
               {item.label}
             </Link>
@@ -183,7 +183,7 @@ function QuickMenuSection() {
   return (
     <section className="bg-slate-800 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p className="text-xs font-bold tracking-widest text-slate-400 uppercase mb-5">
+        <p className="text-sm font-bold tracking-widest text-slate-400 uppercase mb-5">
           Quick Menu
         </p>
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
@@ -191,10 +191,10 @@ function QuickMenuSection() {
             <Link
               key={item.href}
               href={item.href}
-              className="flex flex-col items-center gap-2 py-4 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors"
+              className="flex flex-col items-center gap-2.5 py-5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors"
             >
-              <item.icon size={18} />
-              <span className="text-xs">{item.label}</span>
+              <item.icon size={22} />
+              <span className="text-sm">{item.label}</span>
             </Link>
           ))}
         </div>
@@ -209,11 +209,11 @@ function MembershipBanner() {
     <section className="bg-sky-600 py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
         <div className="text-white">
-          <h2 className="text-lg font-bold mb-1">
+          <h2 className="text-xl font-bold mb-2">
             회원교회모집{' '}
             <span className="font-light italic text-sky-200">Membership</span>
           </h2>
-          <p className="text-sky-100 text-sm leading-relaxed">
+          <p className="text-sky-100 text-base leading-relaxed">
             누구나 멤버가 될 수 있습니다. 그러나 아무나 멤버가 될 수는 없습니다.
             <br className="hidden sm:block" />
             성경의 하나님의 말씀을 믿는 참된 그리스도인을 찾습니다.
@@ -221,9 +221,9 @@ function MembershipBanner() {
         </div>
         <Link
           href="/membership"
-          className="shrink-0 inline-flex items-center gap-2 px-6 py-3 bg-white text-sky-700 font-semibold text-sm rounded-lg hover:bg-sky-50 transition-colors"
+          className="shrink-0 inline-flex items-center gap-2 px-6 py-3 bg-white text-sky-700 font-semibold text-base rounded-lg hover:bg-sky-50 transition-colors"
         >
-          총회가입 신청하기 <ArrowRight size={15} />
+          총회가입 신청하기 <ArrowRight size={16} />
         </Link>
       </div>
     </section>
@@ -236,19 +236,19 @@ function GallerySection() {
     <section className="py-12 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="font-bold text-slate-800">포토갤러리</h2>
+          <h2 className="font-bold text-slate-800 text-lg">포토갤러리</h2>
           <Link
             href="/gallery"
-            className="text-sm text-sky-600 hover:underline flex items-center gap-1"
+            className="text-base text-sky-600 hover:underline flex items-center gap-1"
           >
-            더보기 <ChevronRight size={14} />
+            더보기 <ChevronRight size={15} />
           </Link>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="aspect-video bg-slate-100 rounded-lg flex items-center justify-center text-slate-300 text-xs"
+              className="aspect-video bg-slate-100 rounded-lg flex items-center justify-center text-slate-300 text-sm"
             >
               {/* 실제 이미지로 교체 예정 */}
               사진 {i}
@@ -266,8 +266,8 @@ function SeminaryCTA() {
     <section className="bg-slate-50 border-y border-slate-200 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div>
-          <h2 className="text-xl font-bold text-slate-800 mb-2">신학하러 가자</h2>
-          <p className="text-slate-500 text-sm leading-relaxed max-w-lg">
+          <h2 className="text-2xl font-bold text-slate-800 mb-2">신학하러 가자</h2>
+          <p className="text-slate-500 text-base leading-relaxed max-w-lg">
             예수님을 사랑하고{' '}
             <span className="text-sky-600 font-medium">개혁신학</span>을 배우고 가르치는
             것입니다.
@@ -277,9 +277,9 @@ function SeminaryCTA() {
         </div>
         <Link
           href="/seminary"
-          className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 border border-slate-300 text-slate-700 text-sm rounded-lg hover:bg-white transition-colors"
+          className="shrink-0 inline-flex items-center gap-2 px-5 py-3 border border-slate-300 text-slate-700 text-base rounded-lg hover:bg-white transition-colors"
         >
-          문의하기 <ArrowRight size={14} />
+          문의하기 <ArrowRight size={15} />
         </Link>
       </div>
     </section>
@@ -293,8 +293,8 @@ function AboutSection() {
       {/* 실제 이미지로 교체 예정: /images/about-bg.jpg */}
       <div className="absolute inset-0 bg-[url('/images/about-bg.jpg')] bg-cover bg-center opacity-20" />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-2xl sm:text-3xl font-bold mb-5">마스터스가 출발합니다!</h2>
-        <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto mb-8">
+        <h2 className="text-3xl sm:text-4xl font-bold mb-5">마스터스가 출발합니다!</h2>
+        <p className="text-slate-300 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto mb-8">
           우리는 종교개혁의 후손으로서 개혁파 신앙을 고수합니다.
           <br className="hidden sm:block" />
           우리는 성경의 정박지를 벗어난 한국교회를 바로잡고자 합니다.
@@ -303,9 +303,9 @@ function AboutSection() {
         </p>
         <Link
           href="/about"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-white text-slate-900 font-semibold text-sm rounded-lg hover:bg-slate-100 transition-colors"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-white text-slate-900 font-semibold text-base rounded-lg hover:bg-slate-100 transition-colors"
         >
-          더보기 <ArrowRight size={15} />
+          더보기 <ArrowRight size={16} />
         </Link>
       </div>
     </section>
@@ -328,12 +328,12 @@ function PostsSection() {
           {boards.map((board) => (
             <div key={board.href}>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-semibold text-slate-800 text-sm">{board.title}</h2>
-                <Link href={board.href} className="text-xs text-sky-600 hover:underline">
+                <h2 className="font-semibold text-slate-800 text-base">{board.title}</h2>
+                <Link href={board.href} className="text-sm text-sky-600 hover:underline">
                   더보기
                 </Link>
               </div>
-              <div className="h-28 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-center text-slate-300 text-xs">
+              <div className="h-32 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-center text-slate-300 text-sm">
                 게시글 없음
               </div>
             </div>
@@ -350,12 +350,12 @@ function VideosSection() {
     <section className="py-12 bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="font-semibold text-slate-800">Masters Videos</h2>
+          <h2 className="font-semibold text-slate-800 text-lg">Masters Videos</h2>
           <Link
             href="/videos"
-            className="text-xs text-sky-600 hover:underline flex items-center gap-1"
+            className="text-sm text-sky-600 hover:underline flex items-center gap-1"
           >
-            더보기 <ChevronRight size={12} />
+            더보기 <ChevronRight size={14} />
           </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -364,7 +364,7 @@ function VideosSection() {
               key={i}
               className="aspect-video bg-slate-200 rounded-lg flex items-center justify-center text-slate-400"
             >
-              <Video size={28} />
+              <Video size={32} />
             </div>
           ))}
         </div>

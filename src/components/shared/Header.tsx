@@ -24,10 +24,10 @@ export function Header() {
         <div className="flex items-center justify-between h-16">
           {/* 로고 */}
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
-            <div className="w-8 h-8 bg-slate-800 rounded flex items-center justify-center text-white text-xs font-bold tracking-tight">
+            <div className="w-9 h-9 bg-slate-800 rounded flex items-center justify-center text-white text-sm font-bold tracking-tight">
               MRA
             </div>
-            <span className="font-semibold text-slate-800 hidden sm:block text-sm">
+            <span className="font-semibold text-slate-800 hidden sm:block text-base">
               마스터스개혁파총회
             </span>
           </Link>
@@ -38,7 +38,7 @@ export function Header() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="px-3 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-md transition-colors"
+                className="px-3 py-2 text-base text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-md transition-colors"
               >
                 {item.label}
               </Link>
@@ -51,7 +51,7 @@ export function Header() {
             className="lg:hidden p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             aria-label="메뉴 열기"
           >
-            {isOpen ? <X size={20} /> : <Menu size={20} />}
+            {isOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
       </div>
@@ -65,7 +65,7 @@ export function Header() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setIsOpen(false)}
-                className="block py-3 text-sm text-slate-600 hover:text-slate-900 border-b border-slate-50 last:border-0"
+                className="block py-3.5 text-base text-slate-600 hover:text-slate-900 border-b border-slate-50 last:border-0"
               >
                 {item.label}
               </Link>

@@ -6,10 +6,10 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           <div>
-            <p className="text-xs font-semibold tracking-widest text-slate-400 uppercase mb-4">
+            <p className="text-sm font-semibold tracking-widest text-slate-400 uppercase mb-4">
               Contact Us
             </p>
-            <ul className="space-y-2 text-sm leading-relaxed">
+            <ul className="space-y-2 text-base leading-relaxed">
               <li>본부(제주캠프): 제주특별자치도 제주시 한림읍 금악서길 27-23, A동 서길교회</li>
               <li>서울캠프: 서울시 은평구 대서문길15-11 3층 바로선개혁교회</li>
               <li>경기캠프: 경기도 평택시 이충로100번길 46, 2층 더항기#교회</li>
@@ -20,12 +20,12 @@ export function Footer() {
 
           <div className="flex flex-col md:items-end gap-5">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-slate-600 rounded flex items-center justify-center text-white text-xs font-bold">
+              <div className="w-9 h-9 bg-slate-600 rounded flex items-center justify-center text-white text-sm font-bold">
                 MRA
               </div>
-              <span className="text-white font-semibold text-sm">마스터스개혁파총회</span>
+              <span className="text-white font-semibold text-base">마스터스개혁파총회</span>
             </Link>
-            <div className="text-xs text-slate-400 flex items-center gap-3">
+            <div className="text-sm text-slate-400 flex items-center gap-3">
               <Link href="/privacy" className="hover:text-white transition-colors">
                 개인정보처리방침
               </Link>
@@ -40,7 +40,7 @@ export function Footer() {
 
       <div className="border-t border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <p className="text-xs text-slate-500">
+          <p className="text-sm text-slate-500">
             © Copyright 2024. 마스터스개혁파총회 All Rights Reserved.
           </p>
         </div>
