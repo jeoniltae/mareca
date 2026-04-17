@@ -10,28 +10,7 @@ import {
   MapPin,
   Video,
 } from 'lucide-react'
-
-// ─── 히어로 ────────────────────────────────────────────────────────────────────
-function HeroSection() {
-  return (
-    <section className="relative h-[60vh] min-h-[420px] flex items-center justify-center overflow-hidden bg-linear-to-br from-slate-800 via-slate-700 to-slate-600">
-      {/* 실제 이미지로 교체 예정: /images/hero-bg.jpg */}
-      <div className="absolute inset-0 bg-[url('/images/hero-bg.jpg')] bg-cover bg-center opacity-30" />
-
-      <div className="relative z-10 text-center text-white px-4">
-        <p className="text-sm font-semibold tracking-[0.3em] text-sky-300 mb-4 uppercase">
-          Masters Reformed Assembly
-        </p>
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-5">
-          마스터스개혁파총회
-        </h1>
-        <p className="text-slate-300 text-base sm:text-lg max-w-sm mx-auto leading-relaxed">
-          성경의 진리 위에 세워진 개혁파 신앙 공동체
-        </p>
-      </div>
-    </section>
-  )
-}
+import { HeroSlider } from '@/components/shared/HeroSlider'
 
 // ─── 총회소식 + 일정 + 바로가기 ────────────────────────────────────────────────
 function QuickInfoSection() {
@@ -377,7 +356,7 @@ function VideosSection() {
 export default function HomePage() {
   return (
     <>
-      <HeroSection />
+      <HeroSlider />
       <QuickInfoSection />
       <ServicesSection />
       <QuickMenuSection />

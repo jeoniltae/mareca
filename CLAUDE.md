@@ -16,6 +16,7 @@ UI는 모바일 우선 반응형 웹으로 제작한다.
 - Styling: Tailwind CSS + shadcn/ui
 - State: Zustand
 - Animation: Framer Motion (메가 메뉴 등 UI 전환 애니메이션)
+- Slider: Swiper (메인 히어로 슬라이더 — Parallax 효과)
 - Testing: Vitest (유틸 함수 단위 테스트만), 컴포넌트/E2E 테스트 없음 (의도적 결정)
 
 ### Backend
