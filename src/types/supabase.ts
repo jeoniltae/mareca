@@ -28,39 +28,67 @@ export interface Database {
           nickname?: string | null
           created_at?: string
         }
+        Relationships: []
       }
       posts: {
         Row: {
           id: string
           user_id: string
+          board: string
+          category: string
           title: string
-          content: string
+          content: string | null
           youtube_url: string | null
+          views: number
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
           user_id: string
+          board?: string
+          category?: string
           title: string
-          content: string
+          content?: string | null
           youtube_url?: string | null
+          views?: number
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
           user_id?: string
+          board?: string
+          category?: string
           title?: string
-          content?: string
+          content?: string | null
           youtube_url?: string | null
+          views?: number
           created_at?: string
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'posts_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
       }
     }
-    Views: Record<string, never>
-    Functions: Record<string, never>
-    Enums: Record<string, never>
+    Views: {
+      [_ in never]?: never
+    }
+    Functions: {
+      increment_views: {
+        Args: { post_id: string }
+        Returns: undefined
+      }
+    }
+    Enums: {
+      [_ in never]?: never
+    }
   }
 }

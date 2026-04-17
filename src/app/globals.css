@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -128,6 +129,12 @@
     @apply font-sans;
     font-size: 18px;
   }
+}
+
+/* @layer 바깥에 선언해야 utilities보다 높은 우선순위가 보장됩니다 */
+a,
+button {
+  cursor: pointer;
 }
 
 /* ─── Hero Background Animation ───────────────────────────────────────────── */

@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // LAN IP 접근 시 HMR WebSocket 허용 (모바일/다른 기기 테스트용)
+  allowedDevOrigins: ['192.168.219.108'],
 };
 
 export default nextConfig;

@@ -2,9 +2,11 @@
 
 import { useState, useRef, useEffect, useLayoutEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { Menu, X } from 'lucide-react'
+import { usePathname, useRouter } from 'next/navigation'
+import { Menu, X, LogIn, LogOut, User } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { createClient } from '@/lib/supabase'
+import type { User as SupabaseUser } from '@supabase/supabase-js'
 
 type SubItem = {
   label: string
@@ -107,10 +109,27 @@ const megaMenuVariants = {
 
 export function Header() {
   const pathname = usePathname()
+  const router = useRouter()
   const [isHeaderVisible, setIsHeaderVisible] = useState(true)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [openAccordion, setOpenAccordion] = useState<string | null>(null)
+  const [user, setUser] = useState<SupabaseUser | null>(null)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => setUser(data.user))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setUser(session?.user ?? null)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const handleLogout = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.refresh()
+  }
 
   // refs는 이를 사용하는 effect보다 먼저 선언
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -267,6 +286,28 @@ export function Header() {
               </AnimatePresence>
             </div>
 
+            {/* 데스크탑 로그인/유저 버튼 */}
+            <div className="hidden lg:flex items-center">
+              {user ? (
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-md transition-colors"
+                >
+                  <User size={15} />
+                  <span className="max-w-[80px] truncate">{user.email?.split('@')[0]}</span>
+                  <LogOut size={14} className="text-slate-400" />
+                </button>
+              ) : (
+                <Link
+                  href="/login"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-md transition-colors"
+                >
+                  <LogIn size={15} />
+                  로그인
+                </Link>
+              )}
+            </div>
+
             {/* 모바일 토글 */}
             <button
               onClick={() => setIsMobileOpen(!isMobileOpen)}
@@ -289,6 +330,29 @@ export function Header() {
               className="lg:hidden border-t border-slate-100 bg-white overflow-hidden"
             >
               <nav className="max-w-7xl mx-auto px-4 py-2">
+                {/* 모바일 로그인/로그아웃 */}
+                <div className="border-b border-slate-100 py-3">
+                  {user ? (
+                    <button
+                      onClick={() => { handleLogout(); setIsMobileOpen(false) }}
+                      className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 transition-colors"
+                    >
+                      <User size={15} />
+                      <span>{user.email?.split('@')[0]}</span>
+                      <LogOut size={14} className="text-slate-400 ml-1" />
+                    </button>
+                  ) : (
+                    <Link
+                      href="/login"
+                      onClick={() => setIsMobileOpen(false)}
+                      className="flex items-center gap-2 text-sm font-medium text-sky-600 hover:text-sky-700 transition-colors"
+                    >
+                      <LogIn size={15} />
+                      로그인
+                    </Link>
+                  )}
+                </div>
+
                 {NAV_ITEMS.map((item) => {
                   const hasSubItems = item.subItems && item.subItems.length > 0
                   const isOpen = openAccordion === item.href
