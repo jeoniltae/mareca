@@ -231,9 +231,7 @@ export function Header() {
           <div className="flex items-center justify-between h-16">
             {/* 로고 */}
             <Link href="/" className="flex items-center gap-2.5 shrink-0">
-              <div className="w-9 h-9 bg-slate-800 rounded flex items-center justify-center text-white text-sm font-bold tracking-tight">
-                MRA
-              </div>
+              <img src="/images/logo.jpg" alt="마스터스개혁파총회 로고" width={65} height={65} className="rounded object-cover" />
               <span className="font-semibold text-slate-800 hidden sm:block text-base">
                 마스터스개혁파총회
               </span>

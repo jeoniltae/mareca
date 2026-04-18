@@ -212,7 +212,7 @@ export default function LoginPage() {
             disabled={loading || !email}
             onClick={handleSendLink}
             className={cn(
-              'w-full flex items-center justify-center gap-2 py-3 border border-slate-200 text-slate-600 text-sm font-medium rounded-xl hover:bg-slate-50 transition-colors',
+              'w-full flex items-center justify-center gap-2 py-3 border-2 border-sky-600 text-sky-600 text-sm font-semibold rounded-xl hover:bg-sky-50 transition-colors',
               (loading || !email) && 'opacity-60 cursor-not-allowed',
             )}
           >
