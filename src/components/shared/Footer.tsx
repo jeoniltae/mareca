@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { PolicyModals } from './PolicyModals'
 
 export function Footer() {
   return (
@@ -23,15 +24,7 @@ export function Footer() {
               <img src="/images/logo.jpg" alt="마스터스개혁파총회 로고" width={65} height={65} className="rounded object-cover" />
               <span className="text-white font-semibold text-base">마스터스개혁파총회</span>
             </Link>
-            <div className="text-sm text-slate-400 flex items-center gap-3">
-              <Link href="/privacy" className="hover:text-white transition-colors">
-                개인정보처리방침
-              </Link>
-              <span>|</span>
-              <Link href="/no-spam" className="hover:text-white transition-colors">
-                이메일무단수집거부
-              </Link>
-            </div>
+            <PolicyModals />
           </div>
         </div>
       </div>
