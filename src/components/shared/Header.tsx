@@ -125,9 +125,14 @@ export function Header() {
     return () => subscription.unsubscribe()
   }, [])
 
-  const handleLogout = async () => {
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+
+  const handleLogout = () => setShowLogoutConfirm(true)
+
+  const handleLogoutConfirm = async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
+    setShowLogoutConfirm(false)
     router.refresh()
   }
 
@@ -436,6 +441,50 @@ export function Header() {
 
       {/* fixed 헤더 높이만큼 공간 확보 */}
       <div className="h-16" aria-hidden="true" />
+
+      {/* 로그아웃 확인 모달 */}
+      <AnimatePresence>
+        {showLogoutConfirm && (
+          <>
+            <motion.div
+              key="logout-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-black/50"
+              onClick={() => setShowLogoutConfirm(false)}
+              aria-hidden="true"
+            />
+            <motion.div
+              key="logout-modal"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.15 }}
+              className="fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-xl"
+            >
+              <h2 className="text-base font-semibold text-slate-900 mb-1">로그아웃</h2>
+              <p className="text-sm text-slate-500 mb-6">정말 로그아웃 하시겠어요?</p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowLogoutConfirm(false)}
+                  className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+                >
+                  취소
+                </button>
+                <button
+                  type="button"
+                  onClick={handleLogoutConfirm}
+                  className="flex-1 py-2.5 rounded-xl bg-red-500 text-sm font-semibold text-white hover:bg-red-600 transition-colors"
+                >
+                  로그아웃
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </>
   )
 }
