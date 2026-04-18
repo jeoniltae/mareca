@@ -146,6 +146,15 @@ export function Header() {
     isMenuOpenRef.current = isMenuOpen
   }, [isMenuOpen])
 
+  useEffect(() => {
+    if (isMobileOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [isMobileOpen])
+
   // useLayoutEffect: 페인트 전에 실행 → Next.js 스크롤 복원(useEffect)보다 먼저 가드 설정
   // useEffect는 자식→부모 순서라 page의 스크롤 복원 effect가 Header effect보다 먼저 실행됨
   // useLayoutEffect는 페인트 전 실행이므로 스크롤 복원 전에 isNavigatingRef를 true로 설정 가능
@@ -181,10 +190,6 @@ export function Header() {
       if (isMenuOpenRef.current || isNavigatingRef.current) return
 
       const currentScrollY = window.scrollY
-
-      // 스크롤 발생 시 모바일 메뉴 초기화
-      setIsMobileOpen(false)
-      setOpenAccordion(null)
 
       if (currentScrollY < 10) {
         setIsHeaderVisible(true)
@@ -324,118 +329,117 @@ export function Header() {
           </div>
         </div>
 
-        {/* 모바일 메뉴 */}
-        <AnimatePresence>
-          {isMobileOpen && (
-            <motion.div
-              key="mobile-menu"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto', transition: { duration: 0.2, ease: 'easeOut' as const } }}
-              exit={{ opacity: 0, height: 0, transition: { duration: 0.15, ease: 'easeIn' as const } }}
-              className="lg:hidden border-t border-slate-100 bg-white overflow-hidden"
-            >
-              <nav className="max-w-7xl mx-auto px-4 py-2">
-                {/* 모바일 로그인/로그아웃 */}
-                <div className="border-b border-slate-100 py-3">
-                  {user ? (
-                    <button
-                      onClick={() => { handleLogout(); setIsMobileOpen(false) }}
-                      className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 transition-colors"
-                    >
-                      <User size={15} />
-                      <span>{user.email?.split('@')[0]}</span>
-                      <LogOut size={14} className="text-slate-400 ml-1" />
-                    </button>
-                  ) : (
-                    <Link
-                      href="/login"
-                      onClick={() => setIsMobileOpen(false)}
-                      className="flex items-center gap-2 text-sm font-medium text-sky-600 hover:text-sky-700 transition-colors"
-                    >
-                      <LogIn size={15} />
-                      로그인
-                    </Link>
-                  )}
-                </div>
-
-                {NAV_ITEMS.map((item) => {
-                  const hasSubItems = item.subItems && item.subItems.length > 0
-                  const isOpen = openAccordion === item.href
-
-                  return (
-                    <div key={item.href} className="border-b border-slate-50 last:border-0">
-                      {hasSubItems ? (
-                        <>
-                          {/* 아코디언 토글 버튼 */}
-                          <button
-                            onClick={() => setOpenAccordion(isOpen ? null : item.href)}
-                            className="flex items-center justify-between w-full py-3.5 text-base text-slate-600 hover:text-slate-900 text-left"
-                          >
-                            {item.label}
-                            <motion.span
-                              animate={{ rotate: isOpen ? 180 : 0 }}
-                              transition={{ duration: 0.2 }}
-                              className="text-slate-400 shrink-0 ml-2"
-                            >
-                              ▾
-                            </motion.span>
-                          </button>
-
-                          {/* 서브메뉴 */}
-                          <AnimatePresence initial={false}>
-                            {isOpen && (
-                              <motion.ul
-                                key="sub"
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1, transition: { duration: 0.2, ease: 'easeOut' as const } }}
-                                exit={{ height: 0, opacity: 0, transition: { duration: 0.15, ease: 'easeIn' as const } }}
-                                className="overflow-hidden bg-slate-50 rounded-md mb-2"
-                              >
-                                {item.subItems?.map((sub) => (
-                                  <li key={sub.href}>
-                                    <Link
-                                      href={sub.href}
-                                      onClick={() => { setIsMobileOpen(false); setOpenAccordion(null) }}
-                                      className="block px-4 py-3 text-sm text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                                    >
-                                      {sub.label}
-                                    </Link>
-                                  </li>
-                                ))}
-                              </motion.ul>
-                            )}
-                          </AnimatePresence>
-                        </>
-                      ) : (
-                        <Link
-                          href={item.href}
-                          onClick={() => setIsMobileOpen(false)}
-                          className="block py-3.5 text-base text-slate-600 hover:text-slate-900"
-                        >
-                          {item.label}
-                        </Link>
-                      )}
-                    </div>
-                  )
-                })}
-              </nav>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </motion.header>
 
-      {/* 딤드 오버레이 — 메가 메뉴 또는 모바일 메뉴 열릴 때 */}
+      {/* 딤드 오버레이 — 데스크탑 메가 메뉴 열릴 때 */}
       <AnimatePresence>
-        {(isMenuOpen || isMobileOpen) && (
+        {isMenuOpen && (
           <motion.div
             key="dimmed"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1, transition: { duration: 0.2 } }}
             exit={{ opacity: 0, transition: { duration: 0.15 } }}
             className="fixed inset-0 top-16 z-40 bg-black/40"
-            onClick={() => { setIsMenuOpen(false); setIsMobileOpen(false); setOpenAccordion(null) }}
+            onClick={() => { setIsMenuOpen(false); setOpenAccordion(null) }}
             aria-hidden="true"
           />
+        )}
+      </AnimatePresence>
+
+      {/* 모바일 메뉴 — 헤더 아래 고정 패널 (자체 스크롤) */}
+      <AnimatePresence>
+        {isMobileOpen && (
+          <motion.div
+            key="mobile-menu"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, transition: { duration: 0.2 } }}
+            exit={{ opacity: 0, transition: { duration: 0.15 } }}
+            className="fixed top-16 left-0 right-0 bottom-0 z-40 bg-white overflow-y-auto lg:hidden"
+          >
+            <nav className="max-w-7xl mx-auto px-4 py-2">
+              {/* 모바일 로그인/로그아웃 */}
+              <div className="border-b border-slate-100 py-3">
+                {user ? (
+                  <button
+                    onClick={() => { handleLogout(); setIsMobileOpen(false) }}
+                    className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 transition-colors"
+                  >
+                    <User size={15} />
+                    <span>{user.email?.split('@')[0]}</span>
+                    <LogOut size={14} className="text-slate-400 ml-1" />
+                  </button>
+                ) : (
+                  <Link
+                    href="/login"
+                    onClick={() => setIsMobileOpen(false)}
+                    className="flex items-center gap-2 text-sm font-medium text-sky-600 hover:text-sky-700 transition-colors"
+                  >
+                    <LogIn size={15} />
+                    로그인
+                  </Link>
+                )}
+              </div>
+
+              {NAV_ITEMS.map((item) => {
+                const hasSubItems = item.subItems && item.subItems.length > 0
+                const isOpen = openAccordion === item.href
+
+                return (
+                  <div key={item.href} className="border-b border-slate-50 last:border-0">
+                    {hasSubItems ? (
+                      <>
+                        <button
+                          onClick={() => setOpenAccordion(isOpen ? null : item.href)}
+                          className="flex items-center justify-between w-full py-3.5 text-base text-slate-600 hover:text-slate-900 text-left"
+                        >
+                          {item.label}
+                          <motion.span
+                            animate={{ rotate: isOpen ? 180 : 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="text-slate-400 shrink-0 ml-2"
+                          >
+                            ▾
+                          </motion.span>
+                        </button>
+
+                        <AnimatePresence initial={false}>
+                          {isOpen && (
+                            <motion.ul
+                              key="sub"
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1, transition: { duration: 0.2, ease: 'easeOut' as const } }}
+                              exit={{ height: 0, opacity: 0, transition: { duration: 0.15, ease: 'easeIn' as const } }}
+                              className="overflow-hidden bg-slate-50 rounded-md mb-2"
+                            >
+                              {item.subItems?.map((sub) => (
+                                <li key={sub.href}>
+                                  <Link
+                                    href={sub.href}
+                                    onClick={() => { setIsMobileOpen(false); setOpenAccordion(null) }}
+                                    className="block px-4 py-3 text-sm text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                                  >
+                                    {sub.label}
+                                  </Link>
+                                </li>
+                              ))}
+                            </motion.ul>
+                          )}
+                        </AnimatePresence>
+                      </>
+                    ) : (
+                      <Link
+                        href={item.href}
+                        onClick={() => setIsMobileOpen(false)}
+                        className="block py-3.5 text-base text-slate-600 hover:text-slate-900"
+                      >
+                        {item.label}
+                      </Link>
+                    )}
+                  </div>
+                )
+              })}
+            </nav>
+          </motion.div>
         )}
       </AnimatePresence>
 
