@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { ImageOff } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -12,6 +12,15 @@ interface GalleryImageProps {
 
 export function GalleryImage({ src, alt, className }: GalleryImageProps) {
   const [broken, setBroken] = useState(false)
+  const imgRef = useRef<HTMLImageElement>(null)
+
+  useEffect(() => {
+    // React onError가 붙기 전에 이미 로드 실패한 경우를 캐치
+    const img = imgRef.current
+    if (img && img.complete && img.naturalWidth === 0) {
+      setBroken(true)
+    }
+  }, [])
 
   if (broken) {
     return (
@@ -29,6 +38,7 @@ export function GalleryImage({ src, alt, className }: GalleryImageProps) {
 
   return (
     <img
+      ref={imgRef}
       src={src}
       alt={alt}
       className={className}

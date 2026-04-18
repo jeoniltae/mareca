@@ -1,9 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Keyboard } from 'swiper/modules'
+import type { Swiper as SwiperType } from 'swiper'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, ChevronLeft, ChevronRight, ImageOff } from 'lucide-react'
 import { GalleryImage } from './GalleryImage'
+
+import 'swiper/css'
 
 interface GalleryImageViewerProps {
   images: string[]
@@ -25,7 +30,7 @@ function LightboxImage({ src, alt }: { src: string; alt: string }) {
     <img
       src={src}
       alt={alt}
-      className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
+      className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
       onError={() => setBroken(true)}
     />
   )
@@ -33,10 +38,13 @@ function LightboxImage({ src, alt }: { src: string; alt: string }) {
 
 export function GalleryImageViewer({ images }: GalleryImageViewerProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+  const [activeIndex, setActiveIndex] = useState(0)
+  const swiperRef = useRef<SwiperType | null>(null)
 
   const isOpen = lightboxIndex !== null
 
   function openAt(i: number) {
+    setActiveIndex(i)
     setLightboxIndex(i)
   }
 
@@ -44,20 +52,10 @@ export function GalleryImageViewer({ images }: GalleryImageViewerProps) {
     setLightboxIndex(null)
   }
 
-  function prev() {
-    setLightboxIndex((i) => (i !== null ? (i - 1 + images.length) % images.length : null))
-  }
-
-  function next() {
-    setLightboxIndex((i) => (i !== null ? (i + 1) % images.length : null))
-  }
-
   useEffect(() => {
     if (!isOpen) return
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') close()
-      if (e.key === 'ArrowLeft') prev()
-      if (e.key === 'ArrowRight') next()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -120,54 +118,74 @@ export function GalleryImageViewer({ images }: GalleryImageViewerProps) {
               <X size={20} />
             </button>
 
-            {/* 이미지 */}
+            {/* Swiper */}
             <motion.div
-              key={`lb-img-${lightboxIndex}`}
-              initial={{ opacity: 0, scale: 0.94 }}
+              key="lb-swiper"
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1, transition: { type: 'spring', stiffness: 300, damping: 28 } }}
-              exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.15 } }}
-              className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none px-16"
+              exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
+              className="fixed inset-0 z-50 flex items-center justify-center"
+              onClick={close}
             >
-              <LightboxImage
-                src={images[lightboxIndex]}
-                alt={`이미지 ${lightboxIndex + 1}`}
-              />
+              <div
+                className="w-full sm:px-14"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Swiper
+                  key={lightboxIndex}
+                  modules={[Keyboard]}
+                  initialSlide={lightboxIndex}
+                  keyboard={{ enabled: true }}
+                  loop={images.length > 1}
+                  onSwiper={(swiper) => { swiperRef.current = swiper }}
+                  onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
+                  className="w-full"
+                >
+                  {images.map((url, i) => (
+                    <SwiperSlide key={url}>
+                      <div className="flex items-center justify-center h-[80vh] px-4">
+                        <LightboxImage src={url} alt={`이미지 ${i + 1}`} />
+                      </div>
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              </div>
             </motion.div>
 
-            {/* 이전 버튼 */}
+            {/* 이전/다음 버튼 — 데스크탑만 표시 */}
             {images.length > 1 && (
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); prev() }}
-                className="fixed left-3 top-1/2 -translate-y-1/2 z-50 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
-                aria-label="이전 이미지"
-              >
-                <ChevronLeft size={22} />
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => swiperRef.current?.slidePrev()}
+                  className="hidden sm:flex fixed left-3 top-1/2 -translate-y-1/2 z-50 w-10 h-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                  aria-label="이전 이미지"
+                >
+                  <ChevronLeft size={22} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => swiperRef.current?.slideNext()}
+                  className="hidden sm:flex fixed right-3 top-1/2 -translate-y-1/2 z-50 w-10 h-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                  aria-label="다음 이미지"
+                >
+                  <ChevronRight size={22} />
+                </button>
+              </>
             )}
 
-            {/* 다음 버튼 */}
+            {/* 페이징 점 — 모바일·데스크탑 모두 표시 */}
             {images.length > 1 && (
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); next() }}
-                className="fixed right-3 top-1/2 -translate-y-1/2 z-50 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
-                aria-label="다음 이미지"
-              >
-                <ChevronRight size={22} />
-              </button>
-            )}
-
-            {/* 인디케이터 */}
-            {images.length > 1 && (
-              <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5">
+              <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2">
                 {images.map((_, i) => (
                   <button
                     key={i}
                     type="button"
-                    onClick={(e) => { e.stopPropagation(); setLightboxIndex(i) }}
-                    className={`w-2 h-2 rounded-full transition-all ${
-                      i === lightboxIndex ? 'bg-white scale-125' : 'bg-white/40 hover:bg-white/70'
+                    onClick={() => swiperRef.current?.slideTo(i)}
+                    className={`rounded-full transition-all duration-200 ${
+                      i === activeIndex
+                        ? 'w-2.5 h-2.5 bg-white'
+                        : 'w-2 h-2 bg-white/40 hover:bg-white/70'
                     }`}
                     aria-label={`이미지 ${i + 1}`}
                   />
