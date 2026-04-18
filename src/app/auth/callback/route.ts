@@ -11,5 +11,6 @@ export async function GET(request: Request) {
     await supabase.auth.exchangeCodeForSession(code)
   }
 
-  return NextResponse.redirect(`${origin}${next}`)
+  const safeOrigin = origin.replace('//0.0.0.0', '//localhost')
+  return NextResponse.redirect(`${safeOrigin}${next}`)
 }
