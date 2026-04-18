@@ -27,7 +27,7 @@ export async function uploadGalleryImage(formData: FormData): Promise<string> {
   if (!file) throw new Error('파일이 없습니다')
 
   const ext = file.name.split('.').pop()
-  const path = `gallery/${user.id}/${Date.now()}.${ext}`
+  const path = `${user.id}/${Date.now()}.${ext}`
 
   const { error: uploadError } = await supabase.storage.from(BUCKET).upload(path, file)
   if (uploadError) throw new Error(uploadError.message)

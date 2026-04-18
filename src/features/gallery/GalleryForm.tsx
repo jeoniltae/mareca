@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ImagePlus, X, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { uploadGalleryImage, createGalleryPost, updateGalleryPost } from './actions'
+import { GalleryImage } from './GalleryImage'
 
 interface GalleryFormProps {
   mode: 'create' | 'edit'
@@ -154,7 +155,7 @@ export function GalleryForm({
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 mt-3">
             {images.map((url, i) => (
               <div key={url} className="relative group aspect-square">
-                <img
+                <GalleryImage
                   src={url}
                   alt={`이미지 ${i + 1}`}
                   className="w-full h-full object-cover rounded-lg"

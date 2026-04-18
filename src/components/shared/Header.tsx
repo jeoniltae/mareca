@@ -302,7 +302,7 @@ export function Header() {
                   className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-md transition-colors"
                 >
                   <User size={15} />
-                  <span className="max-w-[80px] truncate">{user.email?.split('@')[0]}</span>
+                  <span className="max-w-[150px] truncate">{user.email?.split('@')[0]}</span>
                   <LogOut size={14} className="text-slate-400" />
                 </button>
               ) : (

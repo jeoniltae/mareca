@@ -186,7 +186,7 @@ function PostRow({ post, isPinned }: PostRowProps) {
       </div>
 
       <div className="shrink-0 flex items-center gap-3 text-xs text-slate-400">
-        <span className="hidden sm:block w-14 text-right truncate">
+        <span className="hidden sm:block w-28 text-right truncate">
           {post.profiles?.nickname ?? '알 수 없음'}
         </span>
         <span className="w-10 text-right">{formatted}</span>

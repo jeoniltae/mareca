@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase-server'
 import { PageHeader } from '@/components/shared/PageHeader'
 import Link from 'next/link'
 import { PenSquare, Images } from 'lucide-react'
+import { GalleryImage } from '@/features/gallery/GalleryImage'
 
 export const metadata = { title: '갤러리' }
 
@@ -68,7 +69,7 @@ export default async function CommunityGalleryPage() {
                   {/* 썸네일 */}
                   <div className="relative aspect-square bg-slate-100 overflow-hidden">
                     {post.thumbnail_url ? (
-                      <img
+                      <GalleryImage
                         src={post.thumbnail_url}
                         alt={post.title}
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"

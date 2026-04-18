@@ -2,10 +2,33 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, ImageOff } from 'lucide-react'
+import { GalleryImage } from './GalleryImage'
 
 interface GalleryImageViewerProps {
   images: string[]
+}
+
+function LightboxImage({ src, alt }: { src: string; alt: string }) {
+  const [broken, setBroken] = useState(false)
+
+  if (broken) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 w-80 h-60 rounded-xl bg-white/10 text-white/60">
+        <ImageOff size={36} strokeWidth={1.5} />
+        <span className="text-sm">이미지를 불러올 수 없습니다</span>
+      </div>
+    )
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
+      onError={() => setBroken(true)}
+    />
+  )
 }
 
 export function GalleryImageViewer({ images }: GalleryImageViewerProps) {
@@ -62,7 +85,7 @@ export function GalleryImageViewer({ images }: GalleryImageViewerProps) {
             onClick={() => openAt(i)}
             className="relative aspect-square overflow-hidden rounded-xl group focus:outline-none focus:ring-2 focus:ring-sky-400"
           >
-            <img
+            <GalleryImage
               src={url}
               alt={`이미지 ${i + 1}`}
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
@@ -105,10 +128,9 @@ export function GalleryImageViewer({ images }: GalleryImageViewerProps) {
               exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.15 } }}
               className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none px-16"
             >
-              <img
+              <LightboxImage
                 src={images[lightboxIndex]}
                 alt={`이미지 ${lightboxIndex + 1}`}
-                className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
               />
             </motion.div>
 
