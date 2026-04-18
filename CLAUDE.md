@@ -141,6 +141,12 @@ src/
 
 ## TODO (미해결 이슈)
 
+- **[미구현] 최초 로그인 시 닉네임 수집 기능**
+  - 배경: 이메일 OTP 로그인 성공 후 닉네임이 없는 사용자를 닉네임 입력 화면으로 안내하는 기능을 구현하다가, OTP 시간당 2회 제한으로 테스트가 어려워 일시 제거
+  - 현재 상태: 로그인 성공 시 무조건 홈(`/`)으로 이동, 닉네임 없으면 이메일 주소가 그대로 표시됨
+  - 준비된 코드: `src/features/auth/actions.ts`에 `checkNeedsNickname()`, `saveNickname()` Server Action 이미 구현됨
+  - 재구현 시 참고: `src/app/auth/callback/route.ts`에 닉네임 체크 후 `/login?setup=nickname` 리다이렉트 코드가 남아 있으나 현재 로그인 페이지가 로그인 상태이면 홈으로 보내므로 실질적으로 동작하지 않음 — 함께 정리 필요
+
 - **[미해결] 404/500 페이지에서 "이전 페이지" 버튼(BackButton) 클릭 후 GNB 애니메이션·인터랙션 불작동**
   - 증상: 404/500 같은 하드 네비게이션 페이지에서 `router.back()` 또는 `history.back()` 사용 시 이전 페이지로 돌아왔을 때 Header의 Framer Motion 애니메이션 및 hover 인터랙션이 동작하지 않음
   - "홈으로 가기"(`Link href="/"`) 클릭 시에는 정상 동작

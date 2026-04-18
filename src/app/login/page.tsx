@@ -1,35 +1,31 @@
 'use client'
 
-import { useState, useEffect, useTransition } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
-import { Mail, Hash, Loader2, ArrowLeft, UserCircle2, AlertTriangle } from 'lucide-react'
+import { Mail, Hash, Loader2, ArrowLeft, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { checkNeedsNickname, saveNickname } from '@/features/auth/actions'
 
 type Step =
   | { type: 'input' }
   | { type: 'link_sent' }
   | { type: 'otp_verify' }
-  | { type: 'setup_nickname' }
 
 export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [otp, setOtp] = useState('')
-  const [nickname, setNickname] = useState('')
   const [step, setStep] = useState<Step>({ type: 'input' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [isPending, startTransition] = useTransition()
 
   const supabase = createClient()
 
-  // Magic Link 콜백 후 ?setup=nickname 파라미터 감지
+  // 이미 로그인된 상태이면 홈으로 이동
   useEffect(() => {
-    if (window.location.search.includes('setup=nickname')) {
-      setStep({ type: 'setup_nickname' })
-    }
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) router.replace('/')
+    })
   }, [])
 
   async function handleSendLink() {
@@ -78,77 +74,13 @@ export default function LoginPage() {
       token: otp.trim(),
       type: 'email',
     })
+    setLoading(false)
     if (error) {
-      setLoading(false)
       setError('코드가 올바르지 않거나 만료되었습니다.')
       return
     }
-
-    // 닉네임 미설정 여부 확인
-    const needsNickname = await checkNeedsNickname()
-    setLoading(false)
-    if (needsNickname) {
-      setStep({ type: 'setup_nickname' })
-    } else {
-      router.push('/')
-      router.refresh()
-    }
-  }
-
-  function handleSaveNickname(e: React.FormEvent) {
-    e.preventDefault()
-    if (!nickname.trim()) return
-    setError(null)
-    startTransition(async () => {
-      try {
-        await saveNickname(nickname)
-        router.push('/')
-        router.refresh()
-      } catch {
-        setError('닉네임 저장에 실패했습니다. 다시 시도해주세요.')
-      }
-    })
-  }
-
-  // ── 닉네임 설정 ────────────────────────────────────────────────────────────
-  if (step.type === 'setup_nickname') {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center px-4">
-        <div className="w-full max-w-sm">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-sky-50 mb-4">
-              <UserCircle2 size={24} className="text-sky-500" />
-            </div>
-            <h1 className="text-2xl font-bold text-slate-900 mb-2">닉네임 설정</h1>
-            <p className="text-sm text-slate-500">사이트에서 사용할 이름을 입력해주세요</p>
-          </div>
-
-          <form onSubmit={handleSaveNickname} className="space-y-4">
-            <input
-              type="text"
-              required
-              autoFocus
-              maxLength={20}
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              placeholder="닉네임 입력 (최대 20자)"
-              className="w-full px-4 py-3 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 transition-all"
-            />
-
-            {error && <p className="text-sm text-red-500 text-center">{error}</p>}
-
-            <button
-              type="submit"
-              disabled={isPending || !nickname.trim()}
-              className="w-full flex items-center justify-center gap-2 py-3 bg-sky-600 text-white font-semibold text-sm rounded-xl hover:bg-sky-700 transition-colors disabled:opacity-60"
-            >
-              {isPending ? <Loader2 size={16} className="animate-spin" /> : null}
-              {isPending ? '저장 중...' : '시작하기'}
-            </button>
-          </form>
-        </div>
-      </div>
-    )
+    router.push('/')
+    router.refresh()
   }
 
   // ── 링크 전송 완료 ─────────────────────────────────────────────────────────
