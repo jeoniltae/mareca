@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useLayoutEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Menu, X, LogIn, LogOut, User } from 'lucide-react'
+import { Menu, X, LogIn, LogOut, User, CheckCircle2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
@@ -126,6 +126,7 @@ export function Header() {
   }, [])
 
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+  const [showLogoutToast, setShowLogoutToast] = useState(false)
 
   const handleLogout = () => setShowLogoutConfirm(true)
 
@@ -133,6 +134,8 @@ export function Header() {
     const supabase = createClient()
     await supabase.auth.signOut()
     setShowLogoutConfirm(false)
+    setShowLogoutToast(true)
+    setTimeout(() => setShowLogoutToast(false), 2500)
     router.refresh()
   }
 
@@ -443,6 +446,23 @@ export function Header() {
 
       {/* fixed 헤더 높이만큼 공간 확보 */}
       <div className="h-16" aria-hidden="true" />
+
+      {/* 로그아웃 성공 토스트 */}
+      <AnimatePresence>
+        {showLogoutToast && (
+          <motion.div
+            key="logout-toast"
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.2 }}
+            className="fixed top-20 left-1/2 z-50 -translate-x-1/2 flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-slate-900 text-white text-sm font-medium shadow-xl"
+          >
+            <CheckCircle2 size={18} className="text-emerald-400 shrink-0" />
+            로그아웃 되었습니다
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 로그아웃 확인 모달 */}
       <AnimatePresence>
