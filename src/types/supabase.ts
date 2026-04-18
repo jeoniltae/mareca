@@ -1,15 +1,4 @@
-// 이 파일은 `npm run db:types` 명령으로 자동 생성됩니다.
-// Supabase 프로젝트와 연결 후 재생성하세요.
-
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
-
-export interface Database {
+export type Database = {
   public: {
     Tables: {
       profiles: {
@@ -39,6 +28,7 @@ export interface Database {
           title: string
           content: string | null
           youtube_url: string | null
+          thumbnail_url: string | null
           views: number
           created_at: string
           updated_at: string
@@ -46,11 +36,12 @@ export interface Database {
         Insert: {
           id?: string
           user_id: string
-          board?: string
+          board: string
           category?: string
           title: string
           content?: string | null
           youtube_url?: string | null
+          thumbnail_url?: string | null
           views?: number
           created_at?: string
           updated_at?: string
@@ -63,6 +54,7 @@ export interface Database {
           title?: string
           content?: string | null
           youtube_url?: string | null
+          thumbnail_url?: string | null
           views?: number
           created_at?: string
           updated_at?: string
@@ -71,24 +63,51 @@ export interface Database {
           {
             foreignKeyName: 'posts_user_id_fkey'
             columns: ['user_id']
-            isOneToOne: false
             referencedRelation: 'profiles'
             referencedColumns: ['id']
-          },
+          }
+        ]
+      }
+      post_images: {
+        Row: {
+          id: string
+          post_id: string
+          url: string
+          display_order: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          post_id: string
+          url: string
+          display_order?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          post_id?: string
+          url?: string
+          display_order?: number
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'post_images_post_id_fkey'
+            columns: ['post_id']
+            referencedRelation: 'posts'
+            referencedColumns: ['id']
+          }
         ]
       }
     }
-    Views: {
-      [_ in never]?: never
-    }
+    Views: Record<string, never>
     Functions: {
       increment_views: {
         Args: { post_id: string }
         Returns: undefined
       }
     }
-    Enums: {
-      [_ in never]?: never
-    }
+    Enums: Record<string, never>
+    CompositeTypes: Record<string, never>
   }
 }
