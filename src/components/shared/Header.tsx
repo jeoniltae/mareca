@@ -96,7 +96,7 @@ const NAV_ITEMS: NavItem[] = [
       { label: '자유게시판', href: '/community/free' },
       { label: '갤러리', href: '/community/gallery' },
       { label: 'Plus Voice', href: '/community/voice' },
-      { label: '구인구직', href: '/community/jobs' },
+      { label: 'ReformedTV', href: '/community/reformed-tv' },
     ],
   },
 ]
