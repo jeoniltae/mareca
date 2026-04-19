@@ -4,10 +4,9 @@ import { notFound } from 'next/navigation'
 import { incrementReformedTVViews } from '@/features/reformed-tv/actions'
 import { ReformedTVActions } from '@/features/reformed-tv/ReformedTVActions'
 import { extractYoutubeId } from '@/features/youtube/youtube-utils'
+import { YoutubePlayer } from '@/features/reformed-tv/YoutubePlayer'
 import { Calendar, Eye } from 'lucide-react'
 import Link from 'next/link'
-import LiteYouTubeEmbed from 'react-lite-youtube-embed'
-import 'react-lite-youtube-embed/dist/LiteYouTubeEmbed.css'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -84,8 +83,8 @@ export default async function ReformedTVDetailPage({ params }: Props) {
 
         {/* 유튜브 플레이어 */}
         {videoId ? (
-          <div className="rounded-xl overflow-hidden shadow-md mb-8">
-            <LiteYouTubeEmbed id={videoId} title={post.title} />
+          <div className="mb-8">
+            <YoutubePlayer videoId={videoId} title={post.title} />
           </div>
         ) : post.youtube_url ? (
           <div className="mb-8 p-4 bg-slate-50 rounded-xl border border-slate-200">
