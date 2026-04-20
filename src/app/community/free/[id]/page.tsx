@@ -5,6 +5,7 @@ import { incrementViews } from '@/features/posts/actions'
 import { PostActions } from '@/features/posts/PostActions'
 import { Eye, Calendar, Tag } from 'lucide-react'
 import Link from 'next/link'
+import { ShareButtons } from '@/components/shared/ShareButtons'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -13,8 +14,16 @@ interface Props {
 export async function generateMetadata({ params }: Props) {
   const { id } = await params
   const supabase = await createClient()
-  const { data } = await supabase.from('posts').select('title').eq('id', id).single()
-  return { title: data?.title ?? '게시글' }
+  const { data } = await supabase.from('posts').select('title, content').eq('id', id).single()
+  const description = data?.content?.replace(/<[^>]+>/g, '').slice(0, 100) ?? ''
+  return {
+    title: data?.title ?? '게시글',
+    openGraph: {
+      title: data?.title ?? '게시글',
+      description,
+      images: [{ url: '/images/logo.jpg' }],
+    },
+  }
 }
 
 export default async function PostDetailPage({ params }: Props) {
@@ -105,8 +114,13 @@ export default async function PostDetailPage({ params }: Props) {
           </div>
         )}
 
-        {/* 목록으로 */}
+        {/* 공유 */}
         <div className="mt-10 pt-6 border-t border-slate-200">
+          <ShareButtons title={post.title} description={post.content?.replace(/<[^>]+>/g, '').slice(0, 100)} />
+        </div>
+
+        {/* 목록으로 */}
+        <div className="mt-4">
           <Link
             href="/community/free"
             className="text-sm text-slate-500 hover:text-slate-800 transition-colors"

@@ -4,6 +4,7 @@ import './globals.css'
 import { Header } from '@/components/shared/Header'
 import { Footer } from '@/components/shared/Footer'
 import { ScrollToTop } from '@/components/shared/ScrollToTop'
+import { KakaoScript } from '@/components/shared/KakaoScript'
 
 const notoSansKR = Noto_Sans_KR({
   subsets: ['latin'],
@@ -14,6 +15,7 @@ const notoSansKR = Noto_Sans_KR({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
   title: {
     template: '%s | 마스터스개혁파총회',
     default: '마스터스개혁파총회',
@@ -33,6 +35,7 @@ export default function RootLayout({
         <main className="flex-1">{children}</main>
         <Footer />
         <ScrollToTop />
+        <KakaoScript />
       </body>
     </html>
   )

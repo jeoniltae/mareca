@@ -3,8 +3,9 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { notFound } from 'next/navigation'
 import { incrementReformedTVViews } from '@/features/reformed-tv/actions'
 import { ReformedTVActions } from '@/features/reformed-tv/ReformedTVActions'
-import { extractYoutubeId } from '@/features/youtube/youtube-utils'
+import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtube-utils'
 import { YoutubePlayer } from '@/features/reformed-tv/YoutubePlayer'
+import { ShareButtons } from '@/components/shared/ShareButtons'
 import { Calendar, Eye } from 'lucide-react'
 import Link from 'next/link'
 
@@ -15,8 +16,17 @@ interface Props {
 export async function generateMetadata({ params }: Props) {
   const { id } = await params
   const supabase = await createClient()
-  const { data } = await supabase.from('posts').select('title').eq('id', id).single()
-  return { title: data?.title ?? 'ReformedTV' }
+  const { data } = await supabase.from('posts').select('title, content, youtube_url').eq('id', id).single()
+  const videoId = data?.youtube_url ? extractYoutubeId(data.youtube_url) : null
+  const thumbnailUrl = videoId ? getYoutubeThumbnail(videoId) : '/images/logo.jpg'
+  return {
+    title: data?.title ?? 'ReformedTV',
+    openGraph: {
+      title: data?.title ?? 'ReformedTV',
+      description: data?.content ?? '',
+      images: [{ url: thumbnailUrl }],
+    },
+  }
 }
 
 export default async function ReformedTVDetailPage({ params }: Props) {
@@ -106,8 +116,17 @@ export default async function ReformedTVDetailPage({ params }: Props) {
           </div>
         )}
 
-        {/* 목록으로 */}
+        {/* 공유 */}
         <div className="pt-6 border-t border-slate-200">
+          <ShareButtons
+            title={post.title}
+            description={post.content ?? undefined}
+            imageUrl={videoId ? getYoutubeThumbnail(videoId) : undefined}
+          />
+        </div>
+
+        {/* 목록으로 */}
+        <div className="mt-4">
           <Link
             href="/community/reformed-tv"
             className="text-sm text-slate-500 hover:text-slate-800 transition-colors"

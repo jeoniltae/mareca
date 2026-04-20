@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { GalleryImageViewer } from '@/features/gallery/GalleryImageViewer'
 import { GalleryActions } from '@/features/gallery/GalleryActions'
+import { ShareButtons } from '@/components/shared/ShareButtons'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -11,8 +12,18 @@ interface Props {
 export async function generateMetadata({ params }: Props) {
   const { id } = await params
   const supabase = await createClient()
-  const { data } = await supabase.from('posts').select('title').eq('id', id).single()
-  return { title: data?.title ?? '갤러리' }
+  const [{ data: post }, { data: firstImage }] = await Promise.all([
+    supabase.from('posts').select('title, content').eq('id', id).single(),
+    supabase.from('post_images').select('url').eq('post_id', id).order('display_order').limit(1).single(),
+  ])
+  return {
+    title: post?.title ?? '갤러리',
+    openGraph: {
+      title: post?.title ?? '갤러리',
+      description: post?.content ?? '',
+      images: firstImage?.url ? [{ url: firstImage.url }] : [{ url: '/images/logo.jpg' }],
+    },
+  }
 }
 
 export default async function GalleryDetailPage({ params }: Props) {
@@ -78,8 +89,13 @@ export default async function GalleryDetailPage({ params }: Props) {
           </div>
         )}
 
-        {/* 목록으로 */}
+        {/* 공유 */}
         <div className="mt-8 pt-6 border-t border-slate-200">
+          <ShareButtons title={post.title} imageUrl={imageUrls[0]} />
+        </div>
+
+        {/* 목록으로 */}
+        <div className="mt-4">
           <a
             href="/community/gallery"
             className="text-sm text-slate-500 hover:text-slate-800 transition-colors"
