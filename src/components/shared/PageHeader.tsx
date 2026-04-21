@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { ChevronRight, Home } from 'lucide-react'
 
 export interface BreadcrumbItem {
@@ -9,12 +10,23 @@ export interface BreadcrumbItem {
 interface PageHeaderProps {
   title: string
   breadcrumbs?: BreadcrumbItem[]
+  backgroundImage?: string
+  bgColor?: string
 }
 
-export function PageHeader({ title, breadcrumbs = [] }: PageHeaderProps) {
+export function PageHeader({ title, breadcrumbs = [], backgroundImage, bgColor = 'bg-slate-800' }: PageHeaderProps) {
   return (
-    <div className="bg-slate-800 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className={`relative ${bgColor} text-white overflow-hidden`}>
+      {backgroundImage && (
+        <Image
+          src={backgroundImage}
+          alt=""
+          fill
+          className="object-cover opacity-30"
+          priority
+        />
+      )}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <h1 className="text-3xl font-bold mb-3">{title}</h1>
 
         {/* 브레드크럼 */}
