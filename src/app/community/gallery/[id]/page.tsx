@@ -51,8 +51,13 @@ export default async function GalleryDetailPage({ params }: Props) {
 
   const imageUrls = (images ?? []).map((img) => img.url)
 
-  const date = new Date(post.created_at)
-  const formatted = `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`
+  const formatted = new Date(post.created_at).toLocaleString('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  })
   const nickname = (post.profiles as { nickname: string | null } | null)?.nickname ?? '알 수 없음'
   const isOwner = user?.id === post.user_id
 

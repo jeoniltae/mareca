@@ -5,6 +5,7 @@ import { Header } from '@/components/shared/Header'
 import { Footer } from '@/components/shared/Footer'
 import { ScrollToTop } from '@/components/shared/ScrollToTop'
 import { KakaoScript } from '@/components/shared/KakaoScript'
+import { NavigationProgress } from '@/components/shared/NavigationProgress'
 
 const notoSansKR = Noto_Sans_KR({
   subsets: ['latin'],
@@ -36,6 +37,7 @@ export default function RootLayout({
         <Footer />
         <ScrollToTop />
         <KakaoScript />
+        <NavigationProgress />
       </body>
     </html>
   )
