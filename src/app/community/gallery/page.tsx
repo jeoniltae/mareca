@@ -1,32 +1,48 @@
 import { createClient } from '@/lib/supabase-server'
 import { PageHeader } from '@/components/shared/PageHeader'
+import { Pagination } from '@/components/shared/Pagination'
 import Link from 'next/link'
-import { PenSquare, Images } from 'lucide-react'
+import { PenSquare, Images, Eye } from 'lucide-react'
 import { GalleryImage } from '@/features/gallery/GalleryImage'
 
 export const metadata = { title: '갤러리' }
 
-export default async function CommunityGalleryPage() {
+const PAGE_SIZE = 12
+
+interface Props {
+  searchParams: Promise<{ page?: string }>
+}
+
+export default async function CommunityGalleryPage({ searchParams }: Props) {
+  const { page: pageParam } = await searchParams
+  const page = Math.max(1, Number(pageParam ?? 1) || 1)
+  const from = (page - 1) * PAGE_SIZE
+  const to = from + PAGE_SIZE - 1
+
   const supabase = await createClient()
 
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const { data: posts } = await supabase
+  const { data: posts, count } = await supabase
     .from('posts')
-    .select('id, title, thumbnail_url, created_at, profiles(nickname)')
+    .select('id, title, thumbnail_url, views, created_at, profiles(nickname)', { count: 'exact' })
     .eq('board', 'gallery')
     .order('created_at', { ascending: false })
+    .range(from, to)
 
-  const { data: imageCounts } = await supabase
-    .from('post_images')
-    .select('post_id')
+  const postIds = (posts ?? []).map((p) => p.id)
+  const { data: imageCounts } = postIds.length > 0
+    ? await supabase.from('post_images').select('post_id').in('post_id', postIds)
+    : { data: [] }
 
   const countMap = (imageCounts ?? []).reduce<Record<string, number>>((acc, row) => {
     acc[row.post_id] = (acc[row.post_id] ?? 0) + 1
     return acc
   }, {})
+
+  const totalPages = Math.ceil((count ?? 0) / PAGE_SIZE)
 
   return (
     <>
@@ -39,7 +55,7 @@ export default async function CommunityGalleryPage() {
         {/* 툴바 */}
         <div className="flex items-center justify-between mb-6">
           <p className="text-sm text-slate-500">
-            총 <strong className="text-slate-800">{posts?.length ?? 0}</strong>개의 게시물
+            총 <strong className="text-slate-800">{count ?? 0}</strong>개의 게시물
           </p>
           {user && (
             <Link
@@ -58,7 +74,7 @@ export default async function CommunityGalleryPage() {
             {posts.map((post) => {
               const date = new Date(post.created_at)
               const formatted = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`
-              const count = countMap[post.id] ?? 0
+              const imgCount = countMap[post.id] ?? 0
 
               return (
                 <Link
@@ -79,10 +95,10 @@ export default async function CommunityGalleryPage() {
                         <Images size={36} />
                       </div>
                     )}
-                    {count > 1 && (
+                    {imgCount > 1 && (
                       <span className="absolute top-2 right-2 flex items-center gap-1 bg-black/50 text-white text-xs px-2 py-0.5 rounded-full">
                         <Images size={11} />
-                        {count}
+                        {imgCount}
                       </span>
                     )}
                   </div>
@@ -96,7 +112,13 @@ export default async function CommunityGalleryPage() {
                       <span className="truncate">
                         {(post.profiles as { nickname: string | null } | null)?.nickname ?? '알 수 없음'}
                       </span>
-                      <span className="shrink-0">{formatted}</span>
+                      <div className="shrink-0 flex items-center gap-2">
+                        <span className="flex items-center gap-0.5">
+                          <Eye size={11} />
+                          {post.views}
+                        </span>
+                        <span>{formatted}</span>
+                      </div>
                     </div>
                   </div>
                 </Link>
@@ -108,6 +130,8 @@ export default async function CommunityGalleryPage() {
             아직 게시물이 없습니다.
           </div>
         )}
+
+        <Pagination currentPage={page} totalPages={totalPages} basePath="/community/gallery" />
       </div>
     </>
   )

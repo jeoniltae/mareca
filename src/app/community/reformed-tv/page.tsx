@@ -1,22 +1,37 @@
 import { createClient } from '@/lib/supabase-server'
 import { PageHeader } from '@/components/shared/PageHeader'
+import { Pagination } from '@/components/shared/Pagination'
 import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtube-utils'
 import { PenSquare, Play, Calendar, Eye } from 'lucide-react'
 import Link from 'next/link'
 
 export const metadata = { title: 'ReformedTV' }
 
-export default async function ReformedTVPage() {
+const PAGE_SIZE = 12
+
+interface Props {
+  searchParams: Promise<{ page?: string }>
+}
+
+export default async function ReformedTVPage({ searchParams }: Props) {
+  const { page: pageParam } = await searchParams
+  const page = Math.max(1, Number(pageParam ?? 1) || 1)
+  const from = (page - 1) * PAGE_SIZE
+  const to = from + PAGE_SIZE - 1
+
   const supabase = await createClient()
 
-  const [{ data: { user } }, { data: posts }] = await Promise.all([
+  const [{ data: { user } }, { data: posts, count }] = await Promise.all([
     supabase.auth.getUser(),
     supabase
       .from('posts')
-      .select('id, title, youtube_url, views, created_at, profiles(nickname)')
+      .select('id, title, youtube_url, views, created_at, profiles(nickname)', { count: 'exact' })
       .eq('board', 'reformed-tv')
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .range(from, to),
   ])
+
+  const totalPages = Math.ceil((count ?? 0) / PAGE_SIZE)
 
   return (
     <>
@@ -26,9 +41,12 @@ export default async function ReformedTVPage() {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* 글쓰기 버튼 */}
-        {user && (
-          <div className="flex justify-end mb-6">
+        {/* 툴바 */}
+        <div className="flex items-center justify-between mb-6">
+          <p className="text-sm text-slate-500">
+            총 <strong className="text-slate-800">{count ?? 0}</strong>개의 영상
+          </p>
+          {user && (
             <Link
               href="/community/reformed-tv/new"
               className="flex items-center gap-1.5 px-4 py-2 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700 transition-colors"
@@ -36,8 +54,8 @@ export default async function ReformedTVPage() {
               <PenSquare size={14} />
               영상 등록
             </Link>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* 그리드 */}
         {(posts?.length ?? 0) === 0 ? (
@@ -99,6 +117,8 @@ export default async function ReformedTVPage() {
             })}
           </div>
         )}
+
+        <Pagination currentPage={page} totalPages={totalPages} basePath="/community/reformed-tv" />
       </div>
     </>
   )

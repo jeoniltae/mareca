@@ -4,6 +4,8 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { GalleryImageViewer } from '@/features/gallery/GalleryImageViewer'
 import { GalleryActions } from '@/features/gallery/GalleryActions'
 import { ShareButtons } from '@/components/shared/ShareButtons'
+import { incrementGalleryViews } from '@/features/gallery/actions'
+import { Eye } from 'lucide-react'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -36,12 +38,14 @@ export default async function GalleryDetailPage({ params }: Props) {
 
   const { data: post } = await supabase
     .from('posts')
-    .select('id, user_id, title, content, created_at, profiles(nickname)')
+    .select('id, user_id, title, content, views, created_at, profiles(nickname)')
     .eq('id', id)
     .eq('board', 'gallery')
     .single()
 
   if (!post) notFound()
+
+  incrementGalleryViews(id)
 
   const { data: images } = await supabase
     .from('post_images')
@@ -77,9 +81,14 @@ export default async function GalleryDetailPage({ params }: Props) {
         <div className="mb-6">
           <h1 className="text-xl font-bold text-slate-900 mb-2">{post.title}</h1>
           <div className="flex items-center justify-between">
-            <p className="text-sm text-slate-500">
-              {nickname} · {formatted}
-            </p>
+            <div className="flex items-center gap-3 text-sm text-slate-500">
+              <span>{nickname}</span>
+              <span>{formatted}</span>
+              <span className="flex items-center gap-1">
+                <Eye size={13} />
+                {post.views + 1}
+              </span>
+            </div>
             {isOwner && <GalleryActions id={id} />}
           </div>
         </div>

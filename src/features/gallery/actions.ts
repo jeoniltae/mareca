@@ -126,6 +126,12 @@ export async function updateGalleryPost(
   redirect(`/community/gallery/${id}`)
 }
 
+// ─── 조회수 증가 ────────────────────────────────────────────────────────────────
+export async function incrementGalleryViews(id: string) {
+  const supabase = await createClient()
+  await supabase.rpc('increment_views', { post_id: id })
+}
+
 // ─── 게시글 삭제 ────────────────────────────────────────────────────────────────
 export async function deleteGalleryPost(id: string): Promise<never> {
   const supabase = await createClient()

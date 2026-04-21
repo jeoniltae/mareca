@@ -1,10 +1,13 @@
 import { createClient } from '@/lib/supabase-server'
 import { PageHeader } from '@/components/shared/PageHeader'
+import { Pagination } from '@/components/shared/Pagination'
 import { cn } from '@/lib/utils'
-import { Search, PenSquare, Eye, ChevronLeft, ChevronRight, Pin } from 'lucide-react'
+import { Search, PenSquare, Eye, Pin } from 'lucide-react'
 import Link from 'next/link'
 
 export const metadata = { title: '자유게시판' }
+
+const PAGE_SIZE = 10
 
 const CATEGORIES = ['전체', '공지', '일반', '질문', '나눔'] as const
 
@@ -15,22 +18,40 @@ const CATEGORY_STYLE: Record<string, string> = {
   나눔: 'bg-emerald-50 text-emerald-600 ring-1 ring-inset ring-emerald-200',
 }
 
-export default async function CommunityFreePage() {
+interface Props {
+  searchParams: Promise<{ page?: string }>
+}
+
+export default async function CommunityFreePage({ searchParams }: Props) {
+  const { page: pageParam } = await searchParams
+  const page = Math.max(1, Number(pageParam ?? 1) || 1)
+  const from = (page - 1) * PAGE_SIZE
+  const to = from + PAGE_SIZE - 1
+
   const supabase = await createClient()
 
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const { data: posts, count } = await supabase
-    .from('posts')
-    .select('id, category, title, views, created_at, profiles(nickname)', { count: 'exact' })
-    .eq('board', 'free')
-    .order('created_at', { ascending: false })
-    .limit(20)
+  const [{ data: pinned }, { data: regular, count: regularCount }] = await Promise.all([
+    supabase
+      .from('posts')
+      .select('id, category, title, views, created_at, profiles(nickname)')
+      .eq('board', 'free')
+      .eq('category', '공지')
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('posts')
+      .select('id, category, title, views, created_at, profiles(nickname)', { count: 'exact' })
+      .eq('board', 'free')
+      .neq('category', '공지')
+      .order('created_at', { ascending: false })
+      .range(from, to),
+  ])
 
-  const pinned = posts?.filter((p) => p.category === '공지') ?? []
-  const regular = posts?.filter((p) => p.category !== '공지') ?? []
+  const totalCount = (pinned?.length ?? 0) + (regularCount ?? 0)
+  const totalPages = Math.ceil((regularCount ?? 0) / PAGE_SIZE)
 
   return (
     <>
@@ -85,55 +106,32 @@ export default async function CommunityFreePage() {
         {/* 게시글 수 */}
         <div className="flex items-center justify-between text-sm text-slate-500 mb-2">
           <span>
-            총 <strong className="text-slate-800">{count ?? 0}</strong>개의 게시글
+            총 <strong className="text-slate-800">{totalCount}</strong>개의 게시글
           </span>
         </div>
 
         {/* 목록 */}
         <div className="border-t border-slate-200 pt-1">
-          {pinned.map((post) => (
+          {pinned?.map((post) => (
             <PostRow key={post.id} post={post} isPinned />
           ))}
 
-          {pinned.length > 0 && regular.length > 0 && (
+          {(pinned?.length ?? 0) > 0 && (regular?.length ?? 0) > 0 && (
             <div className="border-t border-dashed border-slate-200 my-1" />
           )}
 
-          {regular.map((post) => (
+          {regular?.map((post) => (
             <PostRow key={post.id} post={post} />
           ))}
 
-          {(posts?.length ?? 0) === 0 && (
+          {totalCount === 0 && (
             <div className="py-16 text-center text-slate-400 text-sm">
               아직 게시글이 없습니다.
             </div>
           )}
         </div>
 
-        {/* 페이지네이션 */}
-        {(count ?? 0) > 20 && (
-          <div className="flex items-center justify-center gap-1 mt-8">
-            <button className="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
-              <ChevronLeft size={16} />
-            </button>
-            {[1, 2, 3, 4, 5].map((page) => (
-              <button
-                key={page}
-                className={cn(
-                  'w-9 h-9 rounded-lg text-sm font-medium transition-colors',
-                  page === 1
-                    ? 'bg-slate-800 text-white'
-                    : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100',
-                )}
-              >
-                {page}
-              </button>
-            ))}
-            <button className="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
-              <ChevronRight size={16} />
-            </button>
-          </div>
-        )}
+        <Pagination currentPage={page} totalPages={totalPages} basePath="/community/free" />
       </div>
     </>
   )
