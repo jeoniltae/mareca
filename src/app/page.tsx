@@ -11,6 +11,7 @@ import {
   Video,
 } from 'lucide-react'
 import { HeroSlider } from '@/components/shared/HeroSlider'
+import { ComingSoonButton } from '@/components/shared/ComingSoonButton'
 
 // ─── 총회소식 + 일정 + 바로가기 ────────────────────────────────────────────────
 function QuickInfoSection() {
@@ -198,12 +199,10 @@ function MembershipBanner() {
             성경의 하나님의 말씀을 믿는 참된 그리스도인을 찾습니다.
           </p>
         </div>
-        <Link
-          href="/membership"
+        <ComingSoonButton
+          label="총회가입 신청하기"
           className="shrink-0 inline-flex items-center gap-2 px-6 py-3 bg-white text-sky-700 font-semibold text-base rounded-lg hover:bg-sky-50 transition-colors"
-        >
-          총회가입 신청하기 <ArrowRight size={16} />
-        </Link>
+        />
       </div>
     </section>
   )
@@ -254,12 +253,10 @@ function SeminaryCTA() {
             7인의 개혁파 신학교수가 전신합니다. 3년 과정 졸업, 주 학사수 및 학원수
           </p>
         </div>
-        <Link
-          href="/seminary"
+        <ComingSoonButton
+          label="문의하기"
           className="shrink-0 inline-flex items-center gap-2 px-5 py-3 border border-slate-300 text-slate-700 text-base rounded-lg hover:bg-white transition-colors"
-        >
-          문의하기 <ArrowRight size={15} />
-        </Link>
+        />
       </div>
     </section>
   )
