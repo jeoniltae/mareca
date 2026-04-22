@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Phone } from 'lucide-react'
 import { PolicyModals } from './PolicyModals'
 
 export function Footer() {
@@ -11,11 +12,19 @@ export function Footer() {
               Contact Us
             </p>
             <ul className="space-y-2 text-base leading-relaxed">
-              <li>본부(제주캠프): 제주특별자치도 제주시 한림읍 금악서길 27-23, A동 서길교회</li>
-              <li>서울캠프: 서울시 은평구 대서문길15-11 3층 바로선개혁교회</li>
-              <li>경기캠프: 경기도 평택시 이충로100번길 46, 2층 더항기#교회</li>
-              <li className="pt-2">0507-1314-0972 · FAX 050-4271-7247</li>
-              <li>masters@mareca.org</li>
+              <li>본부(제주캠프): 제주특별자치도 제주시 애월읍 애납로 155 하람교회</li>
+              <li>서울캠프: 서울특별시 은평구 진관3로 22 이로운프라자 6층 바로선개혁교회</li>
+              <li className="pt-2 flex items-center gap-3 flex-wrap">
+                <a
+                  href="tel:010-8466-7247"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-sky-600 text-white text-sm font-semibold transition-colors"
+                >
+                  <Phone size={13} />
+                  010-8466-7247
+                </a>
+                <span className="text-slate-400 text-sm">FAX 050-4271-7247</span>
+              </li>
+              <li>saemvithee@naver.com</li>
             </ul>
           </div>
 
