@@ -40,7 +40,8 @@ export function PostForm({ mode, postId, initialValues, cancelHref }: PostFormPr
         } else {
           await createPost(formData)
         }
-      } catch {
+      } catch (error) {
+        if ((error as { digest?: string }).digest?.startsWith('NEXT_REDIRECT')) throw error
         setError('저장 중 오류가 발생했습니다. 다시 시도해주세요.')
       }
     })

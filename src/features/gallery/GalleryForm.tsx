@@ -85,9 +85,8 @@ export function GalleryForm({
           await updateGalleryPost(postId, title.trim(), description.trim(), images, deletedUrls)
         }
       } catch (err) {
-        if (err instanceof Error && !err.message.includes('NEXT_REDIRECT')) {
-          setError(err.message)
-        }
+        if ((err as { digest?: string }).digest?.startsWith('NEXT_REDIRECT')) throw err
+        setError(err instanceof Error ? err.message : '저장 중 오류가 발생했습니다.')
       }
     })
   }
