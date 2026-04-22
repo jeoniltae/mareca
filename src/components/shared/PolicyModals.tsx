@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
+import { useBodyScrollLock } from '@/hooks/use-body-scroll-lock'
 
 type PolicyType = 'privacy' | 'nospam' | null
 
@@ -99,6 +100,8 @@ const POLICIES = {
 export function PolicyModals() {
   const [open, setOpen] = useState<PolicyType>(null)
   const policy = open ? POLICIES[open] : null
+
+  useBodyScrollLock(open !== null)
 
   return (
     <>

@@ -32,14 +32,14 @@ export function PageHeader({ title, breadcrumbs = [], backgroundImage, bgColor =
         {/* 브레드크럼 */}
         <nav aria-label="breadcrumb">
           <ol className="flex items-center gap-1 text-sm text-slate-400">
-            <li>
+            <li className="tracking-[-1px]">
               <Link href="/" className="hover:text-white transition-colors flex items-center gap-1">
                 <Home size={14} />
                 홈
               </Link>
             </li>
             {breadcrumbs.map((item, i) => (
-              <li key={i} className="flex items-center gap-1">
+              <li key={i} className="flex items-center gap-1 tracking-[-1px]">
                 <ChevronRight size={12} className="text-slate-600" />
                 {item.href ? (
                   <Link href={item.href} className="hover:text-white transition-colors">

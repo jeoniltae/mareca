@@ -86,7 +86,7 @@ export default function LoginPage() {
   // ── 링크 전송 완료 ─────────────────────────────────────────────────────────
   if (step.type === 'link_sent') {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center px-4">
+      <div className="min-h-[60vh] flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-sm text-center">
           <div className="py-8 px-6 bg-sky-50 rounded-2xl border border-sky-100">
             <Mail size={36} className="text-sky-500 mx-auto mb-4" />
@@ -110,7 +110,7 @@ export default function LoginPage() {
   // ── OTP 코드 입력 ──────────────────────────────────────────────────────────
   if (step.type === 'otp_verify') {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center px-4">
+      <div className="min-h-[60vh] flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-sky-50 mb-4">
@@ -171,7 +171,7 @@ export default function LoginPage() {
 
   // ── 이메일 입력 (기본) ─────────────────────────────────────────────────────
   return (
-    <div className="min-h-[60vh] flex items-center justify-center px-4">
+    <div className="min-h-[60vh] flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-slate-900 mb-2">로그인</h1>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ArrowRight, Hourglass, X } from 'lucide-react'
+import { useBodyScrollLock } from '@/hooks/use-body-scroll-lock'
 
 interface Props {
   label: string
@@ -10,6 +11,8 @@ interface Props {
 
 export function ComingSoonButton({ label, className }: Props) {
   const [open, setOpen] = useState(false)
+
+  useBodyScrollLock(open)
 
   return (
     <>

@@ -74,7 +74,7 @@ export function PostForm({ mode, postId, initialValues, cancelHref }: PostFormPr
           required
           defaultValue={initialValues?.title}
           placeholder="제목을 입력하세요"
-          className="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300"
+          className="flex-1 min-w-0 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300"
         />
       </div>
 
@@ -92,7 +92,7 @@ export function PostForm({ mode, postId, initialValues, cancelHref }: PostFormPr
           type="url"
           defaultValue={initialValues?.youtube_url ?? ''}
           placeholder="https://youtube.com/watch?v=..."
-          className="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300"
+          className="flex-1 min-w-0 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300"
         />
       </div>
 

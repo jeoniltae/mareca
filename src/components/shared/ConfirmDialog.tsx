@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AlertTriangle, HelpCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useBodyScrollLock } from '@/hooks/use-body-scroll-lock'
 
 interface ConfirmDialogProps {
   open: boolean
@@ -37,15 +38,7 @@ export function ConfirmDialog({
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [open, onCancel])
 
-  // body 스크롤 잠금
-  useEffect(() => {
-    if (open) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
-    return () => { document.body.style.overflow = '' }
-  }, [open])
+  useBodyScrollLock(open)
 
   const isDanger = variant === 'danger'
 
