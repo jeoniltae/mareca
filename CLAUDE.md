@@ -147,6 +147,17 @@ src/
   - 준비된 코드: `src/features/auth/actions.ts`에 `checkNeedsNickname()`, `saveNickname()` Server Action 이미 구현됨
   - 재구현 시 참고: `src/app/auth/callback/route.ts`에 닉네임 체크 후 `/login?setup=nickname` 리다이렉트 코드가 남아 있으나 현재 로그인 페이지가 로그인 상태이면 홈으로 보내므로 실질적으로 동작하지 않음 — 함께 정리 필요
 
+- **[미착수] 로고 기반 브랜드 컬러 시스템 전면 적용**
+  - 배경: 현재 프로젝트는 Tailwind 기본 `sky-600/700`, `slate-800` 계열을 Primary 컬러로 사용 중. 로고(public/images/logo.jpg)의 색상과 괴리가 있어 브랜드 일관성이 부족함
+  - 로고 추출 컬러: 네이비 `#1C2E50` / 포레스트 그린 `#2A5728` / 골드 `#C8A224` / 크림 `#EEE8D5`
+  - 작업 계획 (5단계):
+    1. `tailwind.config.ts`에 `brand-navy`, `brand-green`, `brand-gold`, `brand-cream` 커스텀 토큰 정의
+    2. `Header.tsx`, `Footer.tsx`, `PageHeader.tsx` — `slate-800` → `brand-navy`, 활성 메뉴 → `brand-gold`
+    3. 전체 파일 `sky-600/700/300` → `brand-green` 일괄 교체 (버튼, focus ring, 링크 호버 등)
+    4. `brand-gold` 포인트 컬러 선별 적용 (활성 카테고리, NEW 뱃지 등)
+    5. 전체 화면 검토 및 미세 조정
+  - 예상 수정 파일: 약 20~25개 / 예상 소요 시간: 약 1시간
+
 - **[미해결] 404/500 페이지에서 "이전 페이지" 버튼(BackButton) 클릭 후 GNB 애니메이션·인터랙션 불작동**
   - 증상: 404/500 같은 하드 네비게이션 페이지에서 `router.back()` 또는 `history.back()` 사용 시 이전 페이지로 돌아왔을 때 Header의 Framer Motion 애니메이션 및 hover 인터랙션이 동작하지 않음
   - "홈으로 가기"(`Link href="/"`) 클릭 시에는 정상 동작
