@@ -82,7 +82,7 @@ export default async function CommunityFreePage({ searchParams }: Props) {
           {user && (
             <Link
               href="/community/free/new"
-              className="shrink-0 flex items-center gap-1.5 px-4 py-2 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700 transition-colors"
+              className="shrink-0 hidden sm:flex items-center gap-1.5 px-4 py-2 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700 transition-colors"
             >
               <PenSquare size={14} />
               글쓰기
@@ -90,17 +90,29 @@ export default async function CommunityFreePage({ searchParams }: Props) {
           )}
         </div>
 
-        {/* 검색 */}
-        <div className="relative mb-6">
-          <Search
-            size={15}
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-          />
-          <input
-            type="text"
-            placeholder="제목 또는 내용으로 검색"
-            className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 focus:bg-white transition-all"
-          />
+        {/* 검색 + 모바일 글쓰기 버튼 */}
+        <div className="flex flex-col sm:block gap-2 mb-6">
+          <div className="relative">
+            <Search
+              size={15}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+            />
+            <input
+              type="text"
+              placeholder="제목 또는 내용으로 검색"
+              className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 focus:bg-white transition-all"
+            />
+          </div>
+
+          {user && (
+            <Link
+              href="/community/free/new"
+              className="sm:hidden flex items-center justify-center gap-1.5 py-2.5 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700 transition-colors"
+            >
+              <PenSquare size={14} />
+              글쓰기
+            </Link>
+          )}
         </div>
 
         {/* 게시글 수 */}

@@ -40,7 +40,8 @@ export function PostForm({ mode, postId, initialValues, cancelHref }: PostFormPr
         } else {
           await createPost(formData)
         }
-      } catch {
+      } catch (error) {
+        if ((error as { digest?: string }).digest?.startsWith('NEXT_REDIRECT')) throw error
         setError('저장 중 오류가 발생했습니다. 다시 시도해주세요.')
       }
     })
@@ -73,7 +74,7 @@ export function PostForm({ mode, postId, initialValues, cancelHref }: PostFormPr
           required
           defaultValue={initialValues?.title}
           placeholder="제목을 입력하세요"
-          className="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300"
+          className="flex-1 min-w-0 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300"
         />
       </div>
 
@@ -91,7 +92,7 @@ export function PostForm({ mode, postId, initialValues, cancelHref }: PostFormPr
           type="url"
           defaultValue={initialValues?.youtube_url ?? ''}
           placeholder="https://youtube.com/watch?v=..."
-          className="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300"
+          className="flex-1 min-w-0 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300"
         />
       </div>
 
