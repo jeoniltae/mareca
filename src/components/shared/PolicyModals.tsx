@@ -58,12 +58,12 @@ const POLICIES = {
           <h3 className="font-semibold text-slate-800 mb-2">7. 개인정보 보호책임자</h3>
           <ul className="space-y-1">
             <li>기관명: 마스터스개혁파총회</li>
-            <li>이메일: masters@mareca.org</li>
-            <li>전화: 0507-1314-0972</li>
+            <li>이메일: saemvithee@naver.com</li>
+            <li>전화: 010-8466-7247</li>
           </ul>
         </section>
 
-        <p className="text-xs text-slate-400 pt-2">본 방침은 2024년 1월 1일부터 시행됩니다.</p>
+        <p className="text-xs text-slate-400 pt-2">본 방침은 2026년 4월 14일부터 시행됩니다.</p>
       </div>
     ),
   },
@@ -91,7 +91,7 @@ const POLICIES = {
           마스터스개혁파총회는 이용자의 개인정보를 소중히 여기며, 이메일 무단 수집으로 인한 피해가 발생하지 않도록 최선을 다하고 있습니다.
         </p>
 
-        <p className="text-xs text-slate-400">게시일: 2024년 1월 1일</p>
+        <p className="text-xs text-slate-400">게시일: 2026년 4월 14일</p>
       </div>
     ),
   },
