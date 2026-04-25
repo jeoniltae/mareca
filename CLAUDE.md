@@ -158,6 +158,17 @@ src/
     5. 전체 화면 검토 및 미세 조정
   - 예상 수정 파일: 약 20~25개 / 예상 소요 시간: 약 1시간
 
+- **[미착수] 언론기사 RSS 피드 수집 게시판**
+  - 개요: 특정 기독교 언론사의 RSS 피드를 주기적으로 수집해 게시판 형태로 노출, 클릭 시 원문 기사로 이동
+  - 수집 대상 언론사:
+    - 기독일보: `http://christiandaily.co.kr/rss`
+    - 크리스천투데이: `https://www.christiantoday.co.kr/rss`
+  - 구현 방식: GitHub Actions 스케줄러(cron) → RSS XML 파싱 → Supabase `press_articles` 테이블 저장 → Server Component로 렌더링
+  - DB 스키마 (예정):
+    - `id` uuid PK, `url` text, `og_title` text, `og_image` text, `og_description` text, `source_name` text, `published_at` date, `created_at` timestamptz
+  - 표시 정책: 제목 + 요약 + 링크만 노출 (기사 원문 복사 금지 — 저작권)
+  - 관련 파일 위치 예정: `src/features/press/`, `src/app/news/press/page.tsx`
+
 - **[미해결] 404/500 페이지에서 "이전 페이지" 버튼(BackButton) 클릭 후 GNB 애니메이션·인터랙션 불작동**
   - 증상: 404/500 같은 하드 네비게이션 페이지에서 `router.back()` 또는 `history.back()` 사용 시 이전 페이지로 돌아왔을 때 Header의 Framer Motion 애니메이션 및 hover 인터랙션이 동작하지 않음
   - "홈으로 가기"(`Link href="/"`) 클릭 시에는 정상 동작
