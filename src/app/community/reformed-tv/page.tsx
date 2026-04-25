@@ -38,6 +38,9 @@ export default async function ReformedTVPage({ searchParams }: Props) {
       <PageHeader
         title="ReformedTV"
         breadcrumbs={[{ label: '커뮤니티', href: '/community' }, { label: 'ReformedTV' }]}
+        backgroundImage="/images/john_machen.jpg"
+        bgColor="bg-slate-800"
+        imagePosition="center 40%"
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

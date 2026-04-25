@@ -58,6 +58,9 @@ export default async function CommunityFreePage({ searchParams }: Props) {
       <PageHeader
         title="자유게시판"
         breadcrumbs={[{ label: '커뮤니티', href: '/community' }, { label: '자유게시판' }]}
+        backgroundImage="/images/john_machen.jpg"
+        bgColor="bg-slate-800"
+        imagePosition="center 40%"
       />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
