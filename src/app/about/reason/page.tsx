@@ -7,7 +7,7 @@ const REASONS = [
   {
     num: '첫째',
     title: '함께 길을 걷고자 합니다.',
-    image: 'https://images.unsplash.com/photo-1758613170939-05179bed0f0c?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     imageAlt: '함께 걷는 사람들',
     paragraphs: [
       '마스터스개혁파총회는 또 하나의 총회가 아니라 남들이 가지 않는 길을 걸으며 한국교회를 섬기고자 출발합니다. 무엇보다 이웃과 사회를 위한 구제와 봉사에도 열심을 다할 것입니다.',

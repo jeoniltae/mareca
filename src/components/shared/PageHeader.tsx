@@ -12,9 +12,10 @@ interface PageHeaderProps {
   breadcrumbs?: BreadcrumbItem[]
   backgroundImage?: string
   bgColor?: string
+  imagePosition?: string
 }
 
-export function PageHeader({ title, breadcrumbs = [], backgroundImage, bgColor = 'bg-slate-800' }: PageHeaderProps) {
+export function PageHeader({ title, breadcrumbs = [], backgroundImage, bgColor = 'bg-slate-800', imagePosition }: PageHeaderProps) {
   return (
     <div className={`relative ${bgColor} text-white overflow-hidden`}>
       {backgroundImage && (
@@ -23,10 +24,11 @@ export function PageHeader({ title, breadcrumbs = [], backgroundImage, bgColor =
           alt=""
           fill
           className="object-cover opacity-30"
+          style={imagePosition ? { objectPosition: imagePosition } : undefined}
           priority
         />
       )}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:h-[280px] sm:flex sm:flex-col sm:justify-center">
         <h1 className="text-3xl font-bold mb-3">{title}</h1>
 
         {/* 브레드크럼 */}

@@ -41,7 +41,6 @@ const NAV_ITEMS: NavItem[] = [
     subItems: [
       { label: '노회소식', href: '/presbytery/news' },
       { label: '서울', href: '/presbytery/seoul' },
-      { label: '경기', href: '/presbytery/gyeonggi' },
       { label: '제주', href: '/presbytery/jeju' },
       { label: '기타', href: '/presbytery/etc' },
     ],
@@ -91,12 +90,11 @@ const NAV_ITEMS: NavItem[] = [
     subItems: [
       { label: '마스터스 메시지', href: '/community/message' },
       { label: '주말인사', href: '/community/greeting' },
-      { label: 'Masters Videos', href: '/community/videos' },
+      { label: 'ReformedTV', href: '/community/reformed-tv' },
       { label: '확정보고', href: '/community/report' },
       { label: '자유게시판', href: '/community/free' },
       { label: '갤러리', href: '/community/gallery' },
       { label: 'Plus Voice', href: '/community/voice' },
-      { label: 'ReformedTV', href: '/community/reformed-tv' },
     ],
   },
 ]

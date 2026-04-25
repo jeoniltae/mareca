@@ -137,6 +137,15 @@ button {
   cursor: pointer;
 }
 
+/* ─── Scrollbar Hide ───────────────────────────────────────────────────────── */
+.scrollbar-hide {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
 /* ─── Navigation Progress Spinner ─────────────────────────────────────────── */
 #nprogress .spinner {
   top: 50% !important;
