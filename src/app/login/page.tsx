@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
-import { Mail, Hash, Loader2, ArrowLeft, AlertTriangle } from 'lucide-react'
+import { Mail, ShieldCheck, Loader2, ArrowLeft, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type Step =
@@ -114,7 +114,7 @@ export default function LoginPage() {
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-sky-50 mb-4">
-              <Hash size={22} className="text-sky-500" />
+              <ShieldCheck size={22} className="text-sky-500" />
             </div>
             <h1 className="text-2xl font-bold text-slate-900 mb-2">인증 코드 입력</h1>
             <p className="text-sm text-slate-500">
@@ -204,7 +204,7 @@ export default function LoginPage() {
               (loading || !email) && 'opacity-60 cursor-not-allowed',
             )}
           >
-            {loading ? <Loader2 size={16} className="animate-spin" /> : <Hash size={16} />}
+            {loading ? <Loader2 size={16} className="animate-spin" /> : <ShieldCheck size={16} />}
             {loading ? '전송 중...' : '인증 코드 받기'}
           </button>
 
