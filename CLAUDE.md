@@ -180,6 +180,18 @@ src/
     - 관리자 알림: Supabase 대시보드 확인 또는 이메일 알림(Resend) 추가 가능
   - 관련 파일 위치 예정: `src/app/donate/page.tsx`, `src/features/donate/`
 
+- **[미착수] 스마트폰 홈 화면 바로가기 아이콘 추가 기능 (PWA)**
+  - 개요: 메인 페이지에 "홈 화면에 추가" 버튼을 두고 클릭 시 스마트폰 바탕화면에 마레카 아이콘 바로가기 생성
+  - 플랫폼별 동작:
+    - Android (Chrome): `beforeinstallprompt` 이벤트 가로채기 → 버튼 클릭 시 시스템 설치 다이얼로그 표시
+    - iOS (Safari): 자동화 불가 → "공유 → 홈 화면에 추가" 단계 안내 모달 표시
+  - 선행 작업 (PWA 기반 설정):
+    - `src/app/manifest.ts` 신규 생성 (앱 이름, 아이콘, 시작 URL 등)
+    - `public/icons/` 아이콘 파일 배치 (192×192, 512×512, apple-touch-icon 180×180)
+    - `src/app/layout.tsx` metadata에 viewport, themeColor, appleWebApp 추가
+  - 신규 컴포넌트: `src/components/shared/AddToHomeScreen.tsx`
+  - 이미 설치됐거나 standalone 모드면 버튼 자동 숨김 처리 필요
+
 - **[미해결] 404/500 페이지에서 "이전 페이지" 버튼(BackButton) 클릭 후 GNB 애니메이션·인터랙션 불작동**
   - 증상: 404/500 같은 하드 네비게이션 페이지에서 `router.back()` 또는 `history.back()` 사용 시 이전 페이지로 돌아왔을 때 Header의 Framer Motion 애니메이션 및 hover 인터랙션이 동작하지 않음
   - "홈으로 가기"(`Link href="/"`) 클릭 시에는 정상 동작
