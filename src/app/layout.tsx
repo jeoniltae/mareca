@@ -6,6 +6,7 @@ import { Footer } from '@/components/shared/Footer'
 import { ScrollToTop } from '@/components/shared/ScrollToTop'
 import { KakaoScript } from '@/components/shared/KakaoScript'
 import { NavigationProgress } from '@/components/shared/NavigationProgress'
+import { Analytics } from '@vercel/analytics/next'
 
 const notoSansKR = Noto_Sans_KR({
   subsets: ['latin'],
@@ -38,6 +39,7 @@ export default function RootLayout({
         <ScrollToTop />
         <KakaoScript />
         <NavigationProgress />
+        <Analytics />
       </body>
     </html>
   )
