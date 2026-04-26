@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AlertTriangle, HelpCircle } from 'lucide-react'
@@ -28,6 +28,9 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
+
   // ESC 키로 닫기
   useEffect(() => {
     if (!open) return
@@ -41,6 +44,8 @@ export function ConfirmDialog({
   useBodyScrollLock(open)
 
   const isDanger = variant === 'danger'
+
+  if (!mounted) return null
 
   return createPortal(
     <AnimatePresence>

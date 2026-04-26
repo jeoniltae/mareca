@@ -6,15 +6,7 @@ import { deletePostAttachment } from './actions'
 
 const MAX_COUNT = 5
 const MAX_SIZE_MB = 10
-const ACCEPTED_TYPES = [
-  'application/pdf',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/vnd.ms-excel',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  'application/haansofthwp',
-  'application/x-hwp',
-]
+const ACCEPT_EXTENSIONS = '.pdf,.hwp,.doc,.docx,.xls,.xlsx'
 
 function FileIcon({ mime }: { mime: string }) {
   if (mime === 'application/pdf') return <FileText size={14} className="text-red-400" />
@@ -92,7 +84,7 @@ export function FileAttachmentList({
       <input
         ref={inputRef}
         type="file"
-        accept={ACCEPTED_TYPES.join(',')}
+        accept={ACCEPT_EXTENSIONS}
         multiple
         className="hidden"
         onChange={handleSelect}

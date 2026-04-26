@@ -54,7 +54,6 @@ export async function updatePost(id: string, formData: FormData): Promise<void> 
 
   revalidatePath('/community/free')
   revalidatePath(`/community/free/${id}`)
-  redirect(`/community/free/${id}`)
 }
 
 // ─── 게시글 삭제 ────────────────────────────────────────────────────────────────
@@ -145,10 +144,8 @@ function extractStorageImagePaths(content: string): string[] {
   return paths
 }
 
-// ─── 첨부 이미지 저장 ───────────────────────────────────────────────────────────
-export async function savePostImages(postId: string, imageFiles: File[]): Promise<void> {
-  if (imageFiles.length === 0) return
-
+// ─── 첨부 이미지 단건 업로드 (FormData 방식) ────────────────────────────────────
+export async function uploadPostImage(formData: FormData): Promise<string> {
   const supabase = await createClient()
   const {
     data: { user },
@@ -156,37 +153,37 @@ export async function savePostImages(postId: string, imageFiles: File[]): Promis
 
   if (!user) throw new Error('로그인이 필요합니다')
 
-  const rows: { post_id: string; url: string; display_order: number }[] = []
+  const file = formData.get('file') as File
+  const order = formData.get('order') as string
+  const ext = file.name.split('.').pop()
+  const path = `${user.id}/${Date.now()}_${order}.${ext}`
 
-  for (let i = 0; i < imageFiles.length; i++) {
-    const file = imageFiles[i]
-    const ext = file.name.split('.').pop()
-    const path = `${user.id}/${Date.now()}_${i}.${ext}`
+  const { error: uploadError } = await supabase.storage.from('post-images').upload(path, file)
+  if (uploadError) throw new Error(uploadError.message)
 
-    const { error: uploadError } = await supabase.storage
-      .from('post-images')
-      .upload(path, file)
+  const { data: { publicUrl } } = supabase.storage.from('post-images').getPublicUrl(path)
+  return publicUrl
+}
 
-    if (uploadError) throw new Error(uploadError.message)
-
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from('post-images').getPublicUrl(path)
-
-    rows.push({ post_id: postId, url: publicUrl, display_order: i })
-  }
-
+// ─── 첨부 이미지 DB 저장 ────────────────────────────────────────────────────────
+export async function insertPostImages(
+  postId: string,
+  urls: string[],
+): Promise<void> {
+  if (urls.length === 0) return
+  const supabase = await createClient()
+  const rows = urls.map((url, i) => ({ post_id: postId, url, display_order: i }))
   const { error } = await supabase.from('post_images').insert(rows)
   if (error) throw new Error(error.message)
 }
 
-// ─── 첨부 파일 저장 ─────────────────────────────────────────────────────────────
-export async function savePostAttachments(
-  postId: string,
-  attachmentFiles: File[],
-): Promise<void> {
-  if (attachmentFiles.length === 0) return
-
+// ─── 첨부 파일 단건 업로드 (FormData 방식) ──────────────────────────────────────
+export async function uploadPostAttachment(formData: FormData): Promise<{
+  file_name: string
+  file_url: string
+  file_size: number
+  mime_type: string
+}> {
   const supabase = await createClient()
   const {
     data: { user },
@@ -194,36 +191,31 @@ export async function savePostAttachments(
 
   if (!user) throw new Error('로그인이 필요합니다')
 
-  const rows: {
-    post_id: string
-    file_name: string
-    file_url: string
-    file_size: number
-    mime_type: string
-  }[] = []
+  const file = formData.get('file') as File
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+  const path = `${user.id}/${Date.now()}_${safeName}`
 
-  for (const file of attachmentFiles) {
-    const path = `${user.id}/${Date.now()}_${file.name}`
+  const { error: uploadError } = await supabase.storage.from('post-attachments').upload(path, file)
+  if (uploadError) throw new Error(uploadError.message)
 
-    const { error: uploadError } = await supabase.storage
-      .from('post-attachments')
-      .upload(path, file)
+  const { data: { publicUrl } } = supabase.storage.from('post-attachments').getPublicUrl(path)
 
-    if (uploadError) throw new Error(uploadError.message)
-
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from('post-attachments').getPublicUrl(path)
-
-    rows.push({
-      post_id: postId,
-      file_name: file.name,
-      file_url: publicUrl,
-      file_size: file.size,
-      mime_type: file.type || 'application/octet-stream',
-    })
+  return {
+    file_name: file.name,
+    file_url: publicUrl,
+    file_size: file.size,
+    mime_type: file.type || 'application/octet-stream',
   }
+}
 
+// ─── 첨부 파일 DB 저장 ──────────────────────────────────────────────────────────
+export async function insertPostAttachments(
+  postId: string,
+  metas: { file_name: string; file_url: string; file_size: number; mime_type: string }[],
+): Promise<void> {
+  if (metas.length === 0) return
+  const supabase = await createClient()
+  const rows = metas.map((m) => ({ post_id: postId, ...m }))
   const { error } = await supabase.from('post_attachments').insert(rows)
   if (error) throw new Error(error.message)
 }

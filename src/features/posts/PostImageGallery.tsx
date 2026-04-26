@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { X } from 'lucide-react'
 
@@ -10,6 +10,11 @@ interface PostImageGalleryProps {
 
 export function PostImageGallery({ images }: PostImageGalleryProps) {
   const [lightbox, setLightbox] = useState<string | null>(null)
+
+  useEffect(() => {
+    document.body.style.overflow = lightbox ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [lightbox])
 
   if (images.length === 0) return null
 
@@ -43,8 +48,15 @@ export function PostImageGallery({ images }: PostImageGalleryProps) {
           >
             <X size={18} className="text-white" />
           </button>
-          <div className="relative max-w-3xl w-full max-h-[80vh]" onClick={(e) => e.stopPropagation()}>
-            <img src={lightbox} alt="" className="w-full h-full object-contain rounded-lg" />
+          <div
+            className="flex items-center justify-center w-full max-h-[80vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={lightbox}
+              alt=""
+              className="max-w-full max-h-[80vh] object-contain rounded-lg"
+            />
           </div>
         </div>
       )}

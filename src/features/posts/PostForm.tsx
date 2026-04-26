@@ -6,7 +6,14 @@ import { PostEditor } from './PostEditor'
 import { AttachmentSection } from './AttachmentSection'
 import { ExistingImage } from './ImageAttachmentPreview'
 import { ExistingAttachment } from './FileAttachmentList'
-import { createPost, updatePost, savePostImages, savePostAttachments } from './actions'
+import {
+  createPost,
+  updatePost,
+  uploadPostImage,
+  insertPostImages,
+  uploadPostAttachment,
+  insertPostAttachments,
+} from './actions'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 
@@ -44,21 +51,34 @@ export function PostForm({ mode, postId, initialValues, initialImages, initialAt
 
     startTransition(async () => {
       try {
-        if (mode === 'edit' && postId) {
-          await updatePost(postId, formData)
-          await Promise.all([
-            savePostImages(postId, imageFiles),
-            savePostAttachments(postId, attachmentFiles),
-          ])
-          router.push(`/community/free/${postId}`)
-        } else {
-          const newPostId = await createPost(formData)
-          await Promise.all([
-            savePostImages(newPostId, imageFiles),
-            savePostAttachments(newPostId, attachmentFiles),
-          ])
-          router.push(`/community/free/${newPostId}`)
-        }
+        const targetId = mode === 'edit' && postId
+          ? (await updatePost(postId, formData), postId)
+          : await createPost(formData)
+
+        // 이미지 업로드 (파일별 FormData)
+        const imageUrls = await Promise.all(
+          imageFiles.map((file, i) => {
+            const fd = new FormData()
+            fd.append('file', file)
+            fd.append('order', String(i))
+            return uploadPostImage(fd)
+          })
+        )
+        // 파일 업로드 (파일별 FormData)
+        const attachmentMetas = await Promise.all(
+          attachmentFiles.map((file) => {
+            const fd = new FormData()
+            fd.append('file', file)
+            return uploadPostAttachment(fd)
+          })
+        )
+
+        await Promise.all([
+          insertPostImages(targetId, imageUrls),
+          insertPostAttachments(targetId, attachmentMetas),
+        ])
+
+        router.push(`/community/free/${targetId}`)
       } catch (error) {
         if ((error as { digest?: string }).digest?.startsWith('NEXT_REDIRECT')) throw error
         setError('저장 중 오류가 발생했습니다. 다시 시도해주세요.')

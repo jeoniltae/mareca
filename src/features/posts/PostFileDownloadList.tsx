@@ -34,7 +34,7 @@ export function PostFileDownloadList({ attachments }: PostFileDownloadListProps)
         {attachments.map((att) => (
           <li key={att.id}>
             <a
-              href={att.file_url}
+              href={`${att.file_url}?download=${encodeURIComponent(att.file_name)}`}
               download={att.file_name}
               className="flex items-center gap-2.5 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors text-sm"
             >
