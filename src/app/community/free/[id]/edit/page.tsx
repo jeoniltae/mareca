@@ -27,6 +27,11 @@ export default async function EditPostPage({ params }: Props) {
 
   if (!post || post.user_id !== user.id) return notFound()
 
+  const [{ data: postImages }, { data: postAttachments }] = await Promise.all([
+    supabase.from('post_images').select('id, url').eq('post_id', id).order('display_order'),
+    supabase.from('post_attachments').select('id, file_name, file_url, file_size').eq('post_id', id),
+  ])
+
   return (
     <>
       <PageHeader
@@ -49,6 +54,8 @@ export default async function EditPostPage({ params }: Props) {
             youtube_url: post.youtube_url,
           }}
           cancelHref={`/community/free/${id}`}
+          initialImages={postImages ?? []}
+          initialAttachments={postAttachments ?? []}
         />
       </div>
     </>

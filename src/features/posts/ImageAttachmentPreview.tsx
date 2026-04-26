@@ -3,18 +3,32 @@
 import { useRef } from 'react'
 import Image from 'next/image'
 import { X, ImagePlus } from 'lucide-react'
+import { deletePostImage } from './actions'
 
 const MAX_COUNT = 5
 const MAX_SIZE_MB = 5
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
 
+export interface ExistingImage {
+  id: string
+  url: string
+}
+
 interface ImageAttachmentPreviewProps {
   files: File[]
   onChange: (files: File[]) => void
+  existingImages?: ExistingImage[]
+  onExistingDelete?: (id: string) => void
 }
 
-export function ImageAttachmentPreview({ files, onChange }: ImageAttachmentPreviewProps) {
+export function ImageAttachmentPreview({
+  files,
+  onChange,
+  existingImages = [],
+  onExistingDelete,
+}: ImageAttachmentPreviewProps) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const totalCount = existingImages.length + files.length
 
   function handleSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const selected = Array.from(e.target.files ?? [])
@@ -23,22 +37,27 @@ export function ImageAttachmentPreview({ files, onChange }: ImageAttachmentPrevi
       if (f.size > MAX_SIZE_MB * 1024 * 1024) return false
       return true
     })
-    const merged = [...files, ...valid].slice(0, MAX_COUNT)
+    const merged = [...files, ...valid].slice(0, MAX_COUNT - existingImages.length)
     onChange(merged)
     e.target.value = ''
   }
 
-  function handleRemove(index: number) {
+  function handleRemoveNew(index: number) {
     onChange(files.filter((_, i) => i !== index))
+  }
+
+  async function handleRemoveExisting(id: string) {
+    await deletePostImage(id)
+    onExistingDelete?.(id)
   }
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-slate-700">
-          이미지 첨부 <span className="text-slate-400 font-normal">({files.length}/{MAX_COUNT})</span>
+          이미지 첨부 <span className="text-slate-400 font-normal">({totalCount}/{MAX_COUNT})</span>
         </span>
-        {files.length < MAX_COUNT && (
+        {totalCount < MAX_COUNT && (
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
@@ -59,10 +78,22 @@ export function ImageAttachmentPreview({ files, onChange }: ImageAttachmentPrevi
         onChange={handleSelect}
       />
 
-      {files.length > 0 && (
+      {totalCount > 0 && (
         <div className="flex flex-wrap gap-2">
+          {existingImages.map((img) => (
+            <div key={img.id} className="relative w-20 h-20 rounded-lg overflow-hidden border border-slate-200 shrink-0">
+              <Image src={img.url} alt="" fill className="object-cover" unoptimized />
+              <button
+                type="button"
+                onClick={() => handleRemoveExisting(img.id)}
+                className="absolute top-0.5 right-0.5 w-5 h-5 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center transition-colors"
+              >
+                <X size={10} className="text-white" />
+              </button>
+            </div>
+          ))}
           {files.map((file, i) => (
-            <div key={i} className="relative w-20 h-20 rounded-lg overflow-hidden border border-slate-200 shrink-0">
+            <div key={i} className="relative w-20 h-20 rounded-lg overflow-hidden border border-sky-200 shrink-0">
               <Image
                 src={URL.createObjectURL(file)}
                 alt={file.name}
@@ -72,7 +103,7 @@ export function ImageAttachmentPreview({ files, onChange }: ImageAttachmentPrevi
               />
               <button
                 type="button"
-                onClick={() => handleRemove(i)}
+                onClick={() => handleRemoveNew(i)}
                 className="absolute top-0.5 right-0.5 w-5 h-5 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center transition-colors"
               >
                 <X size={10} className="text-white" />

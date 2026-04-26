@@ -1,9 +1,12 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { PostEditor } from './PostEditor'
 import { AttachmentSection } from './AttachmentSection'
-import { createPost, updatePost } from './actions'
+import { ExistingImage } from './ImageAttachmentPreview'
+import { ExistingAttachment } from './FileAttachmentList'
+import { createPost, updatePost, savePostImages, savePostAttachments } from './actions'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 
@@ -18,10 +21,13 @@ interface PostFormProps {
     content: string
     youtube_url: string | null
   }
+  initialImages?: ExistingImage[]
+  initialAttachments?: ExistingAttachment[]
   cancelHref: string
 }
 
-export function PostForm({ mode, postId, initialValues, cancelHref }: PostFormProps) {
+export function PostForm({ mode, postId, initialValues, initialImages, initialAttachments, cancelHref }: PostFormProps) {
+  const router = useRouter()
   const [content, setContent] = useState(initialValues?.content ?? '')
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [attachmentFiles, setAttachmentFiles] = useState<File[]>([])
@@ -40,8 +46,18 @@ export function PostForm({ mode, postId, initialValues, cancelHref }: PostFormPr
       try {
         if (mode === 'edit' && postId) {
           await updatePost(postId, formData)
+          await Promise.all([
+            savePostImages(postId, imageFiles),
+            savePostAttachments(postId, attachmentFiles),
+          ])
+          router.push(`/community/free/${postId}`)
         } else {
-          await createPost(formData)
+          const newPostId = await createPost(formData)
+          await Promise.all([
+            savePostImages(newPostId, imageFiles),
+            savePostAttachments(newPostId, attachmentFiles),
+          ])
+          router.push(`/community/free/${newPostId}`)
         }
       } catch (error) {
         if ((error as { digest?: string }).digest?.startsWith('NEXT_REDIRECT')) throw error
@@ -105,6 +121,8 @@ export function PostForm({ mode, postId, initialValues, cancelHref }: PostFormPr
         attachmentFiles={attachmentFiles}
         onImageChange={setImageFiles}
         onAttachmentChange={setAttachmentFiles}
+        initialImages={initialImages}
+        initialAttachments={initialAttachments}
       />
 
       {/* 에러 */}

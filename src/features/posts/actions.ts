@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 // ─── 게시글 생성 ────────────────────────────────────────────────────────────────
-export async function createPost(formData: FormData) {
+export async function createPost(formData: FormData): Promise<string> {
   const supabase = await createClient()
   const {
     data: { user },
@@ -27,11 +27,11 @@ export async function createPost(formData: FormData) {
   if (error) throw new Error(error.message)
 
   revalidatePath('/community/free')
-  redirect(`/community/free/${data.id}`)
+  return data.id
 }
 
 // ─── 게시글 수정 ────────────────────────────────────────────────────────────────
-export async function updatePost(id: string, formData: FormData) {
+export async function updatePost(id: string, formData: FormData): Promise<void> {
   const supabase = await createClient()
   const {
     data: { user },
