@@ -36,7 +36,7 @@ export default function AboutHistoryPage() {
         title="연혁 및 주요 행사"
         breadcrumbs={[{ label: '총회소개', href: '/about' }, { label: '연혁 및 주요 행사' }]}
         backgroundImage="/images/breadcrumb/john_calvin.jpg"
-        bgColor="bg-[#3b2410]"
+        bgColor="bg-slate-800"
       />
 
       <section className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">

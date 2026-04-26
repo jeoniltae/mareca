@@ -31,7 +31,8 @@ const NAV_ITEMS: NavItem[] = [
       { label: '연혁 및 주요 행사', href: '/about/history' },
       { label: '총회조직 및 사역원칙', href: '/about/organization' },
       { label: '임원', href: '/about/officers' },
-      { label: '교단로고', href: '/about/logo' },
+      { label: '총회로고', href: '/about/logo' },
+      { label: '총회헌법', href: '/constitution' },
       { label: '오시는 길', href: '/about/directions' },
     ],
   },
@@ -46,10 +47,10 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
-    label: '총회헌법',
-    href: '/constitution',
+    label: '10 Missions',
+    href: '/10-missions',
     subItems: [
-      { label: '총회헌법', href: '/constitution/law' },
+      { label: '소개', href: '/10-missions' },
     ],
   },
   {

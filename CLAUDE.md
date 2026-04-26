@@ -158,6 +158,40 @@ src/
     5. 전체 화면 검토 및 미세 조정
   - 예상 수정 파일: 약 20~25개 / 예상 소요 시간: 약 1시간
 
+- **[미착수] 언론기사 RSS 피드 수집 게시판**
+  - 개요: 특정 기독교 언론사의 RSS 피드를 주기적으로 수집해 게시판 형태로 노출, 클릭 시 원문 기사로 이동
+  - 수집 대상 언론사:
+    - 기독일보: `http://christiandaily.co.kr/rss`
+    - 크리스천투데이: `https://www.christiantoday.co.kr/rss`
+  - 구현 방식: GitHub Actions 스케줄러(cron) → RSS XML 파싱 → Supabase `press_articles` 테이블 저장 → Server Component로 렌더링
+  - DB 스키마 (예정):
+    - `id` uuid PK, `url` text, `og_title` text, `og_image` text, `og_description` text, `source_name` text, `published_at` date, `created_at` timestamptz
+  - 표시 정책: 제목 + 요약 + 링크만 노출 (기사 원문 복사 금지 — 저작권)
+  - 관련 파일 위치 예정: `src/features/press/`, `src/app/news/press/page.tsx`
+
+- **[미착수] 후원하기 페이지**
+  - 개요: 후원 신청 폼을 입력받아 Supabase에 저장, 관리자가 확인 후 계좌이체로 수동 처리하는 방식 (온라인 즉시결제 없음)
+  - 구현 흐름: 사용자 폼 입력 → 제출 → Supabase `donations` 테이블 저장 → 관리자 확인 후 계좌 안내
+  - 폼 필드: 성명, 성별, 연락처, 이메일, 주소(카카오 주소 API), 교단명, 교회명, 교직, 회원구분(개인/단체/교회), 후원액(매월), 후원 은행
+  - DB 스키마 (예정): `id` uuid, `name` text, `gender` text, `phone` text, `email` text, `address` text, `church_name` text, `denomination` text, `position` text, `member_type` text, `amount` integer, `bank` text, `agreed_privacy` boolean, `created_at` timestamptz
+  - 추가 고려사항:
+    - 하단 개인정보 수집·이용 동의 체크박스 필수
+    - 비로그인 제출 허용 시 스팸 방지 처리 필요
+    - 관리자 알림: Supabase 대시보드 확인 또는 이메일 알림(Resend) 추가 가능
+  - 관련 파일 위치 예정: `src/app/donate/page.tsx`, `src/features/donate/`
+
+- **[미착수] 스마트폰 홈 화면 바로가기 아이콘 추가 기능 (PWA)**
+  - 개요: 메인 페이지에 "홈 화면에 추가" 버튼을 두고 클릭 시 스마트폰 바탕화면에 마레카 아이콘 바로가기 생성
+  - 플랫폼별 동작:
+    - Android (Chrome): `beforeinstallprompt` 이벤트 가로채기 → 버튼 클릭 시 시스템 설치 다이얼로그 표시
+    - iOS (Safari): 자동화 불가 → "공유 → 홈 화면에 추가" 단계 안내 모달 표시
+  - 선행 작업 (PWA 기반 설정):
+    - `src/app/manifest.ts` 신규 생성 (앱 이름, 아이콘, 시작 URL 등)
+    - `public/icons/` 아이콘 파일 배치 (192×192, 512×512, apple-touch-icon 180×180)
+    - `src/app/layout.tsx` metadata에 viewport, themeColor, appleWebApp 추가
+  - 신규 컴포넌트: `src/components/shared/AddToHomeScreen.tsx`
+  - 이미 설치됐거나 standalone 모드면 버튼 자동 숨김 처리 필요
+
 - **[미해결] 404/500 페이지에서 "이전 페이지" 버튼(BackButton) 클릭 후 GNB 애니메이션·인터랙션 불작동**
   - 증상: 404/500 같은 하드 네비게이션 페이지에서 `router.back()` 또는 `history.back()` 사용 시 이전 페이지로 돌아왔을 때 Header의 Framer Motion 애니메이션 및 hover 인터랙션이 동작하지 않음
   - "홈으로 가기"(`Link href="/"`) 클릭 시에는 정상 동작

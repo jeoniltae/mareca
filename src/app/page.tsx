@@ -154,7 +154,7 @@ function QuickMenuSection() {
   const menus = [
     { label: '연락처', href: '/contact', icon: Phone },
     { label: '주소록', href: '/address', icon: MapPin },
-    { label: '교단로고', href: '/resources/logo', icon: BookOpen },
+    { label: '총회로고', href: '/resources/logo', icon: BookOpen },
     { label: '총회헌법', href: '/constitution', icon: FileText },
     { label: '노회소식', href: '/presbytery/news', icon: Users },
     { label: '후원하기', href: '/support', icon: ArrowRight },

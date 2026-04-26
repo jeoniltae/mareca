@@ -44,7 +44,7 @@ export default function AboutConfessionPage() {
         title="신앙고백"
         breadcrumbs={[{ label: '총회소개', href: '/about' }, { label: '신앙고백' }]}
         backgroundImage="/images/breadcrumb/john_calvin.jpg"
-        bgColor="bg-[#3b2410]"
+        bgColor="bg-slate-800"
       />
 
       {/* 신앙고백 */}

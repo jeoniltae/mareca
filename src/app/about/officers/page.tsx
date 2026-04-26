@@ -21,38 +21,36 @@ const OFFICERS: OfficerGroup[] = [
   },
   {
     role: '대변인',
-    members: [{ name: '이희수', title: '목사' }],
+    members: [{ name: '공성권', title: '목사', image: '/images/gong_seong_gwon.png' }],
   },
   {
     role: '총무',
-    members: [{ name: '김경수', title: '목사' }],
+    members: [{ name: '김경수', title: '목사', image: '/images/kim_kyung_soo.png' }],
   },
   {
     role: '마스터스클럽 회장',
-    members: [{ name: '송연수', title: '목사' }],
+    members: [{ name: '송연수', title: '목사', image: '/images/song_yeon_su.png' }],
   },
   {
     role: '본부팀장',
-    members: [{ name: '변성휘', title: '목사' }],
+    members: [{ name: '최상권', title: '목사', image: '/images/choi_sang_kwon.png' }],
   },
   {
     role: '선교팀장',
     members: [
-      { name: '최상권', title: '목사', note: '(팀장)' },
-      { name: '도미라', title: '선교사', note: '(부팀장)' },
+      { name: '최상권', title: '목사', note: '(팀장)', image: '/images/choi_sang_kwon.png' }
     ],
   },
   {
     role: '복지팀장',
     members: [
-      { name: '김중득', title: '목사', note: '(팀장)' },
-      { name: '안시은', title: '두손클럽 회장', note: '(부팀장)' },
+      { name: '안시은', title: '두손클럽 회장', note: '(팀장)' },
       { name: '박혜진', title: '제주팀장' },
     ],
   },
   {
     role: '교육팀장 (마스터스아카데미)',
-    members: [{ name: '공성권', title: '목사' }],
+    members: [{ name: '공성권', title: '목사', image: '/images/gong_seong_gwon.png' }],
   },
   {
     role: '마스터스세미너리',
@@ -68,8 +66,8 @@ const OFFICERS: OfficerGroup[] = [
   {
     role: '건축팀장',
     members: [
-      { name: '임현상', title: '목사', note: '(팀장)' },
-      { name: '임동균', title: '', note: '(부팀장)' },
+      { name: '임현상', title: '목사', note: '(팀장)', image: '/images/im_hyun_sang.png' },
+      { name: '임동균', title: '', note: '(부팀장)', image: '/images/lim_dong_gyun.png' },
     ],
   },
   {
@@ -79,7 +77,7 @@ const OFFICERS: OfficerGroup[] = [
   },
   {
     role: '재정팀장',
-    members: [{ name: '최희진', title: '' }],
+    members: [{ name: '최희진', title: '', image: '/images/choi_hee_jin.png' }],
   },
 ]
 
@@ -123,7 +121,7 @@ export default function AboutOfficersPage() {
         title="임원"
         breadcrumbs={[{ label: '총회소개', href: '/about' }, { label: '임원' }]}
         backgroundImage="/images/breadcrumb/john_calvin.jpg"
-        bgColor="bg-[#3b2410]"
+        bgColor="bg-slate-800"
       />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
@@ -147,7 +145,7 @@ export default function AboutOfficersPage() {
                 {group.vacant ? (
                   <p className="text-sm text-slate-400 italic">공석</p>
                 ) : (
-                  <div className="flex flex-wrap gap-5">
+                  <div className="flex flex-wrap gap-4">
                     {group.members.map((member) => (
                       <OfficerCard
                         key={`${member.name}-${group.role}`}
