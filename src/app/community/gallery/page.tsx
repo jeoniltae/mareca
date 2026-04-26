@@ -75,7 +75,7 @@ export default async function CommunityGalleryPage({ searchParams }: Props) {
         {posts && posts.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
             {posts.map((post) => {
-              const date = new Date(post.created_at)
+              const date = new Date(post.created_at ?? '')
               const formatted = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`
               const imgCount = countMap[post.id] ?? 0
 
