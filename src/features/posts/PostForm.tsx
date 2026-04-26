@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { PostEditor } from './PostEditor'
+import { AttachmentSection } from './AttachmentSection'
 import { createPost, updatePost } from './actions'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
@@ -22,6 +23,8 @@ interface PostFormProps {
 
 export function PostForm({ mode, postId, initialValues, cancelHref }: PostFormProps) {
   const [content, setContent] = useState(initialValues?.content ?? '')
+  const [imageFiles, setImageFiles] = useState<File[]>([])
+  const [attachmentFiles, setAttachmentFiles] = useState<File[]>([])
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
@@ -95,6 +98,14 @@ export function PostForm({ mode, postId, initialValues, cancelHref }: PostFormPr
           className="flex-1 min-w-0 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300"
         />
       </div>
+
+      {/* 첨부파일 */}
+      <AttachmentSection
+        imageFiles={imageFiles}
+        attachmentFiles={attachmentFiles}
+        onImageChange={setImageFiles}
+        onAttachmentChange={setAttachmentFiles}
+      />
 
       {/* 에러 */}
       {error && <p className="text-sm text-red-500">{error}</p>}

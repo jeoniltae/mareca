@@ -45,7 +45,7 @@ export default async function PostDetailPage({ params }: Props) {
   incrementViews(id)
 
   const isAuthor = user?.id === post.user_id
-  const date = new Date(post.created_at).toLocaleDateString('ko-KR', {
+  const date = new Date(post.created_at ?? '').toLocaleDateString('ko-KR', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
