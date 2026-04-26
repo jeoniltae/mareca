@@ -158,14 +158,14 @@ type PostRowProps = {
     category: string
     title: string
     views: number
-    created_at: string
+    created_at: string | null
     profiles: { nickname: string | null } | null
   }
   isPinned?: boolean
 }
 
 function PostRow({ post, isPinned }: PostRowProps) {
-  const date = new Date(post.created_at)
+  const date = new Date(post.created_at ?? '')
   const formatted = `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   const isNew = Date.now() - date.getTime() < 1000 * 60 * 60 * 24
 
