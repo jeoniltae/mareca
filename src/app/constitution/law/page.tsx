@@ -16,7 +16,7 @@ export default function ConstitutionLawPage() {
       <PageHeader
         title="총회헌법"
         breadcrumbs={[{ label: '총회헌법', href: '/constitution' }, { label: '총회헌법' }]}
-        backgroundImage="/images/theodorus_beza.jpeg"
+        backgroundImage="/images/breadcrumb/john_calvin.jpg"
         bgColor="bg-slate-800"
         imagePosition="center 40%"
       />

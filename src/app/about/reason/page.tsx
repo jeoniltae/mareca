@@ -47,7 +47,7 @@ export default function AboutReasonPage() {
         title="왜 마스터스개혁파총회를 시작하는가?"
         breadcrumbs={[{ label: '총회소개', href: '/about' }, { label: '왜 마스터스개혁파총회를 시작하는가?' }]}
         backgroundImage="/images/breadcrumb/john_calvin.jpg"
-        bgColor="bg-[#3b2410]"
+        bgColor="bg-slate-800"
       />
 
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">

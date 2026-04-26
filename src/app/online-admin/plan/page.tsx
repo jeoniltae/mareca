@@ -1,4 +1,5 @@
 import { PageHeader } from '@/components/shared/PageHeader'
+import { ComingSoon } from '@/components/shared/ComingSoon'
 
 export const metadata = { title: '교회계획' }
 
@@ -8,13 +9,11 @@ export default function OnlineAdminPlanPage() {
       <PageHeader
         title="교회계획"
         breadcrumbs={[{ label: '온라인행정', href: '/online-admin' }, { label: '교회계획' }]}
-        backgroundImage="/images/abraham_kuyper.png"
+        backgroundImage="/images/breadcrumb/abraham_kuyper.png"
         bgColor="bg-slate-800"
         imagePosition="center 22%"
       />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <p className="text-slate-500">준비중</p>
-      </div>
+      <ComingSoon />
     </>
   )
 }

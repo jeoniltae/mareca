@@ -1,4 +1,5 @@
 import { PageHeader } from '@/components/shared/PageHeader'
+import { ComingSoon } from '@/components/shared/ComingSoon'
 
 export const metadata = { title: '제주' }
 
@@ -8,12 +9,10 @@ export default function PresbyterJejuPage() {
       <PageHeader
         title="제주"
         breadcrumbs={[{ label: '노회소개', href: '/presbytery' }, { label: '제주' }]}
-        backgroundImage="/images/john_knox.jpg"
+        backgroundImage="/images/breadcrumb/john_knox.jpg"
         bgColor="bg-slate-800"
       />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <p className="text-slate-500">준비중</p>
-      </div>
+      <ComingSoon />
     </>
   )
 }

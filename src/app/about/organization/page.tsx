@@ -4,8 +4,8 @@ import { CheckCircle2, Users } from 'lucide-react'
 export const metadata = { title: '총회조직 및 사역원칙' }
 
 const AFFILIATED_CHURCHES = [
-  { region: '서울', churches: '바로선개혁교회, 임마누엘교회, 청교도개혁교회' },
-  { region: '경기', churches: '주기쁨교회, 더향기#교회, 나믄터기교회, 신성교회' },
+  { region: '서울', churches: '바로선개혁교회, 청교도개혁교회' },
+  { region: '경기', churches: '주기쁨교회, 신성교회' },
   { region: '제주', churches: '하람교회, 서길교회' },
   { region: '해외', churches: '인도, 중국교회' },
 ]
@@ -88,7 +88,7 @@ export default function AboutOrganizationPage() {
         title="총회조직 및 사역원칙"
         breadcrumbs={[{ label: '총회소개', href: '/about' }, { label: '총회조직 및 사역원칙' }]}
         backgroundImage="/images/breadcrumb/john_calvin.jpg"
-        bgColor="bg-[#3b2410]"
+        bgColor="bg-slate-800"
       />
 
       {/* ① 조직 */}
