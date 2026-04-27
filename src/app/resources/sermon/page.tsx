@@ -58,7 +58,7 @@ export default async function ResourcesSermonPage({ searchParams }: Props) {
       <PageHeader
         title="설교자료실"
         breadcrumbs={[{ label: '마스터스자료실', href: '/resources' }, { label: '설교자료실' }]}
-        backgroundImage="/images/bb_warfield.png"
+        backgroundImage="/images/breadcrumb/bb_warfield.png"
         bgColor="bg-slate-800"
       />
 
