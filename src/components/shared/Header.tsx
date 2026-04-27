@@ -90,9 +90,7 @@ const NAV_ITEMS: NavItem[] = [
     href: '/community',
     subItems: [
       { label: '마스터스 메시지', href: '/community/message' },
-      { label: '주말인사', href: '/community/greeting' },
       { label: 'ReformedTV', href: '/community/reformed-tv' },
-      { label: '확정보고', href: '/community/report' },
       { label: '자유게시판', href: '/community/free' },
       { label: '갤러리', href: '/community/gallery' },
       { label: 'Plus Voice', href: '/community/voice' },
@@ -250,7 +248,7 @@ export function Header() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="px-3 py-2 text-base text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-md transition-colors"
+                    className="relative px-3 py-2 text-base font-medium text-slate-800 hover:text-slate-700 transition-colors after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:h-0.5 after:w-0 after:bg-slate-700 after:transition-all after:duration-300 hover:after:w-full"
                   >
                     {item.label}
                   </Link>
@@ -280,7 +278,7 @@ export function Header() {
                                 <li key={sub.href}>
                                   <Link
                                     href={sub.href}
-                                    className="text-sm text-slate-500 hover:text-slate-900 transition-colors leading-snug block"
+                                    className="text-sm text-slate-500 hover:text-[#3C5A6E] hover:font-medium hover:translate-x-1 transition-all leading-snug block"
                                   >
                                     {sub.label}
                                   </Link>
@@ -301,7 +299,7 @@ export function Header() {
               {user ? (
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-md transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-600 border border-slate-300 hover:border-slate-500 hover:text-slate-800 rounded-lg transition-colors"
                 >
                   <User size={15} />
                   <span className="max-w-[150px] truncate">{user.email?.split('@')[0]}</span>
@@ -310,7 +308,7 @@ export function Header() {
               ) : (
                 <Link
                   href="/login"
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-md transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-600 border border-slate-300 hover:border-slate-500 hover:text-slate-800 rounded-lg transition-colors"
                 >
                   <LogIn size={15} />
                   로그인

@@ -128,7 +128,7 @@ export default async function CommunityFreePage({ searchParams }: Props) {
         {/* 목록 */}
         <div className="border-t border-slate-200 pt-1">
           {pinned?.map((post) => (
-            <PostRow key={post.id} post={post} isPinned />
+            <PostRowBoth key={post.id} post={post} isPinned />
           ))}
 
           {(pinned?.length ?? 0) > 0 && (regular?.length ?? 0) > 0 && (
@@ -136,7 +136,7 @@ export default async function CommunityFreePage({ searchParams }: Props) {
           )}
 
           {regular?.map((post) => (
-            <PostRow key={post.id} post={post} />
+            <PostRowBoth key={post.id} post={post} />
           ))}
 
           {totalCount === 0 && (
@@ -173,7 +173,56 @@ function PostRow({ post, isPinned }: PostRowProps) {
     <Link
       href={`/community/free/${post.id}`}
       className={cn(
-        'group flex items-center gap-3 py-3.5 px-2 -mx-2 rounded-lg hover:bg-slate-50 transition-colors',
+        'group py-3.5 px-2 -mx-2 rounded-lg hover:bg-slate-50 transition-colors',
+        'flex sm:hidden flex-col gap-1.5',
+        isPinned && 'bg-slate-50/80 hover:bg-slate-100/80',
+      )}
+    >
+      {/* 모바일: 1행 — 카테고리 + NEW / 날짜 */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5">
+          {isPinned && <Pin size={12} className="shrink-0 text-slate-400" />}
+          <span className={cn('shrink-0 text-xs px-2 py-0.5 rounded-md font-medium', CATEGORY_STYLE[post.category])}>
+            {post.category}
+          </span>
+          {isNew && !isPinned && (
+            <span className="shrink-0 text-[10px] font-bold text-white bg-sky-500 px-1.5 py-0.5 rounded">
+              NEW
+            </span>
+          )}
+        </div>
+        <span className="text-xs text-slate-400">{formatted}</span>
+      </div>
+
+      {/* 모바일: 2행 — 제목 / 조회수 */}
+      <div className="flex items-end justify-between gap-2">
+        <span
+          className={cn(
+            'text-sm line-clamp-2 group-hover:text-sky-700 transition-colors leading-snug',
+            isPinned ? 'text-slate-700 font-medium' : 'text-slate-800',
+          )}
+        >
+          {post.title}
+        </span>
+        <span className="shrink-0 flex items-center gap-1 text-xs text-slate-400">
+          <Eye size={11} />
+          {post.views}
+        </span>
+      </div>
+    </Link>
+  )
+}
+
+function PostRowDesktop({ post, isPinned }: PostRowProps) {
+  const date = new Date(post.created_at ?? '')
+  const formatted = `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  const isNew = Date.now() - date.getTime() < 1000 * 60 * 60 * 24
+
+  return (
+    <Link
+      href={`/community/free/${post.id}`}
+      className={cn(
+        'group hidden sm:flex items-center gap-3 py-3.5 px-2 -mx-2 rounded-lg hover:bg-slate-50 transition-colors',
         isPinned && 'bg-slate-50/80 hover:bg-slate-100/80',
       )}
     >
@@ -199,7 +248,7 @@ function PostRow({ post, isPinned }: PostRowProps) {
       </div>
 
       <div className="shrink-0 flex items-center gap-3 text-xs text-slate-400">
-        <span className="hidden sm:block w-28 text-right truncate">
+        <span className="w-28 text-right truncate">
           {post.profiles?.nickname ?? '알 수 없음'}
         </span>
         <span className="w-10 text-right">{formatted}</span>
@@ -209,5 +258,14 @@ function PostRow({ post, isPinned }: PostRowProps) {
         </span>
       </div>
     </Link>
+  )
+}
+
+function PostRowBoth(props: PostRowProps) {
+  return (
+    <>
+      <PostRow {...props} />
+      <PostRowDesktop {...props} />
+    </>
   )
 }
