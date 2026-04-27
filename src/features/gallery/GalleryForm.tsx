@@ -33,6 +33,12 @@ export function GalleryForm({
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   async function handleFiles(files: FileList) {
+    const MAX_SIZE_MB = 10
+    const oversized = Array.from(files).filter((f) => f.size > MAX_SIZE_MB * 1024 * 1024)
+    if (oversized.length > 0) {
+      setError(`파일 크기는 ${MAX_SIZE_MB}MB 이하만 업로드할 수 있습니다. (${oversized.map((f) => f.name).join(', ')})`)
+      return
+    }
     const accepted = Array.from(files).filter((f) => f.type.startsWith('image/'))
     if (accepted.length === 0) return
 
