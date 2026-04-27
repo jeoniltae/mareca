@@ -84,7 +84,7 @@ export function Footer() {
       <div className="border-t border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <p className="text-sm text-slate-500">
-            © Copyright 2023. 마스터스개혁파총회 All Rights Reserved.
+            © Copyright 2021. 마스터스개혁파총회 All Rights Reserved.
           </p>
         </div>
       </div>
