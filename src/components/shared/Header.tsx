@@ -90,9 +90,7 @@ const NAV_ITEMS: NavItem[] = [
     href: '/community',
     subItems: [
       { label: '마스터스 메시지', href: '/community/message' },
-      { label: '주말인사', href: '/community/greeting' },
       { label: 'ReformedTV', href: '/community/reformed-tv' },
-      { label: '확정보고', href: '/community/report' },
       { label: '자유게시판', href: '/community/free' },
       { label: '갤러리', href: '/community/gallery' },
       { label: 'Plus Voice', href: '/community/voice' },
