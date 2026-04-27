@@ -55,7 +55,7 @@ export default async function GalleryDetailPage({ params }: Props) {
 
   const imageUrls = (images ?? []).map((img) => img.url)
 
-  const formatted = new Date(post.created_at).toLocaleString('ko-KR', {
+  const formatted = new Date(post.created_at ?? '').toLocaleString('ko-KR', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',

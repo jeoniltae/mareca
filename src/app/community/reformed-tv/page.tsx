@@ -70,7 +70,7 @@ export default async function ReformedTVPage({ searchParams }: Props) {
             {posts?.map((post) => {
               const videoId = post.youtube_url ? extractYoutubeId(post.youtube_url) : null
               const thumbnail = videoId ? getYoutubeThumbnail(videoId) : null
-              const date = new Date(post.created_at)
+              const date = new Date(post.created_at ?? '')
               const formatted = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`
 
               return (

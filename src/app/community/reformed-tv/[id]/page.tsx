@@ -50,7 +50,7 @@ export default async function ReformedTVDetailPage({ params }: Props) {
   const isAuthor = user?.id === post.user_id
   const videoId = post.youtube_url ? extractYoutubeId(post.youtube_url) : null
 
-  const date = new Date(post.created_at).toLocaleString('ko-KR', {
+  const date = new Date(post.created_at ?? '').toLocaleString('ko-KR', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',

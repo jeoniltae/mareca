@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 // ─── 게시글 생성 ────────────────────────────────────────────────────────────────
-export async function createPost(formData: FormData) {
+export async function createPost(formData: FormData): Promise<string> {
   const supabase = await createClient()
   const {
     data: { user },
@@ -27,11 +27,11 @@ export async function createPost(formData: FormData) {
   if (error) throw new Error(error.message)
 
   revalidatePath('/community/free')
-  redirect(`/community/free/${data.id}`)
+  return data.id
 }
 
 // ─── 게시글 수정 ────────────────────────────────────────────────────────────────
-export async function updatePost(id: string, formData: FormData) {
+export async function updatePost(id: string, formData: FormData): Promise<void> {
   const supabase = await createClient()
   const {
     data: { user },
@@ -54,7 +54,6 @@ export async function updatePost(id: string, formData: FormData) {
 
   revalidatePath('/community/free')
   revalidatePath(`/community/free/${id}`)
-  redirect(`/community/free/${id}`)
 }
 
 // ─── 게시글 삭제 ────────────────────────────────────────────────────────────────
@@ -79,6 +78,38 @@ export async function deletePost(id: string) {
     if (imagePaths.length > 0) {
       await supabase.storage.from('post-images').remove(imagePaths)
     }
+  }
+
+  // 첨부 이미지 Storage 삭제
+  const { data: postImages } = await supabase
+    .from('post_images')
+    .select('url')
+    .eq('post_id', id)
+
+  if (postImages && postImages.length > 0) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const bucketPrefix = `${supabaseUrl}/storage/v1/object/public/post-images/`
+    const paths = postImages
+      .map((img) => img.url)
+      .filter((url) => url.startsWith(bucketPrefix))
+      .map((url) => decodeURIComponent(url.slice(bucketPrefix.length)))
+    if (paths.length > 0) await supabase.storage.from('post-images').remove(paths)
+  }
+
+  // 첨부 파일 Storage 삭제
+  const { data: attachments } = await supabase
+    .from('post_attachments')
+    .select('file_url')
+    .eq('post_id', id)
+
+  if (attachments && attachments.length > 0) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const bucketPrefix = `${supabaseUrl}/storage/v1/object/public/post-attachments/`
+    const paths = attachments
+      .map((a) => a.file_url)
+      .filter((url) => url.startsWith(bucketPrefix))
+      .map((url) => decodeURIComponent(url.slice(bucketPrefix.length)))
+    if (paths.length > 0) await supabase.storage.from('post-attachments').remove(paths)
   }
 
   const { error } = await supabase
@@ -111,6 +142,161 @@ function extractStorageImagePaths(content: string): string[] {
   }
 
   return paths
+}
+
+// ─── 첨부 이미지 단건 업로드 (FormData 방식) ────────────────────────────────────
+export async function uploadPostImage(formData: FormData): Promise<string> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) throw new Error('로그인이 필요합니다')
+
+  const file = formData.get('file') as File
+  const order = formData.get('order') as string
+  const ext = file.name.split('.').pop()
+  const path = `${user.id}/${Date.now()}_${order}.${ext}`
+
+  const { error: uploadError } = await supabase.storage.from('post-images').upload(path, file)
+  if (uploadError) throw new Error(uploadError.message)
+
+  const { data: { publicUrl } } = supabase.storage.from('post-images').getPublicUrl(path)
+  return publicUrl
+}
+
+// ─── 첨부 이미지 DB 저장 ────────────────────────────────────────────────────────
+export async function insertPostImages(
+  postId: string,
+  urls: string[],
+): Promise<void> {
+  if (urls.length === 0) return
+  const supabase = await createClient()
+  const rows = urls.map((url, i) => ({ post_id: postId, url, display_order: i }))
+  const { error } = await supabase.from('post_images').insert(rows)
+  if (error) throw new Error(error.message)
+}
+
+// ─── 첨부 파일 단건 업로드 (FormData 방식) ──────────────────────────────────────
+export async function uploadPostAttachment(formData: FormData): Promise<{
+  file_name: string
+  file_url: string
+  file_size: number
+  mime_type: string
+}> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) throw new Error('로그인이 필요합니다')
+
+  const file = formData.get('file') as File
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+  const path = `${user.id}/${Date.now()}_${safeName}`
+
+  const { error: uploadError } = await supabase.storage.from('post-attachments').upload(path, file)
+  if (uploadError) throw new Error(uploadError.message)
+
+  const { data: { publicUrl } } = supabase.storage.from('post-attachments').getPublicUrl(path)
+
+  return {
+    file_name: file.name,
+    file_url: publicUrl,
+    file_size: file.size,
+    mime_type: file.type || 'application/octet-stream',
+  }
+}
+
+// ─── 첨부 파일 DB 저장 ──────────────────────────────────────────────────────────
+export async function insertPostAttachments(
+  postId: string,
+  metas: { file_name: string; file_url: string; file_size: number; mime_type: string }[],
+): Promise<void> {
+  if (metas.length === 0) return
+  const supabase = await createClient()
+  const rows = metas.map((m) => ({ post_id: postId, ...m }))
+  const { error } = await supabase.from('post_attachments').insert(rows)
+  if (error) throw new Error(error.message)
+}
+
+// ─── 파일 첨부 업로드 ───────────────────────────────────────────────────────────
+export async function uploadAttachment(file: File): Promise<{
+  file_name: string
+  file_url: string
+  file_size: number
+  mime_type: string
+}> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) throw new Error('로그인이 필요합니다')
+
+  const ext = file.name.split('.').pop()
+  const path = `${user.id}/${Date.now()}_${file.name}`
+
+  const { error: uploadError } = await supabase.storage
+    .from('post-attachments')
+    .upload(path, file)
+
+  if (uploadError) throw new Error(uploadError.message)
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from('post-attachments').getPublicUrl(path)
+
+  return {
+    file_name: file.name,
+    file_url: publicUrl,
+    file_size: file.size,
+    mime_type: file.type || `application/octet-stream`,
+  }
+}
+
+// ─── 첨부 이미지 단건 삭제 ──────────────────────────────────────────────────────
+export async function deletePostImage(id: string): Promise<void> {
+  const supabase = await createClient()
+
+  const { data } = await supabase
+    .from('post_images')
+    .select('url')
+    .eq('id', id)
+    .single()
+
+  if (data?.url) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const bucketPrefix = `${supabaseUrl}/storage/v1/object/public/post-images/`
+    if (data.url.startsWith(bucketPrefix)) {
+      const path = decodeURIComponent(data.url.slice(bucketPrefix.length))
+      await supabase.storage.from('post-images').remove([path])
+    }
+  }
+
+  await supabase.from('post_images').delete().eq('id', id)
+}
+
+// ─── 첨부 파일 단건 삭제 ────────────────────────────────────────────────────────
+export async function deletePostAttachment(id: string): Promise<void> {
+  const supabase = await createClient()
+
+  const { data } = await supabase
+    .from('post_attachments')
+    .select('file_url')
+    .eq('id', id)
+    .single()
+
+  if (data?.file_url) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const bucketPrefix = `${supabaseUrl}/storage/v1/object/public/post-attachments/`
+    if (data.file_url.startsWith(bucketPrefix)) {
+      const path = decodeURIComponent(data.file_url.slice(bucketPrefix.length))
+      await supabase.storage.from('post-attachments').remove([path])
+    }
+  }
+
+  await supabase.from('post_attachments').delete().eq('id', id)
 }
 
 // ─── 조회수 증가 ────────────────────────────────────────────────────────────────

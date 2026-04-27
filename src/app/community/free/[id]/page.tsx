@@ -3,6 +3,8 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { notFound } from 'next/navigation'
 import { incrementViews } from '@/features/posts/actions'
 import { PostActions } from '@/features/posts/PostActions'
+import { PostImageGallery } from '@/features/posts/PostImageGallery'
+import { PostFileDownloadList } from '@/features/posts/PostFileDownloadList'
 import { Eye, Calendar, Tag } from 'lucide-react'
 import Link from 'next/link'
 import { ShareButtons } from '@/components/shared/ShareButtons'
@@ -30,13 +32,11 @@ export default async function PostDetailPage({ params }: Props) {
   const { id } = await params
   const supabase = await createClient()
 
-  const [{ data: post }, { data: { user } }] = await Promise.all([
-    supabase
-      .from('posts')
-      .select('*, profiles(nickname)')
-      .eq('id', id)
-      .single(),
+  const [{ data: post }, { data: { user } }, { data: postImages }, { data: postAttachments }] = await Promise.all([
+    supabase.from('posts').select('*, profiles(nickname)').eq('id', id).single(),
     supabase.auth.getUser(),
+    supabase.from('post_images').select('id, url').eq('post_id', id).order('display_order'),
+    supabase.from('post_attachments').select('id, file_name, file_url, file_size').eq('post_id', id),
   ])
 
   if (!post) return notFound()
@@ -45,7 +45,7 @@ export default async function PostDetailPage({ params }: Props) {
   incrementViews(id)
 
   const isAuthor = user?.id === post.user_id
-  const date = new Date(post.created_at).toLocaleDateString('ko-KR', {
+  const date = new Date(post.created_at ?? '').toLocaleDateString('ko-KR', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -98,6 +98,12 @@ export default async function PostDetailPage({ params }: Props) {
           className="prose prose-slate max-w-none"
           dangerouslySetInnerHTML={{ __html: post.content ?? '' }}
         />
+
+        {/* 첨부 이미지 */}
+        <PostImageGallery images={postImages ?? []} />
+
+        {/* 첨부 파일 */}
+        <PostFileDownloadList attachments={postAttachments ?? []} />
 
         {/* 유튜브 링크 */}
         {post.youtube_url && (
