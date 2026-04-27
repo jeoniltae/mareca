@@ -17,21 +17,23 @@ export async function createPost(formData: FormData): Promise<string> {
   const content = formData.get('content') as string
   const category = (formData.get('category') as string) || '일반'
   const youtube_url = (formData.get('youtube_url') as string) || null
+  const board = (formData.get('board') as string) || 'free'
 
   const { data, error } = await supabase
     .from('posts')
-    .insert({ user_id: user.id, board: 'free', category, title, content, youtube_url })
+    .insert({ user_id: user.id, board, category, title, content, youtube_url })
     .select('id')
     .single()
 
   if (error) throw new Error(error.message)
 
   revalidatePath('/community/free')
+  revalidatePath('/resources')
   return data.id
 }
 
 // ─── 게시글 수정 ────────────────────────────────────────────────────────────────
-export async function updatePost(id: string, formData: FormData): Promise<void> {
+export async function updatePost(id: string, formData: FormData, boardPath = '/community/free'): Promise<void> {
   const supabase = await createClient()
   const {
     data: { user },
@@ -52,12 +54,12 @@ export async function updatePost(id: string, formData: FormData): Promise<void> 
 
   if (error) throw new Error(error.message)
 
-  revalidatePath('/community/free')
-  revalidatePath(`/community/free/${id}`)
+  revalidatePath(boardPath)
+  revalidatePath(`${boardPath}/${id}`)
 }
 
 // ─── 게시글 삭제 ────────────────────────────────────────────────────────────────
-export async function deletePost(id: string) {
+export async function deletePost(id: string, boardPath = '/community/free') {
   const supabase = await createClient()
   const {
     data: { user },
@@ -120,8 +122,8 @@ export async function deletePost(id: string) {
 
   if (error) throw new Error(error.message)
 
-  revalidatePath('/community/free')
-  redirect('/community/free')
+  revalidatePath(boardPath)
+  redirect(boardPath)
 }
 
 /** 본문 HTML에서 post-images 버킷 경로 목록을 추출합니다. */

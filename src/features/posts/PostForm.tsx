@@ -17,11 +17,14 @@ import {
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 
-const CATEGORIES = ['일반', '질문', '나눔'] as const
+const DEFAULT_CATEGORIES = ['일반', '질문', '나눔'] as const
 
 interface PostFormProps {
   mode: 'create' | 'edit'
   postId?: string
+  board?: string
+  boardPath?: string
+  categories?: readonly string[]
   initialValues?: {
     title: string
     category: string
@@ -33,7 +36,7 @@ interface PostFormProps {
   cancelHref: string
 }
 
-export function PostForm({ mode, postId, initialValues, initialImages, initialAttachments, cancelHref }: PostFormProps) {
+export function PostForm({ mode, postId, board = 'free', boardPath = '/community/free', categories = DEFAULT_CATEGORIES, initialValues, initialImages, initialAttachments, cancelHref }: PostFormProps) {
   const router = useRouter()
   const [content, setContent] = useState(initialValues?.content ?? '')
   const [imageFiles, setImageFiles] = useState<File[]>([])
@@ -52,7 +55,7 @@ export function PostForm({ mode, postId, initialValues, initialImages, initialAt
     startTransition(async () => {
       try {
         const targetId = mode === 'edit' && postId
-          ? (await updatePost(postId, formData), postId)
+          ? (await updatePost(postId, formData, boardPath), postId)
           : await createPost(formData)
 
         // 이미지 업로드 (파일별 FormData)
@@ -78,7 +81,7 @@ export function PostForm({ mode, postId, initialValues, initialImages, initialAt
           insertPostAttachments(targetId, attachmentMetas),
         ])
 
-        router.push(`/community/free/${targetId}`)
+        router.push(`${boardPath}/${targetId}`)
       } catch (error) {
         if ((error as { digest?: string }).digest?.startsWith('NEXT_REDIRECT')) throw error
         setError('저장 중 오류가 발생했습니다. 다시 시도해주세요.')
@@ -88,15 +91,16 @@ export function PostForm({ mode, postId, initialValues, initialImages, initialAt
 
   return (
     <form action={handleSubmit} className="space-y-5">
+      <input type="hidden" name="board" value={board} />
       {/* 카테고리 */}
       <div className="flex items-center gap-2">
         <label className="text-sm font-medium text-slate-700 shrink-0 w-16">분류</label>
         <select
           name="category"
-          defaultValue={initialValues?.category ?? '일반'}
+          defaultValue={initialValues?.category ?? categories[0]}
           className="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-sky-300"
         >
-          {CATEGORIES.map((c) => (
+          {categories.map((c) => (
             <option key={c} value={c}>
               {c}
             </option>

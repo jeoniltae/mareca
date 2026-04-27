@@ -11,9 +11,10 @@ type DialogType = 'edit' | 'delete' | null
 
 interface PostActionsProps {
   id: string
+  basePath?: string
 }
 
-export function PostActions({ id }: PostActionsProps) {
+export function PostActions({ id, basePath = '/community/free' }: PostActionsProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [dialog, setDialog] = useState<DialogType>(null)
@@ -21,11 +22,11 @@ export function PostActions({ id }: PostActionsProps) {
   function handleConfirm() {
     if (dialog === 'edit') {
       setDialog(null)
-      router.push(`/community/free/${id}/edit`)
+      router.push(`${basePath}/${id}/edit`)
     } else if (dialog === 'delete') {
       setDialog(null)
       startTransition(async () => {
-        await deletePost(id)
+        await deletePost(id, basePath)
       })
     }
   }
