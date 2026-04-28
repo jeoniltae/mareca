@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase-server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { compressImage, isImageFile } from '@/lib/compress-image'
 
 // ─── 게시글 생성 ────────────────────────────────────────────────────────────────
 export async function createPost(formData: FormData): Promise<string> {
@@ -157,10 +158,22 @@ export async function uploadPostImage(formData: FormData): Promise<string> {
 
   const file = formData.get('file') as File
   const order = formData.get('order') as string
-  const ext = file.name.split('.').pop()
-  const path = `${user.id}/${Date.now()}_${order}.${ext}`
 
-  const { error: uploadError } = await supabase.storage.from('post-images').upload(path, file)
+  let uploadData: Buffer | File = file
+  let ext = file.name.split('.').pop()
+  let contentType = file.type
+
+  if (isImageFile(file)) {
+    const compressed = await compressImage(file)
+    uploadData = compressed.buffer
+    ext = compressed.ext
+    contentType = compressed.contentType
+  }
+
+  const path = `${user.id}/${Date.now()}_${order}.${ext}`
+  const { error: uploadError } = await supabase.storage
+    .from('post-images')
+    .upload(path, uploadData, { contentType })
   if (uploadError) throw new Error(uploadError.message)
 
   const { data: { publicUrl } } = supabase.storage.from('post-images').getPublicUrl(path)
@@ -319,12 +332,21 @@ export async function uploadImage(formData: FormData): Promise<string> {
   const file = formData.get('file') as File
   if (!file) throw new Error('파일이 없습니다')
 
-  const ext = file.name.split('.').pop()
-  const path = `${user.id}/${Date.now()}.${ext}`
+  let uploadData: Buffer | File = file
+  let ext = file.name.split('.').pop()
+  let contentType = file.type
 
+  if (isImageFile(file)) {
+    const compressed = await compressImage(file)
+    uploadData = compressed.buffer
+    ext = compressed.ext
+    contentType = compressed.contentType
+  }
+
+  const path = `${user.id}/${Date.now()}.${ext}`
   const { error: uploadError } = await supabase.storage
     .from('post-images')
-    .upload(path, file)
+    .upload(path, uploadData, { contentType })
 
   if (uploadError) throw new Error(uploadError.message)
 

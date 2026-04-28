@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase-server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { compressImage } from '@/lib/compress-image'
 
 const BUCKET = 'post-images'
 
@@ -26,10 +27,12 @@ export async function uploadGalleryImage(formData: FormData): Promise<string> {
   const file = formData.get('file') as File
   if (!file) throw new Error('파일이 없습니다')
 
-  const ext = file.name.split('.').pop()
+  const { buffer, contentType, ext } = await compressImage(file)
   const path = `${user.id}/${Date.now()}.${ext}`
 
-  const { error: uploadError } = await supabase.storage.from(BUCKET).upload(path, file)
+  const { error: uploadError } = await supabase.storage
+    .from(BUCKET)
+    .upload(path, buffer, { contentType })
   if (uploadError) throw new Error(uploadError.message)
 
   const {
