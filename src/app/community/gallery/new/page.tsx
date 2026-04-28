@@ -22,6 +22,9 @@ export default async function GalleryNewPage() {
           { label: '갤러리', href: '/community/gallery' },
           { label: '글쓰기' },
         ]}
+        backgroundImage="/images/breadcrumb/monument.jpg"
+        bgColor="bg-slate-800"
+        imagePosition="center 10%"
       />
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <GalleryForm mode="create" />

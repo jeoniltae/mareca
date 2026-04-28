@@ -41,6 +41,8 @@ export default async function EditWorshipPostPage({ params }: Props) {
           { label: post.title, href: `${BOARD_PATH}/${id}` },
           { label: '수정' },
         ]}
+        backgroundImage="/images/breadcrumb/bb_warfield.png"
+        bgColor="bg-slate-800"
       />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <PostForm

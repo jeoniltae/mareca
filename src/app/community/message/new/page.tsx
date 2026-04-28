@@ -24,6 +24,9 @@ export default async function NewMessagePage() {
           { label: '마스터스 메시지', href: '/community/message' },
           { label: '글쓰기' },
         ]}
+        backgroundImage="/images/breadcrumb/monument.jpg"
+        bgColor="bg-slate-800"
+        imagePosition="center 10%"
       />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <PostForm

@@ -24,6 +24,9 @@ export default async function NewNoticePage() {
           { label: '공지사항', href: '/news/notice' },
           { label: '글쓰기' },
         ]}
+        backgroundImage="/images/breadcrumb/cornelius_vantil.jpg"
+        bgColor="bg-slate-800"
+        imagePosition="center 26%"
       />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <PostForm

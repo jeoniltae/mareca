@@ -44,6 +44,9 @@ export default async function EditVoicePage({ params }: Props) {
           { label: post.title, href: `/community/voice/${id}` },
           { label: '수정' },
         ]}
+        backgroundImage="/images/breadcrumb/monument.jpg"
+        bgColor="bg-slate-800"
+        imagePosition="center 10%"
       />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <PostForm
