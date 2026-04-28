@@ -202,13 +202,13 @@ src/
     - 링크 삽입/제거 (Link) — 익스텐션은 이미 등록됨, URL 입력 모달 UI 추가 필요
     - 인용구 (Blockquote) — StarterKit에 포함, 버튼만 추가
 
-- **[미착수] 게시판 추가 — 2묶음: 총회 공식 문서**
+- **[완료] 게시판 추가 — 2묶음: 총회 공식 문서**
   - 선행 작업 완료: `actions.ts`, `PostForm.tsx`, `PostActions.tsx` board/boardPath 범용화 완료 (1묶음 작업 시)
   - 총회의사록: `board='minutes'`, 경로 `/report/minutes` — 기존 `src/app/report/minutes/page.tsx` ComingSoon → 게시판으로 교체, `[id]`, `new`, `[id]/edit` 신규 생성
   - 교회계획: `board='church-plan'`, 경로 `/online-admin/plan` — 기존 `src/app/online-admin/plan/page.tsx` ComingSoon → 게시판으로 교체, `[id]`, `new`, `[id]/edit` 신규 생성
   - 카테고리: `공지`, `일반` (단순)
 
-- **[미착수] 게시판 추가 — 3묶음: 소식/커뮤니티**
+- **[완료] 게시판 추가 — 3묶음: 소식/커뮤니티**
   - 선행 작업 완료: `actions.ts`, `PostForm.tsx`, `PostActions.tsx` board/boardPath 범용화 완료 (1묶음 작업 시)
   - 공지사항: `board='notice'`, 경로 `/news/notice` — 기존 `src/app/news/notice/page.tsx` ComingSoon → 게시판으로 교체
   - 마스터스 메시지: `board='message'`, 경로 `/community/message` — 기존 `src/app/community/message/page.tsx` ComingSoon → 게시판으로 교체
