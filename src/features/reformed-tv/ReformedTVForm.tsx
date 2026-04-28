@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils'
 import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtube-utils'
 import { createReformedTVPost, updateReformedTVPost } from './actions'
 
+const CATEGORIES = ['일반', '숏츠'] as const
+
 interface ReformedTVFormProps {
   mode: 'create' | 'edit'
   postId?: string
@@ -14,6 +16,7 @@ interface ReformedTVFormProps {
     title: string
     youtube_url: string | null
     description: string | null
+    category: string | null
   }
   cancelHref: string
 }
@@ -22,11 +25,16 @@ export function ReformedTVForm({ mode, postId, initialValues, cancelHref }: Refo
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [youtubeUrl, setYoutubeUrl] = useState(initialValues?.youtube_url ?? '')
+  const [category, setCategory] = useState(initialValues?.category ?? '일반')
 
   const videoId = extractYoutubeId(youtubeUrl)
   const thumbnailUrl = videoId ? getYoutubeThumbnail(videoId) : null
 
   async function handleSubmit(formData: FormData) {
+    if (!category) {
+      setError('카테고리를 선택해주세요.')
+      return
+    }
     if (!youtubeUrl.trim()) {
       setError('유튜브 URL을 입력해주세요.')
       return
@@ -52,6 +60,26 @@ export function ReformedTVForm({ mode, postId, initialValues, cancelHref }: Refo
 
   return (
     <form action={handleSubmit} className="space-y-5">
+      {/* 카테고리 */}
+      <div>
+        <label className="text-sm font-medium text-slate-700 block mb-1.5">카테고리 <span className="text-red-500">*</span></label>
+        <div className="flex gap-3">
+          {CATEGORIES.map((cat) => (
+            <label key={cat} className="flex items-center gap-1.5 cursor-pointer">
+              <input
+                type="radio"
+                name="category"
+                value={cat}
+                checked={category === cat}
+                onChange={() => setCategory(cat)}
+                className="accent-sky-600"
+              />
+              <span className="text-sm text-slate-700">{cat}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
       {/* 유튜브 URL */}
       <div>
         <label className="text-sm font-medium text-slate-700 block mb-1.5">

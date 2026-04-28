@@ -19,9 +19,9 @@ export async function generateMetadata({ params }: Props) {
     supabase.from('post_images').select('url').eq('post_id', id).order('display_order').limit(1).single(),
   ])
   return {
-    title: post?.title ?? '갤러리',
+    title: post?.title ?? '행사앨범',
     openGraph: {
-      title: post?.title ?? '갤러리',
+      title: post?.title ?? '행사앨범',
       description: post?.content ?? '',
       images: firstImage?.url ? [{ url: firstImage.url }] : [{ url: '/images/logo.jpg' }],
     },
@@ -68,12 +68,15 @@ export default async function GalleryDetailPage({ params }: Props) {
   return (
     <>
       <PageHeader
-        title="갤러리"
+        title="행사앨범"
         breadcrumbs={[
           { label: '커뮤니티', href: '/community' },
-          { label: '갤러리', href: '/community/gallery' },
+          { label: '행사앨범', href: '/community/album' },
           { label: post.title },
         ]}
+        backgroundImage="/images/breadcrumb/monument.jpg"
+        bgColor="bg-slate-800"
+        imagePosition="center 10%"
       />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -111,7 +114,7 @@ export default async function GalleryDetailPage({ params }: Props) {
         {/* 목록으로 */}
         <div className="mt-4">
           <a
-            href="/community/gallery"
+            href="/community/album"
             className="text-sm text-slate-500 hover:text-slate-800 transition-colors"
           >
             ← 목록으로

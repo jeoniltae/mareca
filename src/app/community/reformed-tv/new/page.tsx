@@ -22,6 +22,9 @@ export default async function NewReformedTVPage() {
           { label: 'ReformedTV', href: '/community/reformed-tv' },
           { label: '영상 등록' },
         ]}
+        backgroundImage="/images/breadcrumb/monument.jpg"
+        bgColor="bg-slate-800"
+        imagePosition="center 10%"
       />
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <ReformedTVForm mode="create" cancelHref="/community/reformed-tv" />

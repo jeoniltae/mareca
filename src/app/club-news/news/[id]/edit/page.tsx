@@ -3,16 +3,15 @@ import { redirect, notFound } from 'next/navigation'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { PostForm } from '@/features/posts/PostForm'
 
-const BOARD_PATH = '/resources/sermon'
-const CATEGORIES = ['일반'] as const
-
 interface Props {
   params: Promise<{ id: string }>
 }
 
-export const metadata = { title: '글 수정 — 설교자료실' }
+export const metadata = { title: '글 수정 — 클럽소식' }
 
-export default async function EditSermonPostPage({ params }: Props) {
+const CLUB_NEWS_CATEGORIES = ['공지', '일반'] as const
+
+export default async function EditClubNewsPage({ params }: Props) {
   const { id } = await params
   const supabase = await createClient()
 
@@ -20,9 +19,13 @@ export default async function EditSermonPostPage({ params }: Props) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) redirect(`/login?next=${BOARD_PATH}/${id}/edit`)
+  if (!user) redirect(`/login?next=/club-news/news/${id}/edit`)
 
-  const { data: post } = await supabase.from('posts').select('*').eq('id', id).single()
+  const { data: post } = await supabase
+    .from('posts')
+    .select('*')
+    .eq('id', id)
+    .single()
 
   if (!post || post.user_id !== user.id) return notFound()
 
@@ -36,27 +39,28 @@ export default async function EditSermonPostPage({ params }: Props) {
       <PageHeader
         title="글 수정"
         breadcrumbs={[
-          { label: '마스터스자료실', href: '/resources' },
-          { label: '설교자료실', href: BOARD_PATH },
-          { label: post.title, href: `${BOARD_PATH}/${id}` },
+          { label: '클럽소식', href: '/club-news' },
+          { label: '소식', href: '/club-news/news' },
+          { label: post.title, href: `/club-news/news/${id}` },
           { label: '수정' },
         ]}
-        backgroundImage="/images/breadcrumb/bb_warfield.png"
+        backgroundImage="/images/breadcrumb/john_knox.jpg"
         bgColor="bg-slate-800"
       />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <PostForm
           mode="edit"
           postId={id}
-          boardPath={BOARD_PATH}
-          categories={CATEGORIES}
+          board="club-news"
+          boardPath="/club-news/news"
+          categories={CLUB_NEWS_CATEGORIES}
           initialValues={{
             title: post.title,
             category: post.category,
             content: post.content ?? '',
             youtube_url: post.youtube_url,
           }}
-          cancelHref={`${BOARD_PATH}/${id}`}
+          cancelHref={`/club-news/news/${id}`}
           initialImages={postImages ?? []}
           initialAttachments={postAttachments ?? []}
         />

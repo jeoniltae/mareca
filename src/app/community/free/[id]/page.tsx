@@ -62,6 +62,9 @@ export default async function PostDetailPage({ params }: Props) {
           { label: '자유게시판', href: '/community/free' },
           { label: post.title },
         ]}
+        backgroundImage="/images/breadcrumb/monument.jpg"
+        bgColor="bg-slate-800"
+        imagePosition="center 10%"
       />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

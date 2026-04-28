@@ -34,7 +34,7 @@ function QuickInfoSection() {
   const quickLinks = [
     { label: '이사장', href: '/about/chairman', icon: Users },
     { label: '자유게시판', href: '/community/free', icon: FileText },
-    { label: '갤러리', href: '/community/gallery', icon: Video },
+    { label: '행사앨범', href: '/community/album', icon: Video },
     { label: '총회헌법', href: '/constitution', icon: BookOpen },
   ]
 
@@ -125,7 +125,7 @@ function ServicesSection() {
   const services = [
     { label: '총회의사록', href: '/report/minutes', icon: ScrollText, color: 'text-slate-600 bg-slate-100' },
     { label: '공지사항', href: '/news/notice', icon: Megaphone, color: 'text-sky-600 bg-sky-50' },
-    { label: '노회소식', href: '/presbytery/news', icon: Newspaper, color: 'text-emerald-600 bg-emerald-50' },
+    { label: '마스터스 클럽소식', href: '/club-news/news', icon: Newspaper, color: 'text-emerald-600 bg-emerald-50' },
     { label: '총회헌법', href: '/constitution', icon: Scale, color: 'text-amber-600 bg-amber-50' },
     { label: 'Plus Voice', href: '/community/voice', icon: MessageSquare, color: 'text-violet-600 bg-violet-50' },
     { label: 'ReformedTV', href: '/community/reformed-tv', icon: Video, color: 'text-red-500 bg-red-50' },
@@ -164,7 +164,7 @@ function QuickMenuSection() {
     { label: '오시는 길', href: '/about/directions', icon: MapPin },
     { label: '총회로고', href: '/about/logo', icon: BookOpen },
     { label: '총회헌법', href: '/constitution', icon: FileText },
-    { label: '노회소식', href: '/presbytery/news', icon: Users },
+    { label: '마스터스 클럽소식', href: '/club-news/news', icon: Users },
     { label: '연혁', href: '/about/history', icon: Calendar },
     { label: '10 Missions', href: '/10-missions', icon: ScrollText },
   ]
@@ -223,9 +223,9 @@ function GallerySection() {
     <section className="py-12 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="font-bold text-slate-800 text-lg">포토갤러리</h2>
+          <h2 className="font-bold text-slate-800 text-lg">총회 행사앨범</h2>
           <Link
-            href="/community/gallery"
+            href="/community/album"
             className="text-base text-sky-600 hover:underline flex items-center gap-1"
           >
             더보기 <ChevronRight size={15} />

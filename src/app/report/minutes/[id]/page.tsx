@@ -63,6 +63,9 @@ export default async function MinutesPostDetailPage({ params }: Props) {
           { label: '총회의사록', href: BOARD_PATH },
           { label: post.title },
         ]}
+        backgroundImage="/images/breadcrumb/herman_bavinck.jpg"
+        bgColor="bg-slate-800"
+        imagePosition="center 28%"
       />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

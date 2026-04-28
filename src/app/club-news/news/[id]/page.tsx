@@ -9,8 +9,6 @@ import { Eye, Calendar, Tag } from 'lucide-react'
 import Link from 'next/link'
 import { ShareButtons } from '@/components/shared/ShareButtons'
 
-const BOARD_PATH = '/resources/worship'
-
 interface Props {
   params: Promise<{ id: string }>
 }
@@ -30,7 +28,7 @@ export async function generateMetadata({ params }: Props) {
   }
 }
 
-export default async function WorshipPostDetailPage({ params }: Props) {
+export default async function ClubNewsDetailPage({ params }: Props) {
   const { id } = await params
   const supabase = await createClient()
 
@@ -57,13 +55,13 @@ export default async function WorshipPostDetailPage({ params }: Props) {
   return (
     <>
       <PageHeader
-        title="예배자료실"
+        title="소식"
         breadcrumbs={[
-          { label: '마스터스자료실', href: '/resources' },
-          { label: '예배자료실', href: BOARD_PATH },
+          { label: '클럽소식', href: '/club-news' },
+          { label: '소식', href: '/club-news/news' },
           { label: post.title },
         ]}
-        backgroundImage="/images/breadcrumb/bb_warfield.png"
+        backgroundImage="/images/breadcrumb/john_knox.jpg"
         bgColor="bg-slate-800"
       />
 
@@ -91,7 +89,7 @@ export default async function WorshipPostDetailPage({ params }: Props) {
               </span>
             </div>
 
-            {isAuthor && <PostActions id={id} basePath={BOARD_PATH} />}
+            {isAuthor && <PostActions id={id} basePath="/club-news/news" />}
           </div>
         </div>
 
@@ -122,7 +120,10 @@ export default async function WorshipPostDetailPage({ params }: Props) {
         </div>
 
         <div className="mt-4">
-          <Link href={BOARD_PATH} className="text-sm text-slate-500 hover:text-slate-800 transition-colors">
+          <Link
+            href="/club-news/news"
+            className="text-sm text-slate-500 hover:text-slate-800 transition-colors"
+          >
             ← 목록으로
           </Link>
         </div>

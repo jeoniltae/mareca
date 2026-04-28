@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase-server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { compressImage } from '@/lib/compress-image'
 
 const BUCKET = 'post-images'
 
@@ -26,10 +27,12 @@ export async function uploadGalleryImage(formData: FormData): Promise<string> {
   const file = formData.get('file') as File
   if (!file) throw new Error('파일이 없습니다')
 
-  const ext = file.name.split('.').pop()
+  const { buffer, contentType, ext } = await compressImage(file)
   const path = `${user.id}/${Date.now()}.${ext}`
 
-  const { error: uploadError } = await supabase.storage.from(BUCKET).upload(path, file)
+  const { error: uploadError } = await supabase.storage
+    .from(BUCKET)
+    .upload(path, buffer, { contentType })
   if (uploadError) throw new Error(uploadError.message)
 
   const {
@@ -74,8 +77,8 @@ export async function createGalleryPost(
     if (imgError) throw new Error(imgError.message)
   }
 
-  revalidatePath('/community/gallery')
-  redirect(`/community/gallery/${post.id}`)
+  revalidatePath('/community/album')
+  redirect(`/community/album/${post.id}`)
 }
 
 // ─── 게시글 수정 ────────────────────────────────────────────────────────────────
@@ -121,9 +124,9 @@ export async function updateGalleryPost(
     )
   }
 
-  revalidatePath('/community/gallery')
-  revalidatePath(`/community/gallery/${id}`)
-  redirect(`/community/gallery/${id}`)
+  revalidatePath('/community/album')
+  revalidatePath(`/community/album/${id}`)
+  redirect(`/community/album/${id}`)
 }
 
 // ─── 조회수 증가 ────────────────────────────────────────────────────────────────
@@ -161,6 +164,6 @@ export async function deleteGalleryPost(id: string): Promise<never> {
 
   if (error) throw new Error(error.message)
 
-  revalidatePath('/community/gallery')
-  redirect('/community/gallery')
+  revalidatePath('/community/album')
+  redirect('/community/album')
 }

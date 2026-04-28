@@ -5,7 +5,7 @@ import Link from "next/link";
 import { PenSquare, Images, Eye } from "lucide-react";
 import { GalleryImage } from "@/features/gallery/GalleryImage";
 
-export const metadata = { title: "갤러리" };
+export const metadata = { title: "행사앨범" };
 
 const PAGE_SIZE = 12;
 
@@ -56,10 +56,10 @@ export default async function CommunityGalleryPage({ searchParams }: Props) {
   return (
     <>
       <PageHeader
-        title="갤러리"
+        title="행사앨범"
         breadcrumbs={[
           { label: "커뮤니티", href: "/community" },
-          { label: "갤러리" },
+          { label: "행사앨범" },
         ]}
         backgroundImage="/images/breadcrumb/monument.jpg"
         bgColor="bg-slate-800"
@@ -75,7 +75,7 @@ export default async function CommunityGalleryPage({ searchParams }: Props) {
           </p>
           {user && (
             <Link
-              href="/community/gallery/new"
+              href="/community/album/new"
               className="flex items-center gap-1.5 px-4 py-2 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700 transition-colors"
             >
               <PenSquare size={14} />
@@ -95,7 +95,7 @@ export default async function CommunityGalleryPage({ searchParams }: Props) {
               return (
                 <Link
                   key={post.id}
-                  href={`/community/gallery/${post.id}`}
+                  href={`/community/album/${post.id}`}
                   className="group flex flex-col rounded-xl overflow-hidden border border-slate-200 hover:border-sky-300 hover:shadow-md transition-all"
                 >
                   {/* 썸네일 */}
@@ -151,7 +151,7 @@ export default async function CommunityGalleryPage({ searchParams }: Props) {
         <Pagination
           currentPage={page}
           totalPages={totalPages}
-          basePath="/community/gallery"
+          basePath="/community/album"
         />
       </div>
     </>

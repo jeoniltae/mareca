@@ -7,7 +7,7 @@ interface Props {
   params: Promise<{ id: string }>
 }
 
-export const metadata = { title: '갤러리 수정' }
+export const metadata = { title: '행사앨범 수정' }
 
 export default async function GalleryEditPage({ params }: Props) {
   const { id } = await params
@@ -27,7 +27,7 @@ export default async function GalleryEditPage({ params }: Props) {
     .single()
 
   if (!post) notFound()
-  if (post.user_id !== user.id) redirect(`/community/gallery/${id}`)
+  if (post.user_id !== user.id) redirect(`/community/album/${id}`)
 
   const { data: images } = await supabase
     .from('post_images')
@@ -40,12 +40,15 @@ export default async function GalleryEditPage({ params }: Props) {
   return (
     <>
       <PageHeader
-        title="갤러리 수정"
+        title="행사앨범 수정"
         breadcrumbs={[
           { label: '커뮤니티', href: '/community' },
-          { label: '갤러리', href: '/community/gallery' },
+          { label: '행사앨범', href: '/community/album' },
           { label: '수정' },
         ]}
+        backgroundImage="/images/breadcrumb/monument.jpg"
+        bgColor="bg-slate-800"
+        imagePosition="center 10%"
       />
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <GalleryForm

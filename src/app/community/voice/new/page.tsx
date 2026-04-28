@@ -24,6 +24,9 @@ export default async function NewVoicePage() {
           { label: 'Plus Voice', href: '/community/voice' },
           { label: '글쓰기' },
         ]}
+        backgroundImage="/images/breadcrumb/monument.jpg"
+        bgColor="bg-slate-800"
+        imagePosition="center 10%"
       />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <PostForm

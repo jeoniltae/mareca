@@ -44,6 +44,9 @@ export default async function EditNoticePage({ params }: Props) {
           { label: post.title, href: `/news/notice/${id}` },
           { label: '수정' },
         ]}
+        backgroundImage="/images/breadcrumb/cornelius_vantil.jpg"
+        bgColor="bg-slate-800"
+        imagePosition="center 26%"
       />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <PostForm

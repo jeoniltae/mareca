@@ -19,7 +19,7 @@ export function GalleryActions({ id }: GalleryActionsProps) {
   function handleConfirm() {
     if (dialog === 'edit') {
       setDialog(null)
-      router.push(`/community/gallery/${id}/edit`)
+      router.push(`/community/album/${id}/edit`)
     } else if (dialog === 'delete') {
       setDialog(null)
       startTransition(async () => {
