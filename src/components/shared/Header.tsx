@@ -241,15 +241,22 @@ export function Header() {
               onMouseLeave={handleNavMouseLeave}
             >
               <nav className="flex items-center">
-                {NAV_ITEMS.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="relative px-3 py-2 text-base font-medium text-slate-800 hover:text-slate-700 transition-colors after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:h-0.5 after:w-0 after:bg-slate-700 after:transition-all after:duration-300 hover:after:w-full"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
+                {NAV_ITEMS.map((item) => {
+                  const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`relative px-3 py-2 text-base font-medium transition-colors after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:h-0.5 after:transition-all after:duration-300 hover:after:w-full ${
+                        isActive
+                          ? 'text-sky-600 after:w-full after:bg-sky-600'
+                          : 'text-slate-800 hover:text-slate-700 after:w-0 after:bg-slate-700'
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  )
+                })}
               </nav>
 
               {/* 메가 메뉴 */}
@@ -271,16 +278,23 @@ export function Header() {
                               {item.label}
                             </p>
                             <ul className="space-y-1.5">
-                              {item.subItems?.map((sub) => (
-                                <li key={sub.href}>
-                                  <Link
-                                    href={sub.href}
-                                    className="text-sm text-slate-500 hover:text-[#3C5A6E] hover:font-medium hover:translate-x-1 transition-all leading-snug block"
-                                  >
-                                    {sub.label}
-                                  </Link>
-                                </li>
-                              ))}
+                              {item.subItems?.map((sub) => {
+                                const isSubActive = pathname === sub.href
+                                return (
+                                  <li key={sub.href}>
+                                    <Link
+                                      href={sub.href}
+                                      className={`text-sm leading-snug block transition-all hover:translate-x-1 ${
+                                        isSubActive
+                                          ? 'text-sky-600 font-semibold'
+                                          : 'text-slate-500 hover:text-[#3C5A6E] hover:font-medium'
+                                      }`}
+                                    >
+                                      {sub.label}
+                                    </Link>
+                                  </li>
+                                )
+                              })}
                             </ul>
                           </div>
                         ))}
@@ -315,7 +329,16 @@ export function Header() {
 
             {/* 모바일 토글 */}
             <button
-              onClick={() => setIsMobileOpen(!isMobileOpen)}
+              onClick={() => {
+                const nextOpen = !isMobileOpen
+                setIsMobileOpen(nextOpen)
+                if (nextOpen) {
+                  const active = NAV_ITEMS.find(
+                    (item) => item.subItems && (pathname === item.href || pathname.startsWith(item.href + '/'))
+                  )
+                  setOpenAccordion(active?.href ?? null)
+                }
+              }}
               className="lg:hidden p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-50"
               aria-label="메뉴 열기"
             >
@@ -406,17 +429,24 @@ export function Header() {
                               exit={{ height: 0, opacity: 0, transition: { duration: 0.15, ease: 'easeIn' as const } }}
                               className="overflow-hidden bg-slate-50 rounded-md mb-2"
                             >
-                              {item.subItems?.map((sub) => (
-                                <li key={sub.href}>
-                                  <Link
-                                    href={sub.href}
-                                    onClick={() => { setIsMobileOpen(false); setOpenAccordion(null) }}
-                                    className="block px-4 py-3 text-sm text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                                  >
-                                    {sub.label}
-                                  </Link>
-                                </li>
-                              ))}
+                              {item.subItems?.map((sub) => {
+                                const isSubActive = pathname === sub.href
+                                return (
+                                  <li key={sub.href}>
+                                    <Link
+                                      href={sub.href}
+                                      onClick={() => { setIsMobileOpen(false); setOpenAccordion(null) }}
+                                      className={`block px-4 py-3 text-sm transition-colors ${
+                                        isSubActive
+                                          ? 'text-sky-600 font-semibold bg-sky-50'
+                                          : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                                      }`}
+                                    >
+                                      {sub.label}
+                                    </Link>
+                                  </li>
+                                )
+                              })}
                             </motion.ul>
                           )}
                         </AnimatePresence>
