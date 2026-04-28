@@ -56,7 +56,7 @@ export default async function CommunityGalleryPage({ searchParams }: Props) {
   return (
     <>
       <PageHeader
-        title="갤러리"
+        title="행사앨범"
         breadcrumbs={[
           { label: "커뮤니티", href: "/community" },
           { label: "행사앨범" },
