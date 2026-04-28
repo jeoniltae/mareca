@@ -89,7 +89,7 @@ const NAV_ITEMS: NavItem[] = [
       { label: '마스터스 메시지', href: '/community/message' },
       { label: 'ReformedTV', href: '/community/reformed-tv' },
       { label: '자유게시판', href: '/community/free' },
-      { label: '갤러리', href: '/community/gallery' },
+      { label: '행사앨범', href: '/community/album' },
       { label: 'Plus Voice', href: '/community/voice' },
     ],
   },
@@ -279,7 +279,7 @@ export function Header() {
                             </p>
                             <ul className="space-y-1.5">
                               {item.subItems?.map((sub) => {
-                                const isSubActive = pathname === sub.href
+                                const isSubActive = pathname === sub.href || pathname.startsWith(sub.href + '/')
                                 return (
                                   <li key={sub.href}>
                                     <Link
@@ -430,7 +430,7 @@ export function Header() {
                               className="overflow-hidden bg-slate-50 rounded-md mb-2"
                             >
                               {item.subItems?.map((sub) => {
-                                const isSubActive = pathname === sub.href
+                                const isSubActive = pathname === sub.href || pathname.startsWith(sub.href + '/')
                                 return (
                                   <li key={sub.href}>
                                     <Link

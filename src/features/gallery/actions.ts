@@ -77,8 +77,8 @@ export async function createGalleryPost(
     if (imgError) throw new Error(imgError.message)
   }
 
-  revalidatePath('/community/gallery')
-  redirect(`/community/gallery/${post.id}`)
+  revalidatePath('/community/album')
+  redirect(`/community/album/${post.id}`)
 }
 
 // ─── 게시글 수정 ────────────────────────────────────────────────────────────────
@@ -124,9 +124,9 @@ export async function updateGalleryPost(
     )
   }
 
-  revalidatePath('/community/gallery')
-  revalidatePath(`/community/gallery/${id}`)
-  redirect(`/community/gallery/${id}`)
+  revalidatePath('/community/album')
+  revalidatePath(`/community/album/${id}`)
+  redirect(`/community/album/${id}`)
 }
 
 // ─── 조회수 증가 ────────────────────────────────────────────────────────────────
@@ -164,6 +164,6 @@ export async function deleteGalleryPost(id: string): Promise<never> {
 
   if (error) throw new Error(error.message)
 
-  revalidatePath('/community/gallery')
-  redirect('/community/gallery')
+  revalidatePath('/community/album')
+  redirect('/community/album')
 }
