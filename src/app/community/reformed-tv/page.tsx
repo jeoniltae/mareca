@@ -12,34 +12,34 @@ export const metadata = { title: "ReformedTV" };
 
 const PAGE_SIZE = 12;
 
+const CATEGORIES = ['전체', '일반', '숏츠'] as const
+
 interface Props {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; category?: string }>;
 }
 
 export default async function ReformedTVPage({ searchParams }: Props) {
-  const { page: pageParam } = await searchParams;
+  const { page: pageParam, category: categoryParam } = await searchParams;
   const page = Math.max(1, Number(pageParam ?? 1) || 1);
+  const category = CATEGORIES.includes(categoryParam as typeof CATEGORIES[number]) ? categoryParam : '전체';
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
   const supabase = await createClient();
 
+  let query = supabase
+    .from("posts")
+    .select("id, title, youtube_url, views, created_at, category, profiles(nickname)", { count: "exact" })
+    .eq("board", "reformed-tv")
+    .order("created_at", { ascending: false })
+    .range(from, to);
+
+  if (category && category !== '전체') query = query.eq('category', category);
+
   const [
-    {
-      data: { user },
-    },
+    { data: { user } },
     { data: posts, count },
-  ] = await Promise.all([
-    supabase.auth.getUser(),
-    supabase
-      .from("posts")
-      .select("id, title, youtube_url, views, created_at, profiles(nickname)", {
-        count: "exact",
-      })
-      .eq("board", "reformed-tv")
-      .order("created_at", { ascending: false })
-      .range(from, to),
-  ]);
+  ] = await Promise.all([supabase.auth.getUser(), query]);
 
   const totalPages = Math.ceil((count ?? 0) / PAGE_SIZE);
 
@@ -58,10 +58,22 @@ export default async function ReformedTVPage({ searchParams }: Props) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* 툴바 */}
-        <div className="flex items-center justify-between mb-6">
-          <p className="text-sm text-slate-500">
-            총 <strong className="text-slate-800">{count ?? 0}</strong>개의 영상
-          </p>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex gap-2">
+            {CATEGORIES.map((cat) => (
+              <Link
+                key={cat}
+                href={cat === '전체' ? '/community/reformed-tv' : `/community/reformed-tv?category=${cat}`}
+                className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                  category === cat || (cat === '전체' && !categoryParam)
+                    ? 'bg-sky-600 text-white border-sky-600 font-semibold'
+                    : 'text-slate-600 border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                {cat}
+              </Link>
+            ))}
+          </div>
           {user && (
             <Link
               href="/community/reformed-tv/new"
@@ -72,6 +84,9 @@ export default async function ReformedTVPage({ searchParams }: Props) {
             </Link>
           )}
         </div>
+        <p className="text-sm text-slate-500 mb-6">
+          총 <strong className="text-slate-800">{count ?? 0}</strong>개의 영상
+        </p>
 
         {/* 그리드 */}
         {(posts?.length ?? 0) === 0 ? (
@@ -143,7 +158,7 @@ export default async function ReformedTVPage({ searchParams }: Props) {
         <Pagination
           currentPage={page}
           totalPages={totalPages}
-          basePath="/community/reformed-tv"
+          basePath={category && category !== '전체' ? `/community/reformed-tv?category=${category}` : '/community/reformed-tv'}
         />
       </div>
     </>

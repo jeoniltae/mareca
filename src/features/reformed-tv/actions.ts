@@ -18,10 +18,11 @@ export async function createReformedTVPost(formData: FormData) {
   const title = formData.get('title') as string
   const youtube_url = (formData.get('youtube_url') as string) || null
   const content = (formData.get('description') as string) || null
+  const category = (formData.get('category') as string) || '일반'
 
   const { data, error } = await supabase
     .from('posts')
-    .insert({ user_id: user.id, board: BOARD, category: '영상', title, content, youtube_url })
+    .insert({ user_id: user.id, board: BOARD, category, title, content, youtube_url })
     .select('id')
     .single()
 
@@ -42,10 +43,11 @@ export async function updateReformedTVPost(id: string, formData: FormData) {
   const title = formData.get('title') as string
   const youtube_url = (formData.get('youtube_url') as string) || null
   const content = (formData.get('description') as string) || null
+  const category = (formData.get('category') as string) || '일반'
 
   const { error } = await supabase
     .from('posts')
-    .update({ title, content, youtube_url })
+    .update({ title, content, youtube_url, category })
     .eq('id', id)
     .eq('user_id', user.id)
 

@@ -50,6 +50,7 @@ export default async function EditReformedTVPage({ params }: Props) {
             title: post.title,
             youtube_url: post.youtube_url,
             description: post.content,
+            category: post.category,
           }}
           cancelHref={`/community/reformed-tv/${id}`}
         />
