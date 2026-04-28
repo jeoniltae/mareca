@@ -1,64 +1,77 @@
-import { createClient } from '@/lib/supabase-server'
-import { PageHeader } from '@/components/shared/PageHeader'
-import { Pagination } from '@/components/shared/Pagination'
-import Link from 'next/link'
-import { PenSquare, Images, Eye } from 'lucide-react'
-import { GalleryImage } from '@/features/gallery/GalleryImage'
+import { createClient } from "@/lib/supabase-server";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { Pagination } from "@/components/shared/Pagination";
+import Link from "next/link";
+import { PenSquare, Images, Eye } from "lucide-react";
+import { GalleryImage } from "@/features/gallery/GalleryImage";
 
-export const metadata = { title: '갤러리' }
+export const metadata = { title: "갤러리" };
 
-const PAGE_SIZE = 12
+const PAGE_SIZE = 12;
 
 interface Props {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ page?: string }>;
 }
 
 export default async function CommunityGalleryPage({ searchParams }: Props) {
-  const { page: pageParam } = await searchParams
-  const page = Math.max(1, Number(pageParam ?? 1) || 1)
-  const from = (page - 1) * PAGE_SIZE
-  const to = from + PAGE_SIZE - 1
+  const { page: pageParam } = await searchParams;
+  const page = Math.max(1, Number(pageParam ?? 1) || 1);
+  const from = (page - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
 
-  const supabase = await createClient()
+  const supabase = await createClient();
 
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await supabase.auth.getUser();
 
   const { data: posts, count } = await supabase
-    .from('posts')
-    .select('id, title, thumbnail_url, views, created_at, profiles(nickname)', { count: 'exact' })
-    .eq('board', 'gallery')
-    .order('created_at', { ascending: false })
-    .range(from, to)
+    .from("posts")
+    .select("id, title, thumbnail_url, views, created_at, profiles(nickname)", {
+      count: "exact",
+    })
+    .eq("board", "gallery")
+    .order("created_at", { ascending: false })
+    .range(from, to);
 
-  const postIds = (posts ?? []).map((p) => p.id)
-  const { data: imageCounts } = postIds.length > 0
-    ? await supabase.from('post_images').select('post_id').in('post_id', postIds)
-    : { data: [] }
+  const postIds = (posts ?? []).map((p) => p.id);
+  const { data: imageCounts } =
+    postIds.length > 0
+      ? await supabase
+          .from("post_images")
+          .select("post_id")
+          .in("post_id", postIds)
+      : { data: [] };
 
-  const countMap = (imageCounts ?? []).reduce<Record<string, number>>((acc, row) => {
-    acc[row.post_id] = (acc[row.post_id] ?? 0) + 1
-    return acc
-  }, {})
+  const countMap = (imageCounts ?? []).reduce<Record<string, number>>(
+    (acc, row) => {
+      acc[row.post_id] = (acc[row.post_id] ?? 0) + 1;
+      return acc;
+    },
+    {},
+  );
 
-  const totalPages = Math.ceil((count ?? 0) / PAGE_SIZE)
+  const totalPages = Math.ceil((count ?? 0) / PAGE_SIZE);
 
   return (
     <>
       <PageHeader
         title="갤러리"
-        breadcrumbs={[{ label: '커뮤니티', href: '/community' }, { label: '갤러리' }]}
-        backgroundImage="/images/breadcrumb/john_machen.jpg"
+        breadcrumbs={[
+          { label: "커뮤니티", href: "/community" },
+          { label: "갤러리" },
+        ]}
+        backgroundImage="/images/breadcrumb/monument.jpg"
         bgColor="bg-slate-800"
-        imagePosition="center 40%"
+        imagePosition="center 10%"
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* 툴바 */}
         <div className="flex items-center justify-between mb-6">
           <p className="text-sm text-slate-500">
-            총 <strong className="text-slate-800">{count ?? 0}</strong>개의 게시물
+            총 <strong className="text-slate-800">{count ?? 0}</strong>개의
+            게시물
           </p>
           {user && (
             <Link
@@ -75,9 +88,9 @@ export default async function CommunityGalleryPage({ searchParams }: Props) {
         {posts && posts.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
             {posts.map((post) => {
-              const date = new Date(post.created_at ?? '')
-              const formatted = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`
-              const imgCount = countMap[post.id] ?? 0
+              const date = new Date(post.created_at ?? "");
+              const formatted = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, "0")}.${String(date.getDate()).padStart(2, "0")}`;
+              const imgCount = countMap[post.id] ?? 0;
 
               return (
                 <Link
@@ -113,7 +126,8 @@ export default async function CommunityGalleryPage({ searchParams }: Props) {
                     </p>
                     <div className="flex items-center justify-between text-xs text-slate-400">
                       <span className="truncate">
-                        {(post.profiles as { nickname: string | null } | null)?.nickname ?? '알 수 없음'}
+                        {(post.profiles as { nickname: string | null } | null)
+                          ?.nickname ?? "알 수 없음"}
                       </span>
                       <div className="shrink-0 flex items-center gap-2">
                         <span className="flex items-center gap-0.5">
@@ -125,7 +139,7 @@ export default async function CommunityGalleryPage({ searchParams }: Props) {
                     </div>
                   </div>
                 </Link>
-              )
+              );
             })}
           </div>
         ) : (
@@ -134,8 +148,12 @@ export default async function CommunityGalleryPage({ searchParams }: Props) {
           </div>
         )}
 
-        <Pagination currentPage={page} totalPages={totalPages} basePath="/community/gallery" />
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          basePath="/community/gallery"
+        />
       </div>
     </>
-  )
+  );
 }
