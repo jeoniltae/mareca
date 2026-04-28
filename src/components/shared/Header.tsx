@@ -37,20 +37,17 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
-    label: '노회소개',
-    href: '/presbytery',
-    subItems: [
-      { label: '노회소식', href: '/presbytery/news' },
-      { label: '서울', href: '/presbytery/seoul' },
-      { label: '제주', href: '/presbytery/jeju' },
-      { label: '기타', href: '/presbytery/etc' },
-    ],
-  },
-  {
     label: '10 Missions',
     href: '/10-missions',
     subItems: [
       { label: '소개', href: '/10-missions' },
+    ],
+  },
+  {
+    label: '클럽소식',
+    href: '/club-news',
+    subItems: [
+      { label: '소식', href: '/club-news/news' },
     ],
   },
   {
