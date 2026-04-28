@@ -1,46 +1,59 @@
-import { createClient } from '@/lib/supabase-server'
-import { PageHeader } from '@/components/shared/PageHeader'
-import { Pagination } from '@/components/shared/Pagination'
-import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtube-utils'
-import { PenSquare, Play, Calendar, Eye } from 'lucide-react'
-import Link from 'next/link'
+import { createClient } from "@/lib/supabase-server";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { Pagination } from "@/components/shared/Pagination";
+import {
+  extractYoutubeId,
+  getYoutubeThumbnail,
+} from "@/features/youtube/youtube-utils";
+import { PenSquare, Play, Calendar, Eye } from "lucide-react";
+import Link from "next/link";
 
-export const metadata = { title: 'ReformedTV' }
+export const metadata = { title: "ReformedTV" };
 
-const PAGE_SIZE = 12
+const PAGE_SIZE = 12;
 
 interface Props {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ page?: string }>;
 }
 
 export default async function ReformedTVPage({ searchParams }: Props) {
-  const { page: pageParam } = await searchParams
-  const page = Math.max(1, Number(pageParam ?? 1) || 1)
-  const from = (page - 1) * PAGE_SIZE
-  const to = from + PAGE_SIZE - 1
+  const { page: pageParam } = await searchParams;
+  const page = Math.max(1, Number(pageParam ?? 1) || 1);
+  const from = (page - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
 
-  const supabase = await createClient()
+  const supabase = await createClient();
 
-  const [{ data: { user } }, { data: posts, count }] = await Promise.all([
+  const [
+    {
+      data: { user },
+    },
+    { data: posts, count },
+  ] = await Promise.all([
     supabase.auth.getUser(),
     supabase
-      .from('posts')
-      .select('id, title, youtube_url, views, created_at, profiles(nickname)', { count: 'exact' })
-      .eq('board', 'reformed-tv')
-      .order('created_at', { ascending: false })
+      .from("posts")
+      .select("id, title, youtube_url, views, created_at, profiles(nickname)", {
+        count: "exact",
+      })
+      .eq("board", "reformed-tv")
+      .order("created_at", { ascending: false })
       .range(from, to),
-  ])
+  ]);
 
-  const totalPages = Math.ceil((count ?? 0) / PAGE_SIZE)
+  const totalPages = Math.ceil((count ?? 0) / PAGE_SIZE);
 
   return (
     <>
       <PageHeader
         title="ReformedTV"
-        breadcrumbs={[{ label: '커뮤니티', href: '/community' }, { label: 'ReformedTV' }]}
-        backgroundImage="/images/breadcrumb/john_machen.jpg"
+        breadcrumbs={[
+          { label: "커뮤니티", href: "/community" },
+          { label: "ReformedTV" },
+        ]}
+        backgroundImage="/images/breadcrumb/monument.jpg"
         bgColor="bg-slate-800"
-        imagePosition="center 40%"
+        imagePosition="center 10%"
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -68,10 +81,12 @@ export default async function ReformedTVPage({ searchParams }: Props) {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {posts?.map((post) => {
-              const videoId = post.youtube_url ? extractYoutubeId(post.youtube_url) : null
-              const thumbnail = videoId ? getYoutubeThumbnail(videoId) : null
-              const date = new Date(post.created_at ?? '')
-              const formatted = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`
+              const videoId = post.youtube_url
+                ? extractYoutubeId(post.youtube_url)
+                : null;
+              const thumbnail = videoId ? getYoutubeThumbnail(videoId) : null;
+              const date = new Date(post.created_at ?? "");
+              const formatted = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, "0")}.${String(date.getDate()).padStart(2, "0")}`;
 
               return (
                 <Link
@@ -94,7 +109,11 @@ export default async function ReformedTVPage({ searchParams }: Props) {
                     )}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                       <div className="w-10 h-10 rounded-full bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Play size={16} className="text-white ml-0.5" fill="white" />
+                        <Play
+                          size={16}
+                          className="text-white ml-0.5"
+                          fill="white"
+                        />
                       </div>
                     </div>
                   </div>
@@ -116,13 +135,17 @@ export default async function ReformedTVPage({ searchParams }: Props) {
                     </div>
                   </div>
                 </Link>
-              )
+              );
             })}
           </div>
         )}
 
-        <Pagination currentPage={page} totalPages={totalPages} basePath="/community/reformed-tv" />
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          basePath="/community/reformed-tv"
+        />
       </div>
     </>
-  )
+  );
 }

@@ -1,66 +1,72 @@
-import { createClient } from '@/lib/supabase-server'
-import { PageHeader } from '@/components/shared/PageHeader'
-import { Pagination } from '@/components/shared/Pagination'
-import { cn } from '@/lib/utils'
-import { Search, PenSquare, Eye, Pin } from 'lucide-react'
-import Link from 'next/link'
+import { createClient } from "@/lib/supabase-server";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { Pagination } from "@/components/shared/Pagination";
+import { cn } from "@/lib/utils";
+import { Search, PenSquare, Eye, Pin } from "lucide-react";
+import Link from "next/link";
 
-export const metadata = { title: '자유게시판' }
+export const metadata = { title: "자유게시판" };
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 10;
 
-const CATEGORIES = ['전체', '공지', '일반', '질문', '나눔'] as const
+const CATEGORIES = ["전체", "공지", "일반", "질문", "나눔"] as const;
 
 const CATEGORY_STYLE: Record<string, string> = {
-  공지: 'bg-red-50 text-red-600 ring-1 ring-inset ring-red-200',
-  일반: 'bg-slate-100 text-slate-600',
-  질문: 'bg-sky-50 text-sky-600 ring-1 ring-inset ring-sky-200',
-  나눔: 'bg-emerald-50 text-emerald-600 ring-1 ring-inset ring-emerald-200',
-}
+  공지: "bg-red-50 text-red-600 ring-1 ring-inset ring-red-200",
+  일반: "bg-slate-100 text-slate-600",
+  질문: "bg-sky-50 text-sky-600 ring-1 ring-inset ring-sky-200",
+  나눔: "bg-emerald-50 text-emerald-600 ring-1 ring-inset ring-emerald-200",
+};
 
 interface Props {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ page?: string }>;
 }
 
 export default async function CommunityFreePage({ searchParams }: Props) {
-  const { page: pageParam } = await searchParams
-  const page = Math.max(1, Number(pageParam ?? 1) || 1)
-  const from = (page - 1) * PAGE_SIZE
-  const to = from + PAGE_SIZE - 1
+  const { page: pageParam } = await searchParams;
+  const page = Math.max(1, Number(pageParam ?? 1) || 1);
+  const from = (page - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
 
-  const supabase = await createClient()
+  const supabase = await createClient();
 
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await supabase.auth.getUser();
 
-  const [{ data: pinned }, { data: regular, count: regularCount }] = await Promise.all([
-    supabase
-      .from('posts')
-      .select('id, category, title, views, created_at, profiles(nickname)')
-      .eq('board', 'free')
-      .eq('category', '공지')
-      .order('created_at', { ascending: false }),
-    supabase
-      .from('posts')
-      .select('id, category, title, views, created_at, profiles(nickname)', { count: 'exact' })
-      .eq('board', 'free')
-      .neq('category', '공지')
-      .order('created_at', { ascending: false })
-      .range(from, to),
-  ])
+  const [{ data: pinned }, { data: regular, count: regularCount }] =
+    await Promise.all([
+      supabase
+        .from("posts")
+        .select("id, category, title, views, created_at, profiles(nickname)")
+        .eq("board", "free")
+        .eq("category", "공지")
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("posts")
+        .select("id, category, title, views, created_at, profiles(nickname)", {
+          count: "exact",
+        })
+        .eq("board", "free")
+        .neq("category", "공지")
+        .order("created_at", { ascending: false })
+        .range(from, to),
+    ]);
 
-  const totalCount = (pinned?.length ?? 0) + (regularCount ?? 0)
-  const totalPages = Math.ceil((regularCount ?? 0) / PAGE_SIZE)
+  const totalCount = (pinned?.length ?? 0) + (regularCount ?? 0);
+  const totalPages = Math.ceil((regularCount ?? 0) / PAGE_SIZE);
 
   return (
     <>
       <PageHeader
         title="자유게시판"
-        breadcrumbs={[{ label: '커뮤니티', href: '/community' }, { label: '자유게시판' }]}
-        backgroundImage="/images/breadcrumb/john_machen.jpg"
+        breadcrumbs={[
+          { label: "커뮤니티", href: "/community" },
+          { label: "자유게시판" },
+        ]}
+        backgroundImage="/images/breadcrumb/monument.jpg"
         bgColor="bg-slate-800"
-        imagePosition="center 40%"
+        imagePosition="center 10%"
       />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -71,10 +77,10 @@ export default async function CommunityFreePage({ searchParams }: Props) {
               <button
                 key={cat}
                 className={cn(
-                  'px-3.5 py-1.5 rounded-full text-sm font-medium transition-colors',
+                  "px-3.5 py-1.5 rounded-full text-sm font-medium transition-colors",
                   i === 0
-                    ? 'bg-slate-800 text-white'
-                    : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100',
+                    ? "bg-slate-800 text-white"
+                    : "text-slate-500 hover:text-slate-800 hover:bg-slate-100",
                 )}
               >
                 {cat}
@@ -121,7 +127,8 @@ export default async function CommunityFreePage({ searchParams }: Props) {
         {/* 게시글 수 */}
         <div className="flex items-center justify-between text-sm text-slate-500 mb-2">
           <span>
-            총 <strong className="text-slate-800">{totalCount}</strong>개의 게시글
+            총 <strong className="text-slate-800">{totalCount}</strong>개의
+            게시글
           </span>
         </div>
 
@@ -146,43 +153,52 @@ export default async function CommunityFreePage({ searchParams }: Props) {
           )}
         </div>
 
-        <Pagination currentPage={page} totalPages={totalPages} basePath="/community/free" />
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          basePath="/community/free"
+        />
       </div>
     </>
-  )
+  );
 }
 
 type PostRowProps = {
   post: {
-    id: string
-    category: string
-    title: string
-    views: number
-    created_at: string | null
-    profiles: { nickname: string | null } | null
-  }
-  isPinned?: boolean
-}
+    id: string;
+    category: string;
+    title: string;
+    views: number;
+    created_at: string | null;
+    profiles: { nickname: string | null } | null;
+  };
+  isPinned?: boolean;
+};
 
 function PostRow({ post, isPinned }: PostRowProps) {
-  const date = new Date(post.created_at ?? '')
-  const formatted = `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-  const isNew = Date.now() - date.getTime() < 1000 * 60 * 60 * 24
+  const date = new Date(post.created_at ?? "");
+  const formatted = `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  const isNew = Date.now() - date.getTime() < 1000 * 60 * 60 * 24;
 
   return (
     <Link
       href={`/community/free/${post.id}`}
       className={cn(
-        'group py-3.5 px-2 -mx-2 rounded-lg hover:bg-slate-50 transition-colors',
-        'flex sm:hidden flex-col gap-1.5',
-        isPinned && 'bg-slate-50/80 hover:bg-slate-100/80',
+        "group py-3.5 px-2 -mx-2 rounded-lg hover:bg-slate-50 transition-colors",
+        "flex sm:hidden flex-col gap-1.5",
+        isPinned && "bg-slate-50/80 hover:bg-slate-100/80",
       )}
     >
       {/* 모바일: 1행 — 카테고리 + NEW / 날짜 */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
           {isPinned && <Pin size={12} className="shrink-0 text-slate-400" />}
-          <span className={cn('shrink-0 text-xs px-2 py-0.5 rounded-md font-medium', CATEGORY_STYLE[post.category])}>
+          <span
+            className={cn(
+              "shrink-0 text-xs px-2 py-0.5 rounded-md font-medium",
+              CATEGORY_STYLE[post.category],
+            )}
+          >
             {post.category}
           </span>
           {isNew && !isPinned && (
@@ -198,8 +214,8 @@ function PostRow({ post, isPinned }: PostRowProps) {
       <div className="flex items-end justify-between gap-2">
         <span
           className={cn(
-            'text-sm line-clamp-2 group-hover:text-sky-700 transition-colors leading-snug',
-            isPinned ? 'text-slate-700 font-medium' : 'text-slate-800',
+            "text-sm line-clamp-2 group-hover:text-sky-700 transition-colors leading-snug",
+            isPinned ? "text-slate-700 font-medium" : "text-slate-800",
           )}
         >
           {post.title}
@@ -210,23 +226,28 @@ function PostRow({ post, isPinned }: PostRowProps) {
         </span>
       </div>
     </Link>
-  )
+  );
 }
 
 function PostRowDesktop({ post, isPinned }: PostRowProps) {
-  const date = new Date(post.created_at ?? '')
-  const formatted = `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-  const isNew = Date.now() - date.getTime() < 1000 * 60 * 60 * 24
+  const date = new Date(post.created_at ?? "");
+  const formatted = `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  const isNew = Date.now() - date.getTime() < 1000 * 60 * 60 * 24;
 
   return (
     <Link
       href={`/community/free/${post.id}`}
       className={cn(
-        'group hidden sm:flex items-center gap-3 py-3.5 px-2 -mx-2 rounded-lg hover:bg-slate-50 transition-colors',
-        isPinned && 'bg-slate-50/80 hover:bg-slate-100/80',
+        "group hidden sm:flex items-center gap-3 py-3.5 px-2 -mx-2 rounded-lg hover:bg-slate-50 transition-colors",
+        isPinned && "bg-slate-50/80 hover:bg-slate-100/80",
       )}
     >
-      <span className={cn('shrink-0 text-xs px-2 py-0.5 rounded-md font-medium', CATEGORY_STYLE[post.category])}>
+      <span
+        className={cn(
+          "shrink-0 text-xs px-2 py-0.5 rounded-md font-medium",
+          CATEGORY_STYLE[post.category],
+        )}
+      >
         {post.category}
       </span>
 
@@ -234,8 +255,8 @@ function PostRowDesktop({ post, isPinned }: PostRowProps) {
         {isPinned && <Pin size={12} className="shrink-0 text-slate-400" />}
         <span
           className={cn(
-            'text-sm line-clamp-1 group-hover:text-sky-700 transition-colors',
-            isPinned ? 'text-slate-700 font-medium' : 'text-slate-800',
+            "text-sm line-clamp-1 group-hover:text-sky-700 transition-colors",
+            isPinned ? "text-slate-700 font-medium" : "text-slate-800",
           )}
         >
           {post.title}
@@ -249,7 +270,7 @@ function PostRowDesktop({ post, isPinned }: PostRowProps) {
 
       <div className="shrink-0 flex items-center gap-3 text-xs text-slate-400">
         <span className="w-28 text-right truncate">
-          {post.profiles?.nickname ?? '알 수 없음'}
+          {post.profiles?.nickname ?? "알 수 없음"}
         </span>
         <span className="w-10 text-right">{formatted}</span>
         <span className="flex items-center gap-1 w-12 justify-end">
@@ -258,7 +279,7 @@ function PostRowDesktop({ post, isPinned }: PostRowProps) {
         </span>
       </div>
     </Link>
-  )
+  );
 }
 
 function PostRowBoth(props: PostRowProps) {
@@ -267,5 +288,5 @@ function PostRowBoth(props: PostRowProps) {
       <PostRow {...props} />
       <PostRowDesktop {...props} />
     </>
-  )
+  );
 }
