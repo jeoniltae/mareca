@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
-import { Mail, ShieldCheck, Loader2, ArrowLeft, AlertTriangle } from 'lucide-react'
+import { Mail, ShieldCheck, Loader2, ArrowLeft, AlertTriangle, KeyRound } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type Step =
@@ -233,6 +234,21 @@ export default function LoginPage() {
               로그인 시도가 2번 이상 넘어가면 이용 중인 서버 정책상 1시간 뒤에 재로그인이 가능합니다.<br />
               실수하지 않도록 자주 사용하는 이메일로 로그인해 주세요.
             </p>
+          </div>
+
+          <div className="pt-2">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex-1 h-px bg-slate-200" />
+              <span className="text-xs text-slate-400">목회자이신가요?</span>
+              <div className="flex-1 h-px bg-slate-200" />
+            </div>
+            <Link
+              href="/login/masters"
+              className="w-full flex items-center justify-center gap-2 py-3 border border-slate-300 text-slate-600 text-sm font-medium rounded-xl hover:bg-slate-50 transition-colors"
+            >
+              <KeyRound size={15} />
+              목회자 전용 로그인
+            </Link>
           </div>
         </div>
       </div>
