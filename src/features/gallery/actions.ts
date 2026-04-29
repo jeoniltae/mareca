@@ -47,6 +47,7 @@ export async function createGalleryPost(
   title: string,
   description: string,
   imageUrls: string[],
+  category: string,
 ): Promise<never> {
   const supabase = await createClient()
   const {
@@ -60,7 +61,7 @@ export async function createGalleryPost(
     .insert({
       user_id: user.id,
       board: 'gallery',
-      category: '일반',
+      category,
       title,
       content: description,
       thumbnail_url: imageUrls[0] ?? null,
@@ -88,6 +89,7 @@ export async function updateGalleryPost(
   description: string,
   imageUrls: string[],
   deletedUrls: string[],
+  category: string,
 ): Promise<never> {
   const supabase = await createClient()
   const {
@@ -102,6 +104,7 @@ export async function updateGalleryPost(
       title,
       content: description,
       thumbnail_url: imageUrls[0] ?? null,
+      category,
     })
     .eq('id', id)
     .eq('user_id', user.id)
@@ -127,6 +130,16 @@ export async function updateGalleryPost(
   revalidatePath('/community/album')
   revalidatePath(`/community/album/${id}`)
   redirect(`/community/album/${id}`)
+}
+
+// ─── 이미지 파일만 Storage에서 삭제 ────────────────────────────────────────────
+export async function deleteGalleryImages(urls: string[]): Promise<void> {
+  if (urls.length === 0) return
+  const supabase = await createClient()
+  const storagePaths = urls.map(getStoragePath).filter(Boolean) as string[]
+  if (storagePaths.length > 0) {
+    await supabase.storage.from(BUCKET).remove(storagePaths)
+  }
 }
 
 // ─── 조회수 증가 ────────────────────────────────────────────────────────────────

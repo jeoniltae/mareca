@@ -8,13 +8,19 @@ import { GalleryImage } from "@/features/gallery/GalleryImage";
 export const metadata = { title: "행사앨범" };
 
 const PAGE_SIZE = 12;
+const YEAR_CATEGORIES = ['2022년도', '2023년도', '2024년도', '2025년도', '2026년도'] as const;
+const FILTER_CATEGORIES = ['전체', ...YEAR_CATEGORIES] as const;
+type FilterCategory = typeof FILTER_CATEGORIES[number];
 
 interface Props {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; category?: string }>;
 }
 
 export default async function CommunityGalleryPage({ searchParams }: Props) {
-  const { page: pageParam } = await searchParams;
+  const { page: pageParam, category: categoryParam } = await searchParams;
+  const category: FilterCategory = FILTER_CATEGORIES.includes(categoryParam as FilterCategory)
+    ? (categoryParam as FilterCategory)
+    : '전체';
   const page = Math.max(1, Number(pageParam ?? 1) || 1);
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
@@ -25,7 +31,7 @@ export default async function CommunityGalleryPage({ searchParams }: Props) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { data: posts, count } = await supabase
+  let query = supabase
     .from("posts")
     .select("id, title, thumbnail_url, views, created_at, profiles(nickname)", {
       count: "exact",
@@ -33,6 +39,10 @@ export default async function CommunityGalleryPage({ searchParams }: Props) {
     .eq("board", "gallery")
     .order("created_at", { ascending: false })
     .range(from, to);
+
+  if (category !== '전체') query = query.eq('category', category);
+
+  const { data: posts, count } = await query;
 
   const postIds = (posts ?? []).map((p) => p.id);
   const { data: imageCounts } =
@@ -68,7 +78,7 @@ export default async function CommunityGalleryPage({ searchParams }: Props) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* 툴바 */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <p className="text-sm text-slate-500">
             총 <strong className="text-slate-800">{count ?? 0}</strong>개의
             게시물
@@ -82,6 +92,27 @@ export default async function CommunityGalleryPage({ searchParams }: Props) {
               글쓰기
             </Link>
           )}
+        </div>
+
+        {/* 연도 필터 */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {FILTER_CATEGORIES.map((cat) => {
+            const isActive = cat === category;
+            const href = cat === '전체' ? '/community/album' : `/community/album?category=${encodeURIComponent(cat)}`;
+            return (
+              <Link
+                key={cat}
+                href={href}
+                className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'bg-sky-600 text-white'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                {cat}
+              </Link>
+            );
+          })}
         </div>
 
         {/* 그리드 */}
@@ -151,7 +182,7 @@ export default async function CommunityGalleryPage({ searchParams }: Props) {
         <Pagination
           currentPage={page}
           totalPages={totalPages}
-          basePath="/community/album"
+          basePath={category !== '전체' ? `/community/album?category=${encodeURIComponent(category)}` : '/community/album'}
         />
       </div>
     </>

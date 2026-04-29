@@ -15,7 +15,7 @@ import {
   insertPostAttachments,
 } from './actions'
 import { cn } from '@/lib/utils'
-import Link from 'next/link'
+import { ConfirmModal } from '@/components/shared/ConfirmModal'
 
 const DEFAULT_CATEGORIES = ['일반', '질문', '나눔'] as const
 
@@ -43,14 +43,24 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
   const [attachmentFiles, setAttachmentFiles] = useState<File[]>([])
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+  const [pendingFormData, setPendingFormData] = useState<FormData | null>(null)
+  const [showSubmitConfirm, setShowSubmitConfirm] = useState(false)
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
 
-  async function handleSubmit(formData: FormData) {
+  function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
     if (!content.trim() || content === '<p></p>') {
       setError('내용을 입력해주세요.')
       return
     }
     setError(null)
+    const formData = new FormData(e.currentTarget)
     formData.set('content', content)
+    setPendingFormData(formData)
+    setShowSubmitConfirm(true)
+  }
+
+  async function handleSubmit(formData: FormData) {
 
     startTransition(async () => {
       try {
@@ -90,7 +100,7 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
   }
 
   return (
-    <form action={handleSubmit} className="space-y-5">
+    <form onSubmit={handleFormSubmit} className="space-y-5">
       <input type="hidden" name="board" value={board} />
       {/* 카테고리 */}
       <div className="flex items-center gap-2">
@@ -154,12 +164,13 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
 
       {/* 버튼 */}
       <div className="flex items-center justify-end gap-3 pt-2">
-        <Link
-          href={cancelHref}
+        <button
+          type="button"
+          onClick={() => setShowCancelConfirm(true)}
           className="px-5 py-2.5 text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
         >
           취소
-        </Link>
+        </button>
         <button
           type="submit"
           disabled={isPending}
@@ -171,6 +182,30 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
           {isPending ? '저장 중...' : mode === 'edit' ? '수정 완료' : '등록'}
         </button>
       </div>
+
+      <ConfirmModal
+        open={showSubmitConfirm}
+        title={mode === 'edit' ? '수정 완료' : '등록'}
+        description={mode === 'edit' ? '게시글을 수정하시겠어요?' : '게시글을 등록하시겠어요?'}
+        confirmLabel={mode === 'edit' ? '수정 완료' : '등록'}
+        cancelLabel="다시 확인"
+        onConfirm={() => {
+          setShowSubmitConfirm(false)
+          if (pendingFormData) handleSubmit(pendingFormData)
+        }}
+        onCancel={() => setShowSubmitConfirm(false)}
+      />
+
+      <ConfirmModal
+        open={showCancelConfirm}
+        title="작성 취소"
+        description="작성 중인 내용이 저장되지 않습니다. 취소하시겠어요?"
+        confirmLabel="취소하기"
+        cancelLabel="계속 작성"
+        confirmClassName="bg-red-500 hover:bg-red-600 text-white"
+        onConfirm={() => router.push(cancelHref)}
+        onCancel={() => setShowCancelConfirm(false)}
+      />
     </form>
   )
 }
