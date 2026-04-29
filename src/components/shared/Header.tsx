@@ -25,6 +25,7 @@ const NAV_ITEMS: NavItem[] = [
     href: '/about',
     subItems: [
       { label: '신앙고백', href: '/about/confession' },
+      { label: '선언문', href: '/about/declaration' },
       { label: '왜 마스터스개혁파총회를 시작하는가?', href: '/about/reason' },
       { label: '우리는 누구인가?', href: '/about/identity' },
       { label: '이사장', href: '/about/chairman' },
