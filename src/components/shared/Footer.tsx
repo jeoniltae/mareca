@@ -66,11 +66,12 @@ export function Footer() {
               <p className="text-xs font-semibold tracking-widest text-slate-400 uppercase mb-2">
                 후원 계좌
               </p>
-              <p className="flex items-center gap-1.5 text-sm text-slate-300 mb-1 md:justify-end">
-                <img src="/images/logo_ibk.svg" alt="기업은행" width={18} height={18} className="inline-block" />
-                기업은행 · 사단법인 마스터스개혁파총회
+              <p className="text-sm text-slate-300 mb-1 md:text-right">
+                사단법인 마스터스개혁파총회
               </p>
               <div className="flex items-center gap-2 md:justify-end">
+                <img src="/images/logo_ibk.svg" alt="기업은행" width={18} height={18} className="inline-block" />
+                <span className="text-slate-300 text-sm">기업</span>
                 <span className="text-white font-mono font-semibold text-sm">{ACCOUNT_NUMBER}</span>
                 <CopyAccountButton />
               </div>
