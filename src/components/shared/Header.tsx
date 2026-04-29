@@ -101,6 +101,8 @@ const megaMenuVariants = {
   exit: { opacity: 0, y: -6, transition: { duration: 0.15, ease: 'easeIn' as const } },
 }
 
+const MASTERS_EMAIL = 'masters@mareca.kr'
+
 export function Header() {
   const pathname = usePathname()
   const router = useRouter()
@@ -109,6 +111,11 @@ export function Header() {
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [openAccordion, setOpenAccordion] = useState<string | null>(null)
   const [user, setUser] = useState<SupabaseUser | null>(null)
+
+  const isMasters = user?.email === MASTERS_EMAIL
+  const visibleNavItems = NAV_ITEMS.filter(
+    (item) => item.href !== '/resources' || isMasters
+  )
 
   useEffect(() => {
     const supabase = createClient()
@@ -241,7 +248,7 @@ export function Header() {
               onMouseLeave={handleNavMouseLeave}
             >
               <nav className="flex items-center">
-                {NAV_ITEMS.map((item) => {
+                {visibleNavItems.map((item) => {
                   const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
                   return (
                     <Link
@@ -272,7 +279,7 @@ export function Header() {
                   >
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                       <div className="grid grid-cols-8 gap-4">
-                        {NAV_ITEMS.map((item) => (
+                        {visibleNavItems.map((item) => (
                           <div key={item.href}>
                             <p className="text-sm font-semibold text-slate-800 mb-3 pb-2 border-b border-slate-100">
                               {item.label}
@@ -333,7 +340,7 @@ export function Header() {
                 const nextOpen = !isMobileOpen
                 setIsMobileOpen(nextOpen)
                 if (nextOpen) {
-                  const active = NAV_ITEMS.find(
+                  const active = visibleNavItems.find(
                     (item) => item.subItems && (pathname === item.href || pathname.startsWith(item.href + '/'))
                   )
                   setOpenAccordion(active?.href ?? null)
@@ -398,7 +405,7 @@ export function Header() {
                 )}
               </div>
 
-              {NAV_ITEMS.map((item) => {
+              {visibleNavItems.map((item) => {
                 const hasSubItems = item.subItems && item.subItems.length > 0
                 const isOpen = openAccordion === item.href
 
