@@ -6,6 +6,7 @@ import { ImagePlus, X, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { uploadGalleryImage, createGalleryPost, updateGalleryPost, deleteGalleryImages } from './actions'
 import { GalleryImage } from './GalleryImage'
+import { ConfirmModal } from '@/components/shared/ConfirmModal'
 
 const YEAR_CATEGORIES = ['2022년도', '2023년도', '2024년도', '2025년도', '2026년도'] as const
 
@@ -35,6 +36,8 @@ export function GalleryForm({
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [showSubmitConfirm, setShowSubmitConfirm] = useState(false)
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   async function handleFiles(files: FileList) {
@@ -86,17 +89,7 @@ export function GalleryForm({
     if (e.dataTransfer.files.length > 0) handleFiles(e.dataTransfer.files)
   }
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!category) {
-      setError('연도를 선택해주세요.')
-      return
-    }
-    if (!title.trim()) {
-      setError('제목을 입력해주세요.')
-      return
-    }
-    setError(null)
+  function handleSubmit() {
     startTransition(async () => {
       try {
         if (mode === 'create') {
@@ -111,8 +104,22 @@ export function GalleryForm({
     })
   }
 
+  function handleFormSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!category) {
+      setError('연도를 선택해주세요.')
+      return
+    }
+    if (!title.trim()) {
+      setError('제목을 입력해주세요.')
+      return
+    }
+    setError(null)
+    setShowSubmitConfirm(true)
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleFormSubmit} className="space-y-6">
       {/* 연도 카테고리 */}
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1.5">
@@ -224,11 +231,7 @@ export function GalleryForm({
       <div className="flex items-center justify-end gap-3 pt-2">
         <button
           type="button"
-          onClick={async () => {
-            const newlyUploaded = images.filter((url) => !initialImages.includes(url))
-            if (newlyUploaded.length > 0) await deleteGalleryImages(newlyUploaded)
-            router.back()
-          }}
+          onClick={() => setShowCancelConfirm(true)}
           className="px-5 py-2.5 text-sm font-medium text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
         >
           취소
@@ -244,6 +247,31 @@ export function GalleryForm({
           {isPending ? '저장 중...' : mode === 'create' ? '등록하기' : '수정하기'}
         </button>
       </div>
+
+      <ConfirmModal
+        open={showSubmitConfirm}
+        title={mode === 'create' ? '등록' : '수정 완료'}
+        description={mode === 'create' ? '게시글을 등록하시겠어요?' : '게시글을 수정하시겠어요?'}
+        confirmLabel={mode === 'create' ? '등록하기' : '수정하기'}
+        cancelLabel="다시 확인"
+        onConfirm={() => { setShowSubmitConfirm(false); handleSubmit() }}
+        onCancel={() => setShowSubmitConfirm(false)}
+      />
+
+      <ConfirmModal
+        open={showCancelConfirm}
+        title="작성 취소"
+        description="작성 중인 내용이 저장되지 않습니다. 취소하시겠어요?"
+        confirmLabel="취소하기"
+        cancelLabel="계속 작성"
+        confirmClassName="bg-red-500 hover:bg-red-600 text-white"
+        onConfirm={async () => {
+          const newlyUploaded = images.filter((url) => !initialImages.includes(url))
+          if (newlyUploaded.length > 0) await deleteGalleryImages(newlyUploaded)
+          router.back()
+        }}
+        onCancel={() => setShowCancelConfirm(false)}
+      />
     </form>
   )
 }
