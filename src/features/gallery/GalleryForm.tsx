@@ -4,8 +4,10 @@ import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { ImagePlus, X, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { uploadGalleryImage, createGalleryPost, updateGalleryPost } from './actions'
+import { uploadGalleryImage, createGalleryPost, updateGalleryPost, deleteGalleryImages } from './actions'
 import { GalleryImage } from './GalleryImage'
+
+const YEAR_CATEGORIES = ['2022년도', '2023년도', '2024년도', '2025년도', '2026년도'] as const
 
 interface GalleryFormProps {
   mode: 'create' | 'edit'
@@ -13,6 +15,7 @@ interface GalleryFormProps {
   initialTitle?: string
   initialDescription?: string
   initialImages?: string[]
+  initialCategory?: string
 }
 
 export function GalleryForm({
@@ -21,10 +24,12 @@ export function GalleryForm({
   initialTitle = '',
   initialDescription = '',
   initialImages = [],
+  initialCategory = '',
 }: GalleryFormProps) {
   const router = useRouter()
   const [title, setTitle] = useState(initialTitle)
   const [description, setDescription] = useState(initialDescription)
+  const [category, setCategory] = useState(initialCategory)
   const [images, setImages] = useState<string[]>(initialImages)
   const [deletedUrls, setDeletedUrls] = useState<string[]>([])
   const [uploading, setUploading] = useState(false)
@@ -34,6 +39,7 @@ export function GalleryForm({
 
   async function handleFiles(files: FileList) {
     const MAX_SIZE_MB = 10
+    const MAX_IMAGES = 20
     const oversized = Array.from(files).filter((f) => f.size > MAX_SIZE_MB * 1024 * 1024)
     if (oversized.length > 0) {
       setError(`파일 크기는 ${MAX_SIZE_MB}MB 이하만 업로드할 수 있습니다. (${oversized.map((f) => f.name).join(', ')})`)
@@ -41,6 +47,10 @@ export function GalleryForm({
     }
     const accepted = Array.from(files).filter((f) => f.type.startsWith('image/'))
     if (accepted.length === 0) return
+    if (images.length + accepted.length > MAX_IMAGES) {
+      setError(`이미지는 최대 ${MAX_IMAGES}장까지 업로드할 수 있습니다.`)
+      return
+    }
 
     setUploading(true)
     setError(null)
@@ -78,6 +88,10 @@ export function GalleryForm({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (!category) {
+      setError('연도를 선택해주세요.')
+      return
+    }
     if (!title.trim()) {
       setError('제목을 입력해주세요.')
       return
@@ -86,9 +100,9 @@ export function GalleryForm({
     startTransition(async () => {
       try {
         if (mode === 'create') {
-          await createGalleryPost(title.trim(), description.trim(), images)
+          await createGalleryPost(title.trim(), description.trim(), images, category)
         } else if (mode === 'edit' && postId) {
-          await updateGalleryPost(postId, title.trim(), description.trim(), images, deletedUrls)
+          await updateGalleryPost(postId, title.trim(), description.trim(), images, deletedUrls, category)
         }
       } catch (err) {
         if ((err as { digest?: string }).digest?.startsWith('NEXT_REDIRECT')) throw err
@@ -99,6 +113,23 @@ export function GalleryForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* 연도 카테고리 */}
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-1.5">
+          연도 <span className="text-red-500">*</span>
+        </label>
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 transition-all bg-white"
+        >
+          <option value="">연도를 선택하세요</option>
+          {YEAR_CATEGORIES.map((y) => (
+            <option key={y} value={y}>{y}</option>
+          ))}
+        </select>
+      </div>
+
       {/* 제목 */}
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1.5">
@@ -193,7 +224,11 @@ export function GalleryForm({
       <div className="flex items-center justify-end gap-3 pt-2">
         <button
           type="button"
-          onClick={() => router.back()}
+          onClick={async () => {
+            const newlyUploaded = images.filter((url) => !initialImages.includes(url))
+            if (newlyUploaded.length > 0) await deleteGalleryImages(newlyUploaded)
+            router.back()
+          }}
           className="px-5 py-2.5 text-sm font-medium text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
         >
           취소

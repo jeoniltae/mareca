@@ -21,7 +21,7 @@ export default async function GalleryEditPage({ params }: Props) {
 
   const { data: post } = await supabase
     .from('posts')
-    .select('id, user_id, title, content')
+    .select('id, user_id, title, content, category')
     .eq('id', id)
     .eq('board', 'gallery')
     .single()
@@ -57,6 +57,7 @@ export default async function GalleryEditPage({ params }: Props) {
           initialTitle={post.title}
           initialDescription={post.content ?? ''}
           initialImages={imageUrls}
+          initialCategory={post.category ?? ''}
         />
       </div>
     </>
