@@ -5,6 +5,7 @@ import { Link2 } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtube-utils'
+import { isRedirectError } from 'next/dist/client/components/redirect-error'
 import { createReformedTVPost, updateReformedTVPost } from './actions'
 
 const CATEGORIES = ['일반', '숏츠'] as const
@@ -52,7 +53,8 @@ export function ReformedTVForm({ mode, postId, initialValues, cancelHref }: Refo
         } else {
           await createReformedTVPost(formData)
         }
-      } catch {
+      } catch (e) {
+        if (isRedirectError(e)) throw e
         setError('저장 중 오류가 발생했습니다. 다시 시도해주세요.')
       }
     })
@@ -62,19 +64,29 @@ export function ReformedTVForm({ mode, postId, initialValues, cancelHref }: Refo
     <form action={handleSubmit} className="space-y-5">
       {/* 카테고리 */}
       <div>
-        <label className="text-sm font-medium text-slate-700 block mb-1.5">카테고리 <span className="text-red-500">*</span></label>
-        <div className="flex gap-3">
+        <label className="text-sm font-medium text-slate-700 block mb-2">카테고리 <span className="text-red-500">*</span></label>
+        <div className="flex gap-2">
           {CATEGORIES.map((cat) => (
-            <label key={cat} className="flex items-center gap-1.5 cursor-pointer">
+            <label key={cat} className="cursor-pointer">
               <input
                 type="radio"
                 name="category"
                 value={cat}
                 checked={category === cat}
                 onChange={() => setCategory(cat)}
-                className="accent-sky-600"
+                className="sr-only"
               />
-              <span className="text-sm text-slate-700">{cat}</span>
+              <span
+                className={cn(
+                  'inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border transition-all duration-150 select-none',
+                  category === cat
+                    ? 'bg-sky-600 text-white border-sky-600 shadow-sm'
+                    : 'bg-white text-slate-500 border-slate-200 hover:border-sky-400 hover:text-sky-600',
+                )}
+              >
+                {cat === '숏츠' && <span className="text-[11px] leading-none">▶</span>}
+                {cat}
+              </span>
             </label>
           ))}
         </div>
@@ -131,7 +143,7 @@ export function ReformedTVForm({ mode, postId, initialValues, cancelHref }: Refo
         </label>
         <textarea
           name="description"
-          rows={4}
+          rows={10}
           defaultValue={initialValues?.description ?? ''}
           placeholder="영상에 대한 설명을 입력하세요"
           className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300 resize-none"
