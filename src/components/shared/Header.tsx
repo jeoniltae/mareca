@@ -25,9 +25,7 @@ const NAV_ITEMS: NavItem[] = [
     href: '/about',
     subItems: [
       { label: '신앙고백', href: '/about/confession' },
-      { label: '선언문', href: '/about/declaration' },
       { label: '왜 마스터스개혁파총회를 시작하는가?', href: '/about/reason' },
-      { label: '우리는 누구인가?', href: '/about/identity' },
       { label: '이사장', href: '/about/chairman' },
       { label: '연혁 및 주요 행사', href: '/about/history' },
       { label: '총회조직 및 사역원칙', href: '/about/organization' },
@@ -38,10 +36,12 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
-    label: '10 Missions',
-    href: '/10-missions',
+    label: '비전과사명',
+    href: '/vision/declaration',
     subItems: [
-      { label: '소개', href: '/10-missions' },
+      { label: '선언문', href: '/vision/declaration' },
+      { label: '우리는 누구인가?', href: '/vision/identity' },
+      { label: '10 Missions', href: '/vision' },
     ],
   },
   {
@@ -291,7 +291,7 @@ export function Header() {
                             </p>
                             <ul className="space-y-1.5">
                               {item.subItems?.map((sub) => {
-                                const isSubActive = pathname === sub.href || pathname.startsWith(sub.href + '/')
+                                const isSubActive = pathname === sub.href
                                 return (
                                   <li key={sub.href}>
                                     <Link
@@ -346,7 +346,11 @@ export function Header() {
                 setIsMobileOpen(nextOpen)
                 if (nextOpen) {
                   const active = visibleNavItems.find(
-                    (item) => item.subItems && (pathname === item.href || pathname.startsWith(item.href + '/'))
+                    (item) => item.subItems && (
+                      pathname === item.href ||
+                      pathname.startsWith(item.href + '/') ||
+                      item.subItems.some((sub) => pathname === sub.href || pathname.startsWith(sub.href + '/'))
+                    )
                   )
                   setOpenAccordion(active?.href ?? null)
                 }
@@ -442,7 +446,7 @@ export function Header() {
                               className="overflow-hidden bg-slate-50 rounded-md mb-2"
                             >
                               {item.subItems?.map((sub) => {
-                                const isSubActive = pathname === sub.href || pathname.startsWith(sub.href + '/')
+                                const isSubActive = pathname === sub.href
                                 return (
                                   <li key={sub.href}>
                                     <Link

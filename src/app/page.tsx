@@ -166,7 +166,7 @@ function QuickMenuSection() {
     { label: '총회헌법', href: '/constitution', icon: FileText },
     { label: '마스터스 클럽소식', href: '/club-news/news', icon: Users },
     { label: '연혁', href: '/about/history', icon: Calendar },
-    { label: '10 Missions', href: '/10-missions', icon: ScrollText },
+    { label: '10 Missions', href: '/vision', icon: ScrollText },
   ]
 
   return (

@@ -71,7 +71,7 @@ export default function TenMissionsPage() {
     <>
       <PageHeader
         title="10 Missions"
-        breadcrumbs={[{ label: '10 Missions', href: '/10-missions' }, { label: '소개' }]}
+        breadcrumbs={[{ label: '비전과사명', href: '/vision' }, { label: '10 Missions' }]}
         backgroundImage="/images/breadcrumb/theodorus_beza.jpeg"
         bgColor="bg-slate-800"
         imagePosition="center 40%"
