@@ -20,13 +20,13 @@ const MISSIONS = [
     number: '03',
     title: '신학회 사역',
     description: '개혁신학포럼(4, 11월), 제주국제신학포럼(6월) 등',
-    image: '/images/10missions/photo2.png',
+    image: '/images/10missions/photo3.png',
   },
   {
     number: '04',
     title: '교육 사역',
     description: '마스터스 아카데미(학부과정), 마스터스세미너리(M, Div 이상) 등',
-    image: null,
+    image: '/images/10missions/photo2.png',
   },
   {
     number: '05',
@@ -44,7 +44,7 @@ const MISSIONS = [
     number: '07',
     title: '사회참여 사역',
     description: '대변인제 운영 및 대사회 메시지 발표, 원탁회의 등',
-    image: '/images/10missions/photo3.png',
+    image: null,
   },
   {
     number: '08',
@@ -71,7 +71,7 @@ export default function TenMissionsPage() {
     <>
       <PageHeader
         title="10 Missions"
-        breadcrumbs={[{ label: '10 Missions', href: '/10-missions' }, { label: '소개' }]}
+        breadcrumbs={[{ label: '비전과사명', href: '/vision' }, { label: '10 Missions' }]}
         backgroundImage="/images/breadcrumb/theodorus_beza.jpeg"
         bgColor="bg-slate-800"
         imagePosition="center 40%"

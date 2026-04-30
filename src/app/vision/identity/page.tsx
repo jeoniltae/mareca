@@ -24,9 +24,10 @@ export default function AboutIdentityPage() {
     <>
       <PageHeader
         title="우리는 누구인가?"
-        breadcrumbs={[{ label: '총회소개', href: '/about' }, { label: '우리는 누구인가?' }]}
-        backgroundImage="/images/breadcrumb/john_calvin.jpg"
+        breadcrumbs={[{ label: '비전과사명', href: '/vision' }, { label: '우리는 누구인가?' }]}
+        backgroundImage="/images/breadcrumb/theodorus_beza.jpeg"
         bgColor="bg-slate-800"
+        imagePosition="center 40%"
       />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 space-y-16">

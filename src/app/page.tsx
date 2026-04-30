@@ -9,27 +9,37 @@ import {
   MapPin,
   Video,
   ScrollText,
+  Feather,
+  Image as ImageIcon,
+  Play,
   Megaphone,
-  Newspaper,
+
   Scale,
   MessageSquare,
 } from 'lucide-react'
 import { HeroSlider } from '@/components/shared/HeroSlider'
 import { ComingSoonButton } from '@/components/shared/ComingSoonButton'
+import { createClient } from '@/lib/supabase-server'
+import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtube-utils'
 
 // ─── 총회소식 + 일정 + 바로가기 ────────────────────────────────────────────────
-function QuickInfoSection() {
-  const notices = [
-    { title: '부활절연합예배 안내', date: '03-31' },
-    { title: '제62회 임시 총회 소집 공고', date: '02-27' },
-    { title: '총회 창립 7주년 기념행사', date: '02-14' },
-  ]
+async function QuickInfoSection() {
+  const supabase = await createClient()
 
-  const messages = [
-    { title: '고난주간을 맞이하며', date: '04-13' },
-    { title: '개혁신앙의 본질과 오늘의 교회', date: '03-28' },
-    { title: '하나님의 주권과 인간의 책임', date: '03-10' },
-  ]
+  const [{ data: notices }, { data: messages }] = await Promise.all([
+    supabase
+      .from('posts')
+      .select('id, title, created_at')
+      .eq('board', 'notice')
+      .order('created_at', { ascending: false })
+      .limit(3),
+    supabase
+      .from('posts')
+      .select('id, title, created_at')
+      .eq('board', 'message')
+      .order('created_at', { ascending: false })
+      .limit(3),
+  ])
 
   const quickLinks = [
     { label: '이사장', href: '/about/chairman', icon: Users },
@@ -47,20 +57,22 @@ function QuickInfoSection() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-slate-800 text-base">총회소식</h2>
               <Link
-                href="/news"
+                href="/news/notice"
                 className="text-sm text-sky-600 hover:underline flex items-center gap-0.5"
               >
                 더보기 <ChevronRight size={14} />
               </Link>
             </div>
             <ul className="space-y-3">
-              {notices.map((item, i) => (
-                <li key={i} className="flex items-start gap-3">
+              {(notices ?? []).length === 0 ? (
+                <li className="text-sm text-slate-400">등록된 게시물이 없습니다.</li>
+              ) : (notices ?? []).map((item) => (
+                <li key={item.id} className="flex items-start gap-3">
                   <span className="text-slate-400 text-sm shrink-0 mt-0.5 tabular-nums">
-                    {item.date}
+                    {new Date(item.created_at!).toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' }).replace('. ', '-').replace('.', '')}
                   </span>
                   <Link
-                    href="/news"
+                    href={`/news/notice/${item.id}`}
                     className="text-base text-slate-600 hover:text-slate-900 line-clamp-1"
                   >
                     {item.title}
@@ -82,13 +94,15 @@ function QuickInfoSection() {
               </Link>
             </div>
             <ul className="space-y-3">
-              {messages.map((item, i) => (
-                <li key={i} className="flex items-start gap-3">
+              {(messages ?? []).length === 0 ? (
+                <li className="text-sm text-slate-400">등록된 게시물이 없습니다.</li>
+              ) : (messages ?? []).map((item) => (
+                <li key={item.id} className="flex items-start gap-3">
                   <span className="text-slate-400 text-sm shrink-0 mt-0.5 tabular-nums">
-                    {item.date}
+                    {new Date(item.created_at!).toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' }).replace('. ', '-').replace('.', '')}
                   </span>
                   <Link
-                    href="/community/message"
+                    href={`/community/message/${item.id}`}
                     className="text-base text-slate-600 hover:text-slate-900 line-clamp-1"
                   >
                     {item.title}
@@ -123,9 +137,9 @@ function QuickInfoSection() {
 // ─── 자주찾는 서비스 ────────────────────────────────────────────────────────────
 function ServicesSection() {
   const services = [
-    { label: '총회의사록', href: '/report/minutes', icon: ScrollText, color: 'text-slate-600 bg-slate-100' },
+    { label: '선언문', href: '/vision/declaration', icon: Feather, color: 'text-slate-600 bg-slate-100' },
     { label: '공지사항', href: '/news/notice', icon: Megaphone, color: 'text-sky-600 bg-sky-50' },
-    { label: '마스터스 클럽소식', href: '/club-news/news', icon: Newspaper, color: 'text-emerald-600 bg-emerald-50' },
+    { label: '임원', href: '/about/officers', icon: Users, color: 'text-emerald-600 bg-emerald-50' },
     { label: '총회헌법', href: '/constitution', icon: Scale, color: 'text-amber-600 bg-amber-50' },
     { label: 'Plus Voice', href: '/community/voice', icon: MessageSquare, color: 'text-violet-600 bg-violet-50' },
     { label: 'ReformedTV', href: '/community/reformed-tv', icon: Video, color: 'text-red-500 bg-red-50' },
@@ -166,7 +180,7 @@ function QuickMenuSection() {
     { label: '총회헌법', href: '/constitution', icon: FileText },
     { label: '마스터스 클럽소식', href: '/club-news/news', icon: Users },
     { label: '연혁', href: '/about/history', icon: Calendar },
-    { label: '10 Missions', href: '/10-missions', icon: ScrollText },
+    { label: '10 Missions', href: '/vision', icon: ScrollText },
   ]
 
   return (
@@ -183,7 +197,11 @@ function QuickMenuSection() {
               className="flex flex-col items-center gap-2.5 py-5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors"
             >
               <item.icon size={22} />
-              <span className="text-sm">{item.label}</span>
+              <span className="text-sm text-center px-1 leading-tight">
+                {item.label === '마스터스 클럽소식'
+                  ? <><span className="sm:hidden">마스터스<br />클럽소식</span><span className="hidden sm:inline">마스터스 클럽소식</span></>
+                  : item.label}
+              </span>
             </Link>
           ))}
         </div>
@@ -218,7 +236,17 @@ function MembershipBanner() {
 }
 
 // ─── 포토갤러리 ─────────────────────────────────────────────────────────────────
-function GallerySection() {
+async function GallerySection() {
+  const supabase = await createClient()
+  const { data: albums } = await supabase
+    .from('posts')
+    .select('id, title, thumbnail_url')
+    .eq('board', 'gallery')
+    .order('created_at', { ascending: false })
+    .limit(4)
+
+  const slots = Array.from({ length: 4 }, (_, i) => albums?.[i] ?? null)
+
   return (
     <section className="py-12 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -232,15 +260,33 @@ function GallerySection() {
           </Link>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {[1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="aspect-video bg-slate-100 rounded-lg flex items-center justify-center text-slate-300 text-sm"
-            >
-              {/* 실제 이미지로 교체 예정 */}
-              사진 {i}
-            </div>
-          ))}
+          {slots.map((album, i) =>
+            album ? (
+              <Link
+                key={album.id}
+                href={`/community/album/${album.id}`}
+                className="group relative aspect-video rounded-lg overflow-hidden bg-slate-100"
+              >
+                <img
+                  src={album.thumbnail_url ?? ''}
+                  alt={album.title}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300" />
+                <div className="absolute bottom-0 left-0 right-0 p-2 bg-linear-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <p className="text-white text-xs font-medium line-clamp-1">{album.title}</p>
+                </div>
+              </Link>
+            ) : (
+              <div
+                key={i}
+                className="aspect-video rounded-lg bg-slate-100 flex flex-col items-center justify-center gap-2 text-slate-300"
+              >
+                <ImageIcon size={24} />
+                <span className="text-xs">게시물이 없습니다</span>
+              </div>
+            )
+          )}
         </div>
       </div>
     </section>
@@ -299,7 +345,17 @@ function AboutSection() {
 
 
 // ─── 영상 ────────────────────────────────────────────────────────────────────────
-function VideosSection() {
+async function VideosSection() {
+  const supabase = await createClient()
+  const { data: videos } = await supabase
+    .from('posts')
+    .select('id, title, youtube_url')
+    .eq('board', 'reformed-tv')
+    .order('created_at', { ascending: false })
+    .limit(3)
+
+  const slots = Array.from({ length: 3 }, (_, i) => videos?.[i] ?? null)
+
   return (
     <section className="py-12 bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -313,14 +369,39 @@ function VideosSection() {
           </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="aspect-video bg-slate-200 rounded-lg flex items-center justify-center text-slate-400"
-            >
-              <Video size={32} />
-            </div>
-          ))}
+          {slots.map((video, i) => {
+            const videoId = video?.youtube_url ? extractYoutubeId(video.youtube_url) : null
+            const thumbnail = videoId ? getYoutubeThumbnail(videoId) : null
+            return video && thumbnail ? (
+              <Link
+                key={video.id}
+                href={`/community/reformed-tv/${video.id}`}
+                className="group relative aspect-video rounded-lg overflow-hidden bg-slate-800"
+              >
+                <img
+                  src={thumbnail}
+                  alt={video.title}
+                  className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300"
+                />
+                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-full bg-black/60 flex items-center justify-center opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all">
+                    <Play size={20} className="text-white ml-1" fill="white" />
+                  </div>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 p-3 bg-linear-to-t from-black/70 to-transparent">
+                  <p className="text-white text-xs font-medium line-clamp-1">{video.title}</p>
+                </div>
+              </Link>
+            ) : (
+              <div
+                key={i}
+                className="aspect-video rounded-lg bg-slate-200 flex flex-col items-center justify-center gap-2 text-slate-400"
+              >
+                <Video size={28} />
+                <span className="text-xs">게시물이 없습니다</span>
+              </div>
+            )
+          })}
         </div>
       </div>
     </section>

@@ -41,7 +41,7 @@ export default function AboutDeclarationPage() {
           <nav className="flex items-center gap-1 text-lg text-white/60 mb-10">
             <Link href="/" className="hover:text-white transition-colors">홈</Link>
             <ChevronRight size={12} />
-            <Link href="/about" className="hover:text-white transition-colors">총회소개</Link>
+            <Link href="/vision/declaration" className="hover:text-white transition-colors">비전과사명</Link>
             <ChevronRight size={12} />
             <span className="text-[#C8A224] font-semibold">선언문</span>
           </nav>
