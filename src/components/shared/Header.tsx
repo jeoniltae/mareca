@@ -138,7 +138,11 @@ export function Header() {
     setShowLogoutConfirm(false)
     setShowLogoutToast(true)
     setTimeout(() => setShowLogoutToast(false), 2500)
-    router.refresh()
+    if (pathname.startsWith('/resources')) {
+      router.replace('/')
+    } else {
+      router.refresh()
+    }
   }
 
   // refs는 이를 사용하는 effect보다 먼저 선언
