@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useLayoutEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Menu, X, LogIn, LogOut, User, CheckCircle2 } from 'lucide-react'
+import { Menu, X, LogIn, LogOut, User, CheckCircle2, ChevronDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
@@ -392,21 +392,28 @@ export function Header() {
           >
             <nav className="max-w-7xl mx-auto px-4 py-2">
               {/* 모바일 로그인/로그아웃 */}
-              <div className="border-b border-slate-100 py-3">
+              <div className="border-b border-slate-100 py-4">
                 {user ? (
-                  <button
-                    onClick={() => { handleLogout(); setIsMobileOpen(false) }}
-                    className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 transition-colors"
-                  >
-                    <User size={15} />
-                    <span>{user.email?.split('@')[0]}</span>
-                    <LogOut size={14} className="text-slate-400 ml-1" />
-                  </button>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                      <span className="flex items-center justify-center w-7 h-7 rounded-full bg-slate-100">
+                        <User size={14} className="text-slate-500" />
+                      </span>
+                      <span>{user.email?.split('@')[0]}</span>
+                    </div>
+                    <button
+                      onClick={() => { handleLogout(); setIsMobileOpen(false) }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+                    >
+                      <LogOut size={14} />
+                      로그아웃
+                    </button>
+                  </div>
                 ) : (
                   <Link
                     href="/login"
                     onClick={() => setIsMobileOpen(false)}
-                    className="flex items-center gap-2 text-sm font-medium text-sky-600 hover:text-sky-700 transition-colors"
+                    className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold transition-colors"
                   >
                     <LogIn size={15} />
                     로그인
@@ -424,15 +431,15 @@ export function Header() {
                       <>
                         <button
                           onClick={() => setOpenAccordion(isOpen ? null : item.href)}
-                          className="flex items-center justify-between w-full py-3.5 text-base text-slate-600 hover:text-slate-900 text-left"
+                          className="flex items-center justify-between w-full py-3.5 text-base font-medium text-slate-800 hover:text-slate-900 text-left"
                         >
                           {item.label}
                           <motion.span
                             animate={{ rotate: isOpen ? 180 : 0 }}
                             transition={{ duration: 0.2 }}
-                            className="text-slate-400 shrink-0 ml-2"
+                            className="text-slate-500 shrink-0 ml-2"
                           >
-                            ▾
+                            <ChevronDown size={18} strokeWidth={2} />
                           </motion.span>
                         </button>
 
@@ -455,7 +462,7 @@ export function Header() {
                                       className={`block px-4 py-3 text-sm transition-colors ${
                                         isSubActive
                                           ? 'text-sky-600 font-semibold bg-sky-50'
-                                          : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                                          : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
                                       }`}
                                     >
                                       {sub.label}
@@ -471,7 +478,7 @@ export function Header() {
                       <Link
                         href={item.href}
                         onClick={() => setIsMobileOpen(false)}
-                        className="block py-3.5 text-base text-slate-600 hover:text-slate-900"
+                        className="block py-3.5 text-base font-medium text-slate-800 hover:text-slate-900"
                       >
                         {item.label}
                       </Link>
