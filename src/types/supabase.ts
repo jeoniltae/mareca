@@ -159,6 +159,39 @@ export type Database = {
           },
         ]
       }
+      press_articles: {
+        Row: {
+          created_at: string | null
+          id: string
+          og_description: string | null
+          og_image: string | null
+          og_title: string | null
+          published_at: string | null
+          source_name: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
+          published_at?: string | null
+          source_name?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
+          published_at?: string | null
+          source_name?: string | null
+          url?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null

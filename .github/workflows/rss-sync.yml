@@ -1,0 +1,27 @@
+name: RSS Feed Sync
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # 6시간 간격 (0시, 6시, 12시, 18시 UTC)
+  workflow_dispatch:        # 수동 실행 허용
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install rss-parser @supabase/supabase-js
+
+      - name: Run RSS sync
+        run: node scripts/rss-sync.js
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
