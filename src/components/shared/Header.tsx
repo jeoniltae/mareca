@@ -81,6 +81,7 @@ const NAV_ITEMS: NavItem[] = [
     subItems: [
       { label: '소식', href: '/news/all' },
       { label: '공지사항', href: '/news/notice' },
+      { label: '관련기사', href: '/news/press' },
     ],
   },
   {

@@ -22,6 +22,24 @@ const parser = new RSSParser({
   headers: { 'User-Agent': 'Mozilla/5.0 (compatible; mareca-rss-bot/1.0)' },
 });
 
+const KEYWORDS = [
+  '마스터스개혁파총회',
+  '마스터스개혁파',
+  '마스터스총회',
+  '최더함',
+  '바로선개혁교회',
+  'Masters Reformed Church Assembly',
+];
+
+/**
+ * @param {string | null | undefined} text
+ * @returns {boolean}
+ */
+function matchesKeyword(text) {
+  if (!text) return false;
+  return KEYWORDS.some((kw) => text.includes(kw));
+}
+
 /**
  * @param {string} dateStr
  * @returns {string | null}
@@ -64,7 +82,10 @@ async function syncFeed({ url, source_name }) {
     og_description: item.contentSnippet ?? item.summary ?? null,
     source_name,
     published_at: parseDate(item.pubDate ?? item.isoDate),
-  })).filter((a) => !!a.url);
+  })).filter((a) => {
+    if (!a.url) return false;
+    return matchesKeyword(a.og_title) || matchesKeyword(a.og_description);
+  });
 
   if (articles.length === 0) {
     console.log(`[${source_name}] 항목 없음`);
