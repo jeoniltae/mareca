@@ -14,6 +14,18 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
+      {
+        protocol: 'https',
+        hostname: '**.christiandaily.co.kr',
+      },
+      {
+        protocol: 'http',
+        hostname: '**.christiandaily.co.kr',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.christiantoday.co.kr',
+      },
     ],
   },
 };
