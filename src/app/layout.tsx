@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   },
   description: '성경의 진리 위에 세워진 개혁파 신앙 공동체 — 마스터스개혁파총회(MRA)입니다.',
   alternates: { canonical: '/' },
-  verification: { google: '8lMq-ufKYoKg__zKzSCxUatg766qkeUtLP7FDf6Q13Q' },
+  verification: { google: '8lMq-ufKYoKg__zKzSCxUatg766qkeUtLP7FDf6Q13Q', other: { 'naver-site-verification': ['505895a38cdbe364b7030cfc92139f2f331f129e'] } },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
