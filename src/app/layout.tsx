@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Noto_Sans_KR } from 'next/font/google'
 import './globals.css'
+import { organizationJsonLd } from '@/lib/json-ld'
 import { Header } from '@/components/shared/Header'
 import { Footer } from '@/components/shared/Footer'
 import { ScrollToTop } from '@/components/shared/ScrollToTop'
@@ -24,6 +25,13 @@ export const metadata: Metadata = {
     default: '마스터스개혁파총회',
   },
   description: '성경의 진리 위에 세워진 개혁파 신앙 공동체 — 마스터스개혁파총회(MRA)입니다.',
+  alternates: { canonical: '/' },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: '마스터스개혁파총회',
+    startupImage: '/images/icons/apple-touch-icon.png',
+  },
   openGraph: {
     type: 'website',
     locale: 'ko_KR',
@@ -62,6 +70,10 @@ export default function RootLayout({
         <NavigationProgress />
         <Analytics />
         <SpeedInsights />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
+        />
       </body>
     </html>
   )

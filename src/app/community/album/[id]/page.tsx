@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase-server'
+import { articleJsonLd } from '@/lib/json-ld'
 import { notFound } from 'next/navigation'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { GalleryImageViewer } from '@/features/gallery/GalleryImageViewer'
@@ -37,6 +38,7 @@ export async function generateMetadata({ params }: Props) {
       description,
       images: [{ url: imageUrl, alt: post?.title ?? '행사앨범' }],
     },
+    alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/community/album/${id}` },
   }
 }
 
@@ -123,6 +125,20 @@ export default async function GalleryDetailPage({ params }: Props) {
           <ShareButtons title={post.title} imageUrl={imageUrls[0]} />
         </div>
 
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(
+              articleJsonLd({
+                title: post.title,
+                description: post.content?.slice(0, 120) ?? '',
+                url: `${process.env.NEXT_PUBLIC_SITE_URL}/community/album/${id}`,
+                datePublished: post.created_at ?? undefined,
+                imageUrl: imageUrls[0],
+              })
+            ),
+          }}
+        />
         {/* 목록으로 */}
         <div className="mt-4">
           <a
