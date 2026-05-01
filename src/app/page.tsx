@@ -321,8 +321,6 @@ function SeminaryCTA() {
 function AboutSection() {
   return (
     <section className="relative py-20 bg-slate-900 text-white overflow-hidden">
-      {/* 실제 이미지로 교체 예정: /images/about-bg.jpg */}
-      <div className="absolute inset-0 bg-[url('/images/about-bg.jpg')] bg-cover bg-center opacity-20" />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="text-3xl sm:text-4xl font-bold mb-5">마스터스가 출발합니다!</h2>
         <p className="text-slate-300 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto mb-8">

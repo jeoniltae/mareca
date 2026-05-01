@@ -5,12 +5,19 @@ import { ExternalLink } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
+import { ArticleShareButton } from './ArticleShareButton'
 
-export const metadata = { title: '관련기사' }
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: '관련기사',
+  description: '마스터스개혁파총회와 관련된 언론 기사를 모아볼 수 있습니다.',
+  openGraph: { title: '관련기사', description: '마스터스개혁파총회와 관련된 언론 기사를 모아볼 수 있습니다.', url: '/news/press' },
+}
 
 const PAGE_SIZE = 12
 
-const SOURCES = ['전체', '기독일보', '크리스천투데이'] as const
+const SOURCES = ['전체', '크리스천투데이', '기독일보'] as const
 type Source = (typeof SOURCES)[number]
 
 const SOURCE_STYLE: Record<string, string> = {
@@ -35,7 +42,7 @@ export default async function NewsPressPage({ searchParams }: Props) {
 
   let query = supabase
     .from('press_articles')
-    .select('id, url, og_title, og_image, og_description, source_name, published_at', { count: 'exact' })
+    .select('id, url, og_title, og_image, og_description, source_name, published_at, created_at', { count: 'exact' })
     .order('published_at', { ascending: false })
     .range(from, to)
 
@@ -109,6 +116,8 @@ export default async function NewsPressPage({ searchParams }: Props) {
   )
 }
 
+const NEW_BADGE_DAYS = 14
+
 type Article = {
   id: string
   url: string
@@ -117,12 +126,16 @@ type Article = {
   og_description: string | null
   source_name: string | null
   published_at: string | null
+  created_at: string | null
 }
 
 function ArticleCard({ article }: { article: Article }) {
   const sourceStyle = article.source_name
     ? (SOURCE_STYLE[article.source_name] ?? 'bg-slate-100 text-slate-600')
     : 'bg-slate-100 text-slate-600'
+  const isNew = article.created_at
+    ? Date.now() - new Date(article.created_at).getTime() < NEW_BADGE_DAYS * 24 * 60 * 60 * 1000
+    : false
 
   return (
     <a
@@ -149,11 +162,18 @@ function ArticleCard({ article }: { article: Article }) {
 
       <div className="flex flex-col gap-2 p-4 flex-1">
         <div className="flex items-center justify-between gap-2">
-          {article.source_name && (
-            <span className={`text-xs px-2 py-0.5 rounded-md font-medium ${sourceStyle}`}>
-              {article.source_name}
-            </span>
-          )}
+          <div className="flex items-center gap-1.5">
+            {article.source_name && (
+              <span className={`text-xs px-2 py-0.5 rounded-md font-medium ${sourceStyle}`}>
+                {article.source_name}
+              </span>
+            )}
+            {isNew && (
+              <span className="text-[10px] font-bold text-white bg-sky-500 px-1.5 py-0.5 rounded">
+                NEW
+              </span>
+            )}
+          </div>
           {article.published_at && (
             <span className="text-xs text-slate-400 ml-auto">{article.published_at}</span>
           )}
@@ -169,9 +189,12 @@ function ArticleCard({ article }: { article: Article }) {
           </p>
         )}
 
-        <div className="mt-auto pt-2 flex items-center gap-1 text-xs text-slate-400 group-hover:text-sky-600 transition-colors">
-          <ExternalLink size={11} />
-          원문 보기
+        <div className="mt-auto pt-2 flex items-center justify-between">
+          <div className="flex items-center gap-1 text-xs text-slate-400 group-hover:text-sky-600 transition-colors">
+            <ExternalLink size={11} />
+            원문 보기
+          </div>
+          <ArticleShareButton url={article.url} title={article.og_title ?? '관련기사'} imageUrl={article.og_image} />
         </div>
       </div>
     </a>

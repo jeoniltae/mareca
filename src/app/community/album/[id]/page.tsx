@@ -18,12 +18,24 @@ export async function generateMetadata({ params }: Props) {
     supabase.from('posts').select('title, content').eq('id', id).single(),
     supabase.from('post_images').select('url').eq('post_id', id).order('display_order').limit(1).single(),
   ])
+  const rawText = post?.content?.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim() ?? ''
+  const description = rawText.slice(0, 120) || '마스터스개혁파총회 행사 사진 앨범입니다.'
+  const imageUrl = firstImage?.url ?? '/images/logo.jpg'
+
   return {
     title: post?.title ?? '행사앨범',
+    description,
     openGraph: {
       title: post?.title ?? '행사앨범',
-      description: post?.content ?? '',
-      images: firstImage?.url ? [{ url: firstImage.url }] : [{ url: '/images/logo.jpg' }],
+      description,
+      images: [{ url: imageUrl, alt: post?.title ?? '행사앨범' }],
+      type: 'article',
+    },
+    twitter: {
+      card: firstImage?.url ? 'summary_large_image' : 'summary',
+      title: post?.title ?? '행사앨범',
+      description,
+      images: [{ url: imageUrl, alt: post?.title ?? '행사앨범' }],
     },
   }
 }

@@ -5,7 +5,13 @@ import { cn } from "@/lib/utils";
 import { Search, PenSquare, Eye, Pin } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = { title: "Plus Voice" };
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Plus Voice',
+  description: '마스터스개혁파총회 각 교회와 사역자들의 소식과 목소리입니다.',
+  openGraph: { title: 'Plus Voice', description: '마스터스개혁파총회 각 교회와 사역자들의 소식과 목소리입니다.', url: '/community/voice' },
+}
 
 const PAGE_SIZE = 10;
 

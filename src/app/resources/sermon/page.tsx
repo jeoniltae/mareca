@@ -5,7 +5,13 @@ import { cn } from '@/lib/utils'
 import { Search, PenSquare, Eye, Pin } from 'lucide-react'
 import Link from 'next/link'
 
-export const metadata = { title: '설교자료실' }
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: '설교자료실',
+  description: '개혁파 신앙에 기반한 설교 원고 및 자료를 제공합니다.',
+  openGraph: { title: '설교자료실', description: '개혁파 신앙에 기반한 설교 원고 및 자료를 제공합니다.', url: '/resources/sermon' },
+}
 
 const PAGE_SIZE = 10
 const BOARD = 'sermon'

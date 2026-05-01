@@ -5,7 +5,13 @@ import Link from "next/link";
 import { PenSquare, Images, Eye } from "lucide-react";
 import { GalleryImage } from "@/features/gallery/GalleryImage";
 
-export const metadata = { title: "행사앨범" };
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: '행사앨범',
+  description: '마스터스개혁파총회 행사 및 모임의 사진 앨범입니다.',
+  openGraph: { title: '행사앨범', description: '마스터스개혁파총회 행사 및 모임의 사진 앨범입니다.', url: '/community/album' },
+}
 
 const PAGE_SIZE = 12;
 const YEAR_CATEGORIES = ['2022년도', '2023년도', '2024년도', '2025년도', '2026년도'] as const;

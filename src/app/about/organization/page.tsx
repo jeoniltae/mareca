@@ -1,7 +1,13 @@
 import { PageHeader } from '@/components/shared/PageHeader'
 import { CheckCircle2, Users } from 'lucide-react'
 
-export const metadata = { title: '총회조직 및 사역원칙' }
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: '총회조직 및 사역원칙',
+  description: '마스터스개혁파총회의 조직 구조와 사역 원칙을 안내합니다.',
+  openGraph: { title: '총회조직 및 사역원칙', description: '마스터스개혁파총회의 조직 구조와 사역 원칙을 안내합니다.', url: '/about/organization' },
+}
 
 const AFFILIATED_CHURCHES = [
   { region: '서울', churches: '바로선개혁교회, 청교도개혁교회' },

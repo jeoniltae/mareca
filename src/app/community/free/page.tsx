@@ -5,7 +5,13 @@ import { cn } from "@/lib/utils";
 import { Search, PenSquare, Eye, Pin } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = { title: "자유게시판" };
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: '자유게시판',
+  description: '마스터스개혁파총회 회원들의 자유로운 소통 공간입니다.',
+  openGraph: { title: '자유게시판', description: '마스터스개혁파총회 회원들의 자유로운 소통 공간입니다.', url: '/community/free' },
+}
 
 const PAGE_SIZE = 10;
 

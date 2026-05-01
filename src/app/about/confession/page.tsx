@@ -1,7 +1,13 @@
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Crown, BookOpen, Building2 } from 'lucide-react'
 
-export const metadata = { title: '신앙고백' }
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: '신앙고백',
+  description: '마스터스개혁파총회가 고백하는 성경적 신앙고백과 웨스트민스터 신앙고백서를 소개합니다.',
+  openGraph: { title: '신앙고백', description: '마스터스개혁파총회가 고백하는 성경적 신앙고백과 웨스트민스터 신앙고백서를 소개합니다.', url: '/about/confession' },
+}
 
 const CONFESSIONS = [
   {

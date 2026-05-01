@@ -1,7 +1,13 @@
 import Image from 'next/image'
 import { PageHeader } from '@/components/shared/PageHeader'
 
-export const metadata = { title: '10 Missions' }
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: '10 Missions',
+  description: '마스터스개혁파총회가 추구하는 10가지 사명과 비전을 소개합니다.',
+  openGraph: { title: '10 Missions', description: '마스터스개혁파총회가 추구하는 10가지 사명과 비전을 소개합니다.', url: '/vision' },
+}
 
 const MISSIONS = [
   {

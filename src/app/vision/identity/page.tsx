@@ -1,7 +1,13 @@
 import { PageHeader } from '@/components/shared/PageHeader'
 import Image from 'next/image'
 
-export const metadata = { title: '우리는 누구인가?' }
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: '우리는 누구인가?',
+  description: '마스터스개혁파총회의 정체성과 신학적 입장을 소개합니다.',
+  openGraph: { title: '우리는 누구인가?', description: '마스터스개혁파총회의 정체성과 신학적 입장을 소개합니다.', url: '/vision/identity' },
+}
 
 const IDENTITY_ITEMS = [
   '우리는 영원 전에 택함을 받은 하나님의 자녀들입니다.',

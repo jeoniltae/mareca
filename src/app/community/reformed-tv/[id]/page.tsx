@@ -19,12 +19,22 @@ export async function generateMetadata({ params }: Props) {
   const { data } = await supabase.from('posts').select('title, content, youtube_url').eq('id', id).single()
   const videoId = data?.youtube_url ? extractYoutubeId(data.youtube_url) : null
   const thumbnailUrl = videoId ? getYoutubeThumbnail(videoId) : '/images/logo.jpg'
+  const rawText = data?.content?.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim() ?? ''
+  const description = rawText.slice(0, 120) || '마스터스개혁파총회 ReformedTV 영상입니다.'
   return {
     title: data?.title ?? 'ReformedTV',
+    description,
     openGraph: {
       title: data?.title ?? 'ReformedTV',
-      description: data?.content ?? '',
-      images: [{ url: thumbnailUrl }],
+      description,
+      images: [{ url: thumbnailUrl, alt: data?.title ?? 'ReformedTV' }],
+      type: 'article',
+    },
+    twitter: {
+      card: videoId ? 'summary_large_image' : 'summary',
+      title: data?.title ?? 'ReformedTV',
+      description,
+      images: [{ url: thumbnailUrl, alt: data?.title ?? 'ReformedTV' }],
     },
   }
 }

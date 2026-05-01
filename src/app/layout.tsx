@@ -23,7 +23,27 @@ export const metadata: Metadata = {
     template: '%s | 마스터스개혁파총회',
     default: '마스터스개혁파총회',
   },
-  description: '성경의 진리 위에 세워진 개혁파 신앙 공동체',
+  description: '성경의 진리 위에 세워진 개혁파 신앙 공동체 — 마스터스개혁파총회(MRA)입니다.',
+  openGraph: {
+    type: 'website',
+    locale: 'ko_KR',
+    siteName: '마스터스개혁파총회',
+    title: {
+      template: '%s | 마스터스개혁파총회',
+      default: '마스터스개혁파총회',
+    },
+    description: '성경의 진리 위에 세워진 개혁파 신앙 공동체 — 마스터스개혁파총회(MRA)입니다.',
+    images: [{ url: '/images/logo.jpg', alt: '마스터스개혁파총회 로고' }],
+  },
+  twitter: {
+    card: 'summary',
+    title: {
+      template: '%s | 마스터스개혁파총회',
+      default: '마스터스개혁파총회',
+    },
+    description: '성경의 진리 위에 세워진 개혁파 신앙 공동체 — 마스터스개혁파총회(MRA)입니다.',
+    images: ['/images/logo.jpg'],
+  },
 }
 
 export default function RootLayout({

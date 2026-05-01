@@ -5,7 +5,13 @@ import { cn } from '@/lib/utils'
 import { Search, PenSquare, Eye, Pin } from 'lucide-react'
 import Link from 'next/link'
 
-export const metadata = { title: '총회의사록' }
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: '총회의사록',
+  description: '마스터스개혁파총회 총회 및 각종 회의 공식 회의록입니다.',
+  openGraph: { title: '총회의사록', description: '마스터스개혁파총회 총회 및 각종 회의 공식 회의록입니다.', url: '/report/minutes' },
+}
 
 const PAGE_SIZE = 10
 const BOARD = 'minutes'

@@ -1,7 +1,13 @@
 import Image from 'next/image'
 import { PageHeader } from '@/components/shared/PageHeader'
 
-export const metadata = { title: '임원' }
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: '임원',
+  description: '마스터스개혁파총회 임원진 및 주요 직책자를 소개합니다.',
+  openGraph: { title: '임원', description: '마스터스개혁파총회 임원진 및 주요 직책자를 소개합니다.', url: '/about/officers' },
+}
 
 type Member = { name: string; title: string; note?: string; image?: string }
 type OfficerGroup = { role: string; members: Member[]; vacant?: boolean }
