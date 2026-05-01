@@ -194,7 +194,7 @@ function ArticleCard({ article }: { article: Article }) {
             <ExternalLink size={11} />
             원문 보기
           </div>
-          <ArticleShareButton url={article.url} title={article.og_title ?? '관련기사'} imageUrl={article.og_image} />
+          <ArticleShareButton url={article.url} />
         </div>
       </div>
     </a>
