@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase-server'
+import { articleJsonLd } from '@/lib/json-ld'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { notFound } from 'next/navigation'
 import { incrementViews } from '@/features/posts/actions'
@@ -34,6 +35,7 @@ export async function generateMetadata({ params }: Props) {
       description,
       images: ['/images/logo.jpg'],
     },
+    alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/club-news/news/${id}` },
   }
 }
 
@@ -128,6 +130,20 @@ export default async function ClubNewsDetailPage({ params }: Props) {
           <ShareButtons title={post.title} description={post.content?.replace(/<[^>]+>/g, '').slice(0, 100)} />
         </div>
 
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(
+              articleJsonLd({
+                title: post.title,
+                description: post.content?.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 120) ?? '',
+                url: `${process.env.NEXT_PUBLIC_SITE_URL}/club-news/news/${id}`,
+                datePublished: post.created_at ?? undefined,
+                dateModified: post.updated_at ?? undefined,
+              })
+            ),
+          }}
+        />
         <div className="mt-4">
           <Link
             href="/club-news/news"

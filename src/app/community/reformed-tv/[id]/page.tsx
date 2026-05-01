@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase-server'
+import { articleJsonLd } from '@/lib/json-ld'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { notFound } from 'next/navigation'
 import { incrementReformedTVViews } from '@/features/reformed-tv/actions'
@@ -36,6 +37,7 @@ export async function generateMetadata({ params }: Props) {
       description,
       images: [{ url: thumbnailUrl, alt: data?.title ?? 'ReformedTV' }],
     },
+    alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/community/reformed-tv/${id}` },
   }
 }
 
@@ -140,6 +142,21 @@ export default async function ReformedTVDetailPage({ params }: Props) {
           />
         </div>
 
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(
+              articleJsonLd({
+                title: post.title,
+                description: post.content?.slice(0, 120) ?? '',
+                url: `${process.env.NEXT_PUBLIC_SITE_URL}/community/reformed-tv/${id}`,
+                datePublished: post.created_at ?? undefined,
+                dateModified: post.updated_at ?? undefined,
+                imageUrl: videoId ? getYoutubeThumbnail(videoId) : undefined,
+              })
+            ),
+          }}
+        />
         {/* 목록으로 */}
         <div className="mt-4">
           <Link

@@ -26,7 +26,7 @@ import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtub
 async function QuickInfoSection() {
   const supabase = await createClient()
 
-  const [{ data: notices }, { data: messages }] = await Promise.all([
+  const [{ data: notices }, { data: pressArticles }] = await Promise.all([
     supabase
       .from('posts')
       .select('id, title, created_at')
@@ -34,10 +34,9 @@ async function QuickInfoSection() {
       .order('created_at', { ascending: false })
       .limit(3),
     supabase
-      .from('posts')
-      .select('id, title, created_at')
-      .eq('board', 'message')
-      .order('created_at', { ascending: false })
+      .from('press_articles')
+      .select('id, og_title, source_name, published_at')
+      .order('published_at', { ascending: false })
       .limit(3),
   ])
 
@@ -82,30 +81,32 @@ async function QuickInfoSection() {
             </ul>
           </div>
 
-          {/* 마스터스 메시지 */}
+          {/* 관련기사 */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-slate-800 text-base">마스터스 메시지</h2>
+              <h2 className="font-semibold text-slate-800 text-base">관련기사</h2>
               <Link
-                href="/community/message"
+                href="/news/press"
                 className="text-sm text-sky-600 hover:underline flex items-center gap-0.5"
               >
                 더보기 <ChevronRight size={14} />
               </Link>
             </div>
             <ul className="space-y-3">
-              {(messages ?? []).length === 0 ? (
-                <li className="text-sm text-slate-400">등록된 게시물이 없습니다.</li>
-              ) : (messages ?? []).map((item) => (
+              {(pressArticles ?? []).length === 0 ? (
+                <li className="text-sm text-slate-400">등록된 기사가 없습니다.</li>
+              ) : (pressArticles ?? []).map((item) => (
                 <li key={item.id} className="flex items-start gap-3">
                   <span className="text-slate-400 text-sm shrink-0 mt-0.5 tabular-nums">
-                    {new Date(item.created_at!).toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' }).replace('. ', '-').replace('.', '')}
+                    {item.published_at
+                      ? new Date(item.published_at).toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' }).replace('. ', '-').replace('.', '')
+                      : '--'}
                   </span>
                   <Link
-                    href={`/community/message/${item.id}`}
+                    href={`/news/press`}
                     className="text-base text-slate-600 hover:text-slate-900 line-clamp-1"
                   >
-                    {item.title}
+                    {item.og_title ?? '제목 없음'}
                   </Link>
                 </li>
               ))}
