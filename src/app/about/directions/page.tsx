@@ -2,7 +2,13 @@ import { MapPin, Phone, Mail } from 'lucide-react'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { KakaoMap } from '@/components/shared/KakaoMap'
 
-export const metadata = { title: '오시는 길' }
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: '오시는 길',
+  description: '마스터스개혁파총회 사무처의 위치와 연락처, 오시는 방법을 안내합니다.',
+  openGraph: { title: '오시는 길', description: '마스터스개혁파총회 사무처의 위치와 연락처, 오시는 방법을 안내합니다.', url: '/about/directions' },
+}
 
 const LOCATIONS = [
   {

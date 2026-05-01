@@ -1,7 +1,13 @@
 import { PageHeader } from '@/components/shared/PageHeader'
 import Image from 'next/image'
 
-export const metadata = { title: '왜 마스터스개혁파총회를 시작하는가?' }
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: '왜 마스터스개혁파총회를 시작하는가?',
+  description: '마스터스개혁파총회를 설립하게 된 이유와 신학적 배경을 설명합니다.',
+  openGraph: { title: '왜 마스터스개혁파총회를 시작하는가?', description: '마스터스개혁파총회를 설립하게 된 이유와 신학적 배경을 설명합니다.', url: '/about/reason' },
+}
 
 const REASONS = [
   {

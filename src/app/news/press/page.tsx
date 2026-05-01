@@ -7,7 +7,13 @@ import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { ArticleShareButton } from './ArticleShareButton'
 
-export const metadata = { title: '관련기사' }
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: '관련기사',
+  description: '마스터스개혁파총회와 관련된 언론 기사를 모아볼 수 있습니다.',
+  openGraph: { title: '관련기사', description: '마스터스개혁파총회와 관련된 언론 기사를 모아볼 수 있습니다.', url: '/news/press' },
+}
 
 const PAGE_SIZE = 12
 

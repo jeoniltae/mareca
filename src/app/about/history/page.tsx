@@ -1,6 +1,12 @@
 import { PageHeader } from '@/components/shared/PageHeader'
 
-export const metadata = { title: '연혁 및 주요 행사' }
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: '연혁 및 주요 행사',
+  description: '2023년 창립부터 현재까지 마스터스개혁파총회의 주요 연혁과 행사를 소개합니다.',
+  openGraph: { title: '연혁 및 주요 행사', description: '2023년 창립부터 현재까지 마스터스개혁파총회의 주요 연혁과 행사를 소개합니다.', url: '/about/history' },
+}
 
 const HISTORY: { year: number; events: { date: string; title: string; desc?: string }[] }[] = [
   {

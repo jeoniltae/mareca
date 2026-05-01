@@ -21,14 +21,22 @@ export async function generateMetadata({ params }: Props) {
     .select("title, content")
     .eq("id", id)
     .single();
-  const description =
-    data?.content?.replace(/<[^>]+>/g, "").slice(0, 100) ?? "";
+  const rawText = data?.content?.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim() ?? "";
+  const description = rawText.slice(0, 120) || "마스터스개혁파총회 게시글입니다.";
   return {
     title: data?.title ?? "게시글",
+    description,
     openGraph: {
       title: data?.title ?? "게시글",
       description,
-      images: [{ url: "/images/logo.jpg" }],
+      images: [{ url: "/images/logo.jpg", alt: data?.title ?? "" }],
+      type: "article",
+    },
+    twitter: {
+      card: "summary",
+      title: data?.title ?? "게시글",
+      description,
+      images: ["/images/logo.jpg"],
     },
   };
 }

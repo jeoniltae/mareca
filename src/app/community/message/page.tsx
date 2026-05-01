@@ -5,7 +5,13 @@ import { cn } from "@/lib/utils";
 import { Search, PenSquare, Eye, Pin } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = { title: "마스터스 메시지" };
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: '마스터스 메시지',
+  description: '총회를 향한 격려와 응원의 글을 나누는 공간입니다.',
+  openGraph: { title: '마스터스 메시지', description: '총회를 향한 격려와 응원의 글을 나누는 공간입니다.', url: '/community/message' },
+}
 
 const PAGE_SIZE = 10;
 
