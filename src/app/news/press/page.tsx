@@ -72,7 +72,7 @@ export default async function NewsPressPage({ searchParams }: Props) {
       />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-between gap-3 mb-5">
+        <div className="flex flex-col gap-2 mb-5">
           <div className="flex gap-1.5 flex-wrap">
             {SOURCES.map((src) => (
               <Link
@@ -89,7 +89,7 @@ export default async function NewsPressPage({ searchParams }: Props) {
               </Link>
             ))}
           </div>
-          <span className="text-sm text-slate-500 shrink-0">
+          <span className="text-sm text-right text-slate-500">
             총 <strong className="text-slate-800">{count ?? 0}</strong>개
           </span>
         </div>
