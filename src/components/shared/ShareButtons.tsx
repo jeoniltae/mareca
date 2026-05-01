@@ -14,25 +14,10 @@ export function ShareButtons({ title, description, imageUrl }: ShareButtonsProps
 
   function handleCopyLink() {
     const url = window.location.href
-    if (navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(url).then(() => {
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
-      })
-    } else {
-      // HTTP 환경(로컬 IP 등) 폴백
-      const el = document.createElement('textarea')
-      el.value = url
-      el.style.position = 'fixed'
-      el.style.opacity = '0'
-      document.body.appendChild(el)
-      el.focus()
-      el.select()
-      document.execCommand('copy')
-      document.body.removeChild(el)
+    navigator.clipboard.writeText(url).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
-    }
+    })
   }
 
   function handleKakaoShare() {

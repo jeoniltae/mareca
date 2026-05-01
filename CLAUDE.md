@@ -140,6 +140,16 @@ src/
 ---
 
 ## TODO (미해결 이슈)
+- **[미착수] 관련기사 상세 페이지 및 카카오톡 공유 기능**
+  - 배경: 카카오 Share SDK는 `link`에 앱에 등록된 도메인만 허용하므로, 외부 기사 URL을 카카오 공유 링크로 직접 사용 불가. 현재 관련기사 목록에서 카카오 공유 버튼을 제거하고 링크 복사만 제공 중
+  - 해결 방향: 관련기사 상세 페이지(`/news/press/[id]`)를 만들어 마레카 도메인 URL로 카카오 공유 → 상세 페이지 내에서 원문 기사로 이동하도록 유도
+  - 상세 페이지 구성:
+    - og_title, og_image, og_description 표시
+    - "원문 기사 보기" 외부 링크 버튼
+    - 카카오톡 공유 버튼 (link를 `/news/press/[id]` 마레카 URL로 설정)
+  - DB: `press_articles` 테이블의 `id`를 라우트 파라미터로 사용 (별도 DB 변경 불필요)
+  - 관련 파일: `src/app/news/press/[id]/page.tsx` 신규 생성, `src/app/news/press/page.tsx`의 카드 클릭 → 외부 URL 대신 `/news/press/[id]`로 변경
+
 - **[미착수] 로고 기반 브랜드 컬러 시스템 전면 적용**
   - 배경: 현재 프로젝트는 Tailwind 기본 `sky-600/700`, `slate-800` 계열을 Primary 컬러로 사용 중. 로고(public/images/logo.jpg)의 색상과 괴리가 있어 브랜드 일관성이 부족함
   - 로고 추출 컬러: 네이비 `#1C2E50` / 포레스트 그린 `#2A5728` / 골드 `#C8A224` / 크림 `#EEE8D5`
