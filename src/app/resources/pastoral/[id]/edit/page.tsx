@@ -2,9 +2,10 @@ import { createClient } from '@/lib/supabase-server'
 import { redirect, notFound } from 'next/navigation'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { PostForm } from '@/features/posts/PostForm'
+import { YEAR_CATEGORIES } from '@/lib/constants'
 
 const BOARD_PATH = '/resources/pastoral'
-const CATEGORIES = ['일반'] as const
+
 
 interface Props {
   params: Promise<{ id: string }>
@@ -49,7 +50,7 @@ export default async function EditPastoralPostPage({ params }: Props) {
           mode="edit"
           postId={id}
           boardPath={BOARD_PATH}
-          categories={CATEGORIES}
+          categories={YEAR_CATEGORIES}
           initialValues={{
             title: post.title,
             category: post.category,

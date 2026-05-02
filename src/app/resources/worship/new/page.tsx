@@ -2,12 +2,13 @@ import { createClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { PostForm } from '@/features/posts/PostForm'
+import { YEAR_CATEGORIES } from '@/lib/constants'
 
 export const metadata = { title: '글쓰기 — 예배자료실' }
 
 const BOARD = 'worship'
 const BOARD_PATH = '/resources/worship'
-const CATEGORIES = ['일반'] as const
+
 
 export default async function NewWorshipPostPage() {
   const supabase = await createClient()
@@ -34,7 +35,7 @@ export default async function NewWorshipPostPage() {
           mode="create"
           board={BOARD}
           boardPath={BOARD_PATH}
-          categories={CATEGORIES}
+          categories={YEAR_CATEGORIES}
           cancelHref={BOARD_PATH}
         />
       </div>

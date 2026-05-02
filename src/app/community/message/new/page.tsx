@@ -2,10 +2,11 @@ import { createClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { PostForm } from '@/features/posts/PostForm'
+import { YEAR_CATEGORIES } from '@/lib/constants'
 
 export const metadata = { title: '글쓰기 — 마스터스 메시지' }
 
-const MESSAGE_CATEGORIES = ['공지', '일반'] as const
+
 
 export default async function NewMessagePage() {
   const supabase = await createClient()
@@ -33,7 +34,7 @@ export default async function NewMessagePage() {
           mode="create"
           board="message"
           boardPath="/community/message"
-          categories={MESSAGE_CATEGORIES}
+          categories={YEAR_CATEGORIES}
           cancelHref="/community/message"
         />
       </div>
