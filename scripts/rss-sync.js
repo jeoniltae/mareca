@@ -37,11 +37,12 @@ const KEYWORDS = [
  */
 function matchesKeyword(text) {
   if (!text) return false;
-  return KEYWORDS.some((kw) => text.includes(kw));
+  const normalized = text.replace(/\s+/g, '');
+  return KEYWORDS.some((kw) => normalized.includes(kw.replace(/\s+/g, '')));
 }
 
 /**
- * @param {string} dateStr
+ * @param {string | null | undefined} dateStr
  * @returns {string | null}
  */
 function parseDate(dateStr) {
@@ -55,7 +56,7 @@ function parseDate(dateStr) {
  * @param {object} item
  * @returns {string | null}
  */
-function extractImage(item) {
+function extractImageFromRSS(item) {
   if (item.enclosure?.url) return item.enclosure.url;
   if (item['media:content']?.['$']?.url) return item['media:content']['$'].url;
   if (item['media:thumbnail']?.['$']?.url) return item['media:thumbnail']['$'].url;
@@ -63,6 +64,27 @@ function extractImage(item) {
     ? item.content.match(/<img[^>]+src=["']([^"']+)["']/)
     : null;
   return match ? match[1] : null;
+}
+
+/**
+ * 기사 URL에서 og:image 메타태그를 파싱해 반환
+ * @param {string} articleUrl
+ * @returns {Promise<string | null>}
+ */
+async function fetchOgImage(articleUrl) {
+  try {
+    const res = await fetch(articleUrl, {
+      signal: AbortSignal.timeout(8000),
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; mareca-rss-bot/1.0)' },
+    });
+    if (!res.ok) return null;
+    const html = await res.text();
+    const match = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
+      ?? html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+    return match ? match[1] : null;
+  } catch {
+    return null;
+  }
 }
 
 async function syncFeed({ url, source_name }) {
@@ -75,17 +97,29 @@ async function syncFeed({ url, source_name }) {
     return { success: false, count: 0 };
   }
 
-  const articles = feed.items.map((item) => ({
-    url: item.link ?? item.guid,
-    og_title: item.title ?? null,
-    og_image: extractImage(item),
-    og_description: item.contentSnippet ?? item.summary ?? null,
-    source_name,
-    published_at: parseDate(item.pubDate ?? item.isoDate),
-  })).filter((a) => {
-    if (!a.url) return false;
-    return matchesKeyword(a.og_title) || matchesKeyword(a.og_description);
-  });
+  const filtered = feed.items
+    .map((item) => ({
+      url: item.link ?? item.guid,
+      og_title: item.title ?? null,
+      og_image: extractImageFromRSS(item),
+      og_description: item.contentSnippet ?? item.summary ?? null,
+      source_name,
+      published_at: parseDate(item.pubDate ?? item.isoDate),
+    }))
+    .filter((a) => {
+      if (!a.url) return false;
+      return matchesKeyword(a.og_title) || matchesKeyword(a.og_description);
+    });
+
+  // RSS에서 이미지를 못 가져온 항목만 OG 파싱
+  const articles = await Promise.all(
+    filtered.map(async (a) => {
+      if (a.og_image || !a.url) return a;
+      const ogImage = await fetchOgImage(a.url);
+      if (ogImage) console.log(`  [OG] ${a.og_title} → ${ogImage}`);
+      return { ...a, og_image: ogImage };
+    })
+  );
 
   if (articles.length === 0) {
     console.log(`[${source_name}] 항목 없음`);
