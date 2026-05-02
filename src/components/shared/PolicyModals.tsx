@@ -32,7 +32,7 @@ const POLICIES = {
 
         <section>
           <h3 className="font-semibold text-slate-800 mb-2">3. 개인정보의 보유 및 이용 기간</h3>
-          <p>회원 탈퇴 시까지 보유합니다. 단, 관계 법령에 따라 보존이 필요한 경우에는 해당 법령에서 정한 기간 동안 보유합니다.</p>
+          <p>서비스 이용 기간 동안 보유합니다. 단, 관계 법령에 따라 보존이 필요한 경우에는 해당 법령에서 정한 기간 동안 보유합니다.</p>
         </section>
 
         <section>
@@ -41,7 +41,19 @@ const POLICIES = {
         </section>
 
         <section>
-          <h3 className="font-semibold text-slate-800 mb-2">5. 개인정보의 안전성 확보 조치</h3>
+          <h3 className="font-semibold text-slate-800 mb-2">5. 개인정보의 국외 이전</h3>
+          <p>총회는 인증 서비스 운영을 위해 아래와 같이 개인정보를 국외에 이전합니다.</p>
+          <ul className="list-disc pl-5 mt-1 space-y-1">
+            <li>이전받는 자: Supabase, Inc.</li>
+            <li>이전 국가: 미국</li>
+            <li>이전 항목: 이메일 주소</li>
+            <li>이전 목적: 회원 인증 및 데이터 저장</li>
+            <li>보유 기간: 서비스 이용 기간 동안</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3 className="font-semibold text-slate-800 mb-2">6. 개인정보의 안전성 확보 조치</h3>
           <p>총회는 개인정보의 안전성 확보를 위해 다음과 같은 조치를 취하고 있습니다.</p>
           <ul className="list-disc pl-5 mt-1 space-y-1">
             <li>개인정보는 암호화하여 저장 및 관리</li>
@@ -50,12 +62,12 @@ const POLICIES = {
         </section>
 
         <section>
-          <h3 className="font-semibold text-slate-800 mb-2">6. 정보주체의 권리</h3>
+          <h3 className="font-semibold text-slate-800 mb-2">7. 정보주체의 권리</h3>
           <p>정보주체는 언제든지 개인정보 열람·정정·삭제·처리정지를 요구할 수 있습니다.</p>
         </section>
 
         <section>
-          <h3 className="font-semibold text-slate-800 mb-2">7. 개인정보 보호책임자</h3>
+          <h3 className="font-semibold text-slate-800 mb-2">8. 개인정보 보호책임자</h3>
           <ul className="space-y-1">
             <li>기관명: 마스터스개혁파총회</li>
             <li>이메일: saemvithee@naver.com</li>
