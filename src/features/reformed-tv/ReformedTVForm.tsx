@@ -26,7 +26,9 @@ export function ReformedTVForm({ mode, postId, initialValues, cancelHref }: Refo
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [youtubeUrl, setYoutubeUrl] = useState(initialValues?.youtube_url ?? '')
-  const [category, setCategory] = useState(initialValues?.category ?? '일반')
+  const [category, setCategory] = useState(initialValues?.category ?? '')
+  const [title, setTitle] = useState(initialValues?.title ?? '')
+  const [description, setDescription] = useState(initialValues?.description ?? '')
 
   const videoId = extractYoutubeId(youtubeUrl)
   const thumbnailUrl = videoId ? getYoutubeThumbnail(videoId) : null
@@ -130,7 +132,8 @@ export function ReformedTVForm({ mode, postId, initialValues, cancelHref }: Refo
           name="title"
           type="text"
           required
-          defaultValue={initialValues?.title}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
           placeholder="영상 제목을 입력하세요"
           className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300"
         />
@@ -144,7 +147,8 @@ export function ReformedTVForm({ mode, postId, initialValues, cancelHref }: Refo
         <textarea
           name="description"
           rows={10}
-          defaultValue={initialValues?.description ?? ''}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           placeholder="영상에 대한 설명을 입력하세요"
           className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300 resize-none"
         />
