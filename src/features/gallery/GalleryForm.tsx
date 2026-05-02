@@ -8,7 +8,7 @@ import { uploadGalleryImage, createGalleryPost, updateGalleryPost, deleteGallery
 import { GalleryImage } from './GalleryImage'
 import { ConfirmModal } from '@/components/shared/ConfirmModal'
 
-const YEAR_CATEGORIES = ['2022년도', '2023년도', '2024년도', '2025년도', '2026년도'] as const
+import { YEAR_CATEGORIES } from '@/lib/constants'
 
 interface GalleryFormProps {
   mode: 'create' | 'edit'

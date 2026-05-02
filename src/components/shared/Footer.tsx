@@ -57,7 +57,7 @@ export function Footer() {
 
           <div className="flex flex-col md:items-end gap-5">
             <Link href="/" className="flex items-center gap-2">
-              <img src="/images/logo.jpg" alt="마스터스개혁파총회 로고" width={65} height={65} className="rounded-full object-cover" />
+              <img src="/images/logo.png" alt="마스터스개혁파총회 로고" width={65} height={65} className="rounded-full object-cover" />
               <span className="text-white font-semibold text-base">마스터스개혁파총회</span>
             </Link>
 

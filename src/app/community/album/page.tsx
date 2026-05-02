@@ -4,6 +4,7 @@ import { Pagination } from "@/components/shared/Pagination";
 import Link from "next/link";
 import { PenSquare, Images, Eye } from "lucide-react";
 import { GalleryImage } from "@/features/gallery/GalleryImage";
+import { YEAR_CATEGORIES } from '@/lib/constants'
 
 import type { Metadata } from 'next'
 
@@ -14,7 +15,6 @@ export const metadata: Metadata = {
 }
 
 const PAGE_SIZE = 12;
-const YEAR_CATEGORIES = ['2022년도', '2023년도', '2024년도', '2025년도', '2026년도'] as const;
 const FILTER_CATEGORIES = ['전체', ...YEAR_CATEGORIES] as const;
 type FilterCategory = typeof FILTER_CATEGORIES[number];
 

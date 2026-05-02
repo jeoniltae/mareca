@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props) {
   const supabase = await createClient()
   const { data } = await supabase.from('posts').select('title, content, youtube_url').eq('id', id).single()
   const videoId = data?.youtube_url ? extractYoutubeId(data.youtube_url) : null
-  const thumbnailUrl = videoId ? getYoutubeThumbnail(videoId) : '/images/logo.jpg'
+  const thumbnailUrl = videoId ? getYoutubeThumbnail(videoId) : '/images/logo.png'
   const rawText = data?.content?.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim() ?? ''
   const description = rawText.slice(0, 120) || '마스터스개혁파총회 ReformedTV 영상입니다.'
   return {

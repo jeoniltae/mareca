@@ -135,7 +135,28 @@ src/
 
 ### 미구현 (추후 추가 예정)
 - comments (게시글 댓글)
-- SEO 최적화
+
+---
+
+## SEO 운영 가이드
+
+### 자동 처리 (추가 작업 불필요)
+- **게시글 상세 페이지**: `generateMetadata`가 DB에서 동적으로 title/description/OG/canonical 생성
+- **sitemap.xml**: `src/app/sitemap.ts`가 DB 조회해서 자동 생성 — 새 게시글도 자동 포함
+- **JSON-LD (Article)**: 게시글 작성 시 자동 적용 (14개 동적 라우트에 구현됨)
+- **JSON-LD (Organization)**: `src/app/layout.tsx`에서 전역 적용
+
+### 새 페이지/게시판 추가 시에만 수동 작업 필요
+1. **새 정적 페이지** (`page.tsx` 신규 생성) → 파일 상단에 `export const metadata: Metadata = { title, description, openGraph }` 추가
+2. **새 게시판 추가** → `src/app/sitemap.ts`의 `BOARD_PATH_MAP`과 `STATIC_ROUTES` 목록에 경로 추가
+3. **새 동적 라우트** (`[id]/page.tsx` 신규 생성) → `generateMetadata` + `articleJsonLd` 추가 (`src/lib/json-ld.ts`의 헬퍼 사용)
+
+### 관련 파일
+- `src/app/sitemap.ts` — 사이트맵 (정적 + 동적 URL 자동 생성)
+- `src/app/robots.ts` — 크롤러 허용/차단 규칙
+- `src/app/manifest.ts` — PWA 설정
+- `src/lib/json-ld.ts` — JSON-LD 헬퍼 (`organizationJsonLd`, `articleJsonLd`)
+- `src/app/layout.tsx` — 전역 metadata (OG, Twitter, canonical, 구글/네이버 인증, Organization JSON-LD)
 
 ---
 
@@ -151,7 +172,7 @@ src/
   - 관련 파일: `src/app/news/press/[id]/page.tsx` 신규 생성, `src/app/news/press/page.tsx`의 카드 클릭 → 외부 URL 대신 `/news/press/[id]`로 변경
 
 - **[미착수] 로고 기반 브랜드 컬러 시스템 전면 적용**
-  - 배경: 현재 프로젝트는 Tailwind 기본 `sky-600/700`, `slate-800` 계열을 Primary 컬러로 사용 중. 로고(public/images/logo.jpg)의 색상과 괴리가 있어 브랜드 일관성이 부족함
+  - 배경: 현재 프로젝트는 Tailwind 기본 `sky-600/700`, `slate-800` 계열을 Primary 컬러로 사용 중. 로고(public/images/logo.png)의 색상과 괴리가 있어 브랜드 일관성이 부족함
   - 로고 추출 컬러: 네이비 `#1C2E50` / 포레스트 그린 `#2A5728` / 골드 `#C8A224` / 크림 `#EEE8D5`
   - 작업 계획 (5단계):
     1. `tailwind.config.ts`에 `brand-navy`, `brand-green`, `brand-gold`, `brand-cream` 커스텀 토큰 정의

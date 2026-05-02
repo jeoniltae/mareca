@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase-server'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Pagination } from '@/components/shared/Pagination'
+import { YEAR_CATEGORIES } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import { Search, PenSquare, Eye, Pin } from 'lucide-react'
+import { Search, PenSquare, Eye } from 'lucide-react'
 import Link from 'next/link'
 
 import type { Metadata } from 'next'
@@ -17,19 +18,18 @@ const PAGE_SIZE = 10
 const BOARD = 'church-plan'
 const BOARD_PATH = '/online-admin/plan'
 
-const CATEGORIES = ['전체', '공지', '일반'] as const
-
-const CATEGORY_STYLE: Record<string, string> = {
-  공지: 'bg-red-50 text-red-600 ring-1 ring-inset ring-red-200',
-  일반: 'bg-slate-100 text-slate-600',
-}
+const FILTER_CATEGORIES = ['전체', ...YEAR_CATEGORIES] as const
+type FilterCategory = typeof FILTER_CATEGORIES[number]
 
 interface Props {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ page?: string; category?: string }>
 }
 
 export default async function OnlineAdminPlanPage({ searchParams }: Props) {
-  const { page: pageParam } = await searchParams
+  const { page: pageParam, category: categoryParam } = await searchParams
+  const category: FilterCategory = FILTER_CATEGORIES.includes(categoryParam as FilterCategory)
+    ? (categoryParam as FilterCategory)
+    : '전체'
   const page = Math.max(1, Number(pageParam ?? 1) || 1)
   const from = (page - 1) * PAGE_SIZE
   const to = from + PAGE_SIZE - 1
@@ -40,24 +40,19 @@ export default async function OnlineAdminPlanPage({ searchParams }: Props) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const [{ data: pinned }, { data: regular, count: regularCount }] = await Promise.all([
-    supabase
-      .from('posts')
-      .select('id, category, title, views, created_at, profiles(nickname)')
-      .eq('board', BOARD)
-      .eq('category', '공지')
-      .order('created_at', { ascending: false }),
-    supabase
-      .from('posts')
-      .select('id, category, title, views, created_at, profiles(nickname)', { count: 'exact' })
-      .eq('board', BOARD)
-      .neq('category', '공지')
-      .order('created_at', { ascending: false })
-      .range(from, to),
-  ])
+  let query = supabase
+    .from('posts')
+    .select('id, category, title, views, created_at, profiles(nickname)', { count: 'exact' })
+    .eq('board', BOARD)
+    .order('created_at', { ascending: false })
+    .range(from, to)
 
-  const totalCount = (pinned?.length ?? 0) + (regularCount ?? 0)
-  const totalPages = Math.ceil((regularCount ?? 0) / PAGE_SIZE)
+  if (category !== '전체') query = query.eq('category', category)
+
+  const { data: posts, count } = await query
+
+  const totalPages = Math.ceil((count ?? 0) / PAGE_SIZE)
+  const basePath = category !== '전체' ? `${BOARD_PATH}?category=${encodeURIComponent(category)}` : BOARD_PATH
 
   return (
     <>
@@ -72,19 +67,24 @@ export default async function OnlineAdminPlanPage({ searchParams }: Props) {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between gap-3 mb-5">
           <div className="flex gap-1.5 flex-wrap">
-            {CATEGORIES.map((cat, i) => (
-              <button
-                key={cat}
-                className={cn(
-                  'px-3.5 py-1.5 rounded-full text-sm font-medium transition-colors',
-                  i === 0
-                    ? 'bg-slate-800 text-white'
-                    : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100',
-                )}
-              >
-                {cat}
-              </button>
-            ))}
+            {FILTER_CATEGORIES.map((cat) => {
+              const isActive = cat === category
+              const href = cat === '전체' ? BOARD_PATH : `${BOARD_PATH}?category=${encodeURIComponent(cat)}`
+              return (
+                <Link
+                  key={cat}
+                  href={href}
+                  className={cn(
+                    'px-3.5 py-1.5 rounded-full text-sm font-medium transition-colors',
+                    isActive
+                      ? 'bg-slate-800 text-white'
+                      : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100',
+                  )}
+                >
+                  {cat}
+                </Link>
+              )
+            })}
           </div>
 
           {user && (
@@ -124,31 +124,23 @@ export default async function OnlineAdminPlanPage({ searchParams }: Props) {
 
         <div className="flex items-center justify-between text-sm text-slate-500 mb-2">
           <span>
-            총 <strong className="text-slate-800">{totalCount}</strong>개의 게시글
+            총 <strong className="text-slate-800">{count ?? 0}</strong>개의 게시글
           </span>
         </div>
 
         <div className="border-t border-slate-200 pt-1">
-          {pinned?.map((post) => (
-            <PostRowBoth key={post.id} post={post} basePath={BOARD_PATH} isPinned />
-          ))}
-
-          {(pinned?.length ?? 0) > 0 && (regular?.length ?? 0) > 0 && (
-            <div className="border-t border-dashed border-slate-200 my-1" />
-          )}
-
-          {regular?.map((post) => (
+          {posts?.map((post) => (
             <PostRowBoth key={post.id} post={post} basePath={BOARD_PATH} />
           ))}
 
-          {totalCount === 0 && (
+          {(posts?.length ?? 0) === 0 && (
             <div className="py-16 text-center text-slate-400 text-sm">
               아직 게시글이 없습니다.
             </div>
           )}
         </div>
 
-        <Pagination currentPage={page} totalPages={totalPages} basePath={BOARD_PATH} />
+        <Pagination currentPage={page} totalPages={totalPages} basePath={basePath} />
       </div>
     </>
   )
@@ -164,10 +156,9 @@ type PostRowProps = {
     profiles: { nickname: string | null } | null
   }
   basePath: string
-  isPinned?: boolean
 }
 
-function PostRow({ post, basePath, isPinned }: PostRowProps) {
+function PostRow({ post, basePath }: PostRowProps) {
   const date = new Date(post.created_at ?? '')
   const formatted = `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   const isNew = Date.now() - date.getTime() < 1000 * 60 * 60 * 24
@@ -175,19 +166,14 @@ function PostRow({ post, basePath, isPinned }: PostRowProps) {
   return (
     <Link
       href={`${basePath}/${post.id}`}
-      className={cn(
-        'group py-3.5 px-2 -mx-2 rounded-lg hover:bg-slate-50 transition-colors',
-        'flex sm:hidden flex-col gap-1.5',
-        isPinned && 'bg-slate-50/80 hover:bg-slate-100/80',
-      )}
+      className="group py-3.5 px-2 -mx-2 rounded-lg hover:bg-slate-50 transition-colors flex sm:hidden flex-col gap-1.5"
     >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
-          {isPinned && <Pin size={12} className="shrink-0 text-slate-400" />}
-          <span className={cn('shrink-0 text-xs px-2 py-0.5 rounded-md font-medium', CATEGORY_STYLE[post.category])}>
+          <span className="shrink-0 text-xs px-2 py-0.5 rounded-md font-medium bg-slate-100 text-slate-600">
             {post.category}
           </span>
-          {isNew && !isPinned && (
+          {isNew && (
             <span className="shrink-0 text-[10px] font-bold text-white bg-sky-500 px-1.5 py-0.5 rounded">
               NEW
             </span>
@@ -197,12 +183,7 @@ function PostRow({ post, basePath, isPinned }: PostRowProps) {
       </div>
 
       <div className="flex items-end justify-between gap-2">
-        <span
-          className={cn(
-            'text-sm line-clamp-2 group-hover:text-sky-700 transition-colors leading-snug',
-            isPinned ? 'text-slate-700 font-medium' : 'text-slate-800',
-          )}
-        >
+        <span className="text-sm line-clamp-2 group-hover:text-sky-700 transition-colors leading-snug text-slate-800">
           {post.title}
         </span>
         <span className="shrink-0 flex items-center gap-1 text-xs text-slate-400">
@@ -214,7 +195,7 @@ function PostRow({ post, basePath, isPinned }: PostRowProps) {
   )
 }
 
-function PostRowDesktop({ post, basePath, isPinned }: PostRowProps) {
+function PostRowDesktop({ post, basePath }: PostRowProps) {
   const date = new Date(post.created_at ?? '')
   const formatted = `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
   const isNew = Date.now() - date.getTime() < 1000 * 60 * 60 * 24
@@ -222,26 +203,17 @@ function PostRowDesktop({ post, basePath, isPinned }: PostRowProps) {
   return (
     <Link
       href={`${basePath}/${post.id}`}
-      className={cn(
-        'group hidden sm:flex items-center gap-3 py-3.5 px-2 -mx-2 rounded-lg hover:bg-slate-50 transition-colors',
-        isPinned && 'bg-slate-50/80 hover:bg-slate-100/80',
-      )}
+      className="group hidden sm:flex items-center gap-3 py-3.5 px-2 -mx-2 rounded-lg hover:bg-slate-50 transition-colors"
     >
-      <span className={cn('shrink-0 text-xs px-2 py-0.5 rounded-md font-medium', CATEGORY_STYLE[post.category])}>
+      <span className="shrink-0 text-xs px-2 py-0.5 rounded-md font-medium bg-slate-100 text-slate-600">
         {post.category}
       </span>
 
       <div className="flex flex-1 min-w-0 items-center gap-2">
-        {isPinned && <Pin size={12} className="shrink-0 text-slate-400" />}
-        <span
-          className={cn(
-            'text-sm line-clamp-1 group-hover:text-sky-700 transition-colors',
-            isPinned ? 'text-slate-700 font-medium' : 'text-slate-800',
-          )}
-        >
+        <span className="text-sm line-clamp-1 group-hover:text-sky-700 transition-colors text-slate-800">
           {post.title}
         </span>
-        {isNew && !isPinned && (
+        {isNew && (
           <span className="shrink-0 text-[10px] font-bold text-white bg-sky-500 px-1.5 py-0.5 rounded">
             NEW
           </span>

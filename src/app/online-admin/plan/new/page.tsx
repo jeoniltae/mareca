@@ -2,12 +2,13 @@ import { createClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { PostForm } from '@/features/posts/PostForm'
+import { YEAR_CATEGORIES } from '@/lib/constants'
 
 export const metadata = { title: '글쓰기 — 교회계획' }
 
 const BOARD = 'church-plan'
 const BOARD_PATH = '/online-admin/plan'
-const CATEGORIES = ['일반'] as const
+
 
 export default async function NewPlanPostPage() {
   const supabase = await createClient()
@@ -35,7 +36,7 @@ export default async function NewPlanPostPage() {
           mode="create"
           board={BOARD}
           boardPath={BOARD_PATH}
-          categories={CATEGORIES}
+          categories={YEAR_CATEGORIES}
           cancelHref={BOARD_PATH}
         />
       </div>

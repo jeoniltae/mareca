@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase-server'
 import { redirect, notFound } from 'next/navigation'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { PostForm } from '@/features/posts/PostForm'
+import { YEAR_CATEGORIES } from '@/lib/constants'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -9,7 +10,7 @@ interface Props {
 
 export const metadata = { title: '글 수정 — 마스터스 메시지' }
 
-const MESSAGE_CATEGORIES = ['공지', '일반'] as const
+
 
 export default async function EditMessagePage({ params }: Props) {
   const { id } = await params
@@ -54,7 +55,7 @@ export default async function EditMessagePage({ params }: Props) {
           postId={id}
           board="message"
           boardPath="/community/message"
-          categories={MESSAGE_CATEGORIES}
+          categories={YEAR_CATEGORIES}
           initialValues={{
             title: post.title,
             category: post.category,

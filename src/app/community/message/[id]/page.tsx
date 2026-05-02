@@ -30,14 +30,14 @@ export async function generateMetadata({ params }: Props) {
     openGraph: {
       title: data?.title ?? "게시글",
       description,
-      images: [{ url: "/images/logo.jpg", alt: data?.title ?? "" }],
+      images: [{ url: "/images/logo.png", alt: data?.title ?? "" }],
       type: "article",
     },
     twitter: {
       card: "summary",
       title: data?.title ?? "게시글",
       description,
-      images: ["/images/logo.jpg"],
+      images: ["/images/logo.png"],
     },
     alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/community/message/${id}` },
   };
