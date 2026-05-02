@@ -18,7 +18,7 @@ export async function createReformedTVPost(formData: FormData) {
   const title = formData.get('title') as string
   const youtube_url = (formData.get('youtube_url') as string) || null
   const content = (formData.get('description') as string) || null
-  const category = (formData.get('category') as string) || '일반'
+  const category = formData.get('category') as string
 
   const { data, error } = await supabase
     .from('posts')
@@ -43,7 +43,7 @@ export async function updateReformedTVPost(id: string, formData: FormData) {
   const title = formData.get('title') as string
   const youtube_url = (formData.get('youtube_url') as string) || null
   const content = (formData.get('description') as string) || null
-  const category = (formData.get('category') as string) || '일반'
+  const category = formData.get('category') as string
 
   const { error } = await supabase
     .from('posts')
