@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props) {
   ])
   const rawText = post?.content?.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim() ?? ''
   const description = rawText.slice(0, 120) || '마스터스개혁파총회 행사 사진 앨범입니다.'
-  const imageUrl = firstImage?.url ?? '/images/logo.jpg'
+  const imageUrl = firstImage?.url ?? '/images/logo.png'
 
   return {
     title: post?.title ?? '행사앨범',

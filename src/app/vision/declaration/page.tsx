@@ -55,7 +55,7 @@ export default function AboutDeclarationPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex items-center justify-center gap-4 mb-6">
             <img
-              src="/images/logo.jpg"
+              src="/images/logo.png"
               alt="마스터스개혁파총회 로고"
               width={72}
               height={72}

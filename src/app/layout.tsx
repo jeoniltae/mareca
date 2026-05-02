@@ -42,7 +42,7 @@ export const metadata: Metadata = {
       default: '마스터스개혁파총회',
     },
     description: '성경의 진리 위에 세워진 개혁파 신앙 공동체 — 마스터스개혁파총회(MRA)입니다.',
-    images: [{ url: '/images/logo.jpg', alt: '마스터스개혁파총회 로고' }],
+    images: [{ url: '/images/logo.png', alt: '마스터스개혁파총회 로고' }],
   },
   twitter: {
     card: 'summary',
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
       default: '마스터스개혁파총회',
     },
     description: '성경의 진리 위에 세워진 개혁파 신앙 공동체 — 마스터스개혁파총회(MRA)입니다.',
-    images: ['/images/logo.jpg'],
+    images: ['/images/logo.png'],
   },
 }
 

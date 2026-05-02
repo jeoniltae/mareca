@@ -7,7 +7,7 @@ export function organizationJsonLd() {
     name: '마스터스개혁파총회',
     alternateName: 'MRA',
     url: BASE_URL,
-    logo: `${BASE_URL}/images/logo.jpg`,
+    logo: `${BASE_URL}/images/logo.png`,
     description: '성경의 진리 위에 세워진 개혁파 신앙 공동체 — 마스터스개혁파총회(MRA)입니다.',
   }
 }
@@ -35,13 +35,13 @@ export function articleJsonLd({
     url,
     datePublished,
     dateModified: dateModified ?? datePublished,
-    image: imageUrl ?? `${BASE_URL}/images/logo.jpg`,
+    image: imageUrl ?? `${BASE_URL}/images/logo.png`,
     publisher: {
       '@type': 'Organization',
       name: '마스터스개혁파총회',
       logo: {
         '@type': 'ImageObject',
-        url: `${BASE_URL}/images/logo.jpg`,
+        url: `${BASE_URL}/images/logo.png`,
       },
     },
   }

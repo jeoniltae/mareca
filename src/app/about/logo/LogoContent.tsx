@@ -72,7 +72,7 @@ export function LogoContent() {
             transition={{ duration: 0.24, ease: [0.4, 0, 0.2, 1] }}
           >
             <Image
-              src="/images/logo.jpg"
+              src="/images/logo.png"
               alt="마스터스 개혁파 총회 엠블럼"
               width={280}
               height={280}

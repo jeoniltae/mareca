@@ -27,7 +27,7 @@ export function ShareButtons({ title, description, imageUrl }: ShareButtonsProps
       content: {
         title,
         description: description ?? '마스터스개혁파총회',
-        imageUrl: imageUrl ?? `${window.location.origin}/images/logo.jpg`,
+        imageUrl: imageUrl ?? `${window.location.origin}/images/logo.png`,
         link: {
           mobileWebUrl: window.location.href,
           webUrl: window.location.href,
