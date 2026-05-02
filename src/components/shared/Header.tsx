@@ -115,8 +115,9 @@ export function Header() {
   const [user, setUser] = useState<SupabaseUser | null>(null)
 
   const isMasters = user?.email === MASTERS_EMAIL
+  const MASTERS_ONLY_HREFS = ['/resources', '/online-admin', '/report']
   const visibleNavItems = NAV_ITEMS.filter(
-    (item) => item.href !== '/resources' || isMasters
+    (item) => !MASTERS_ONLY_HREFS.includes(item.href) || isMasters
   )
 
   useEffect(() => {
@@ -253,7 +254,7 @@ export function Header() {
               onMouseEnter={handleNavMouseEnter}
               onMouseLeave={handleNavMouseLeave}
             >
-              <nav className="flex items-center">
+              <nav className="flex items-center justify-center">
                 {visibleNavItems.map((item) => {
                   const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
                   return (
@@ -284,7 +285,7 @@ export function Header() {
                     className="absolute left-0 right-0 top-full bg-white border-t border-slate-200 shadow-lg"
                   >
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                      <div className="grid grid-cols-8 gap-4">
+                      <div className={`grid gap-6 ${visibleNavItems.length <= 5 ? 'grid-cols-5' : 'grid-cols-8'}`}>
                         {visibleNavItems.map((item) => (
                           <div key={item.href}>
                             <p className="text-sm font-semibold text-slate-800 mb-3 pb-2 border-b border-slate-100">
