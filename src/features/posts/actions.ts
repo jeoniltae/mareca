@@ -380,3 +380,15 @@ export async function uploadImage(formData: FormData): Promise<string> {
 
   return publicUrl
 }
+
+// ─── 에디터 임시 이미지 일괄 삭제 ───────────────────────────────────────────────
+export async function deleteEditorImages(urls: string[]): Promise<void> {
+  if (urls.length === 0) return
+  const supabase = await createClient()
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const bucketPrefix = `${supabaseUrl}/storage/v1/object/public/post-images/`
+  const paths = urls
+    .filter((url) => url.startsWith(bucketPrefix))
+    .map((url) => decodeURIComponent(url.slice(bucketPrefix.length)))
+  if (paths.length > 0) await supabase.storage.from('post-images').remove(paths)
+}

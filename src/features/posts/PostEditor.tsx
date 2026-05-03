@@ -24,9 +24,10 @@ import { useState } from 'react'
 interface PostEditorProps {
   initialContent?: string
   onChange: (html: string) => void
+  onImageUploaded?: (url: string) => void
 }
 
-export function PostEditor({ initialContent = '', onChange }: PostEditorProps) {
+export function PostEditor({ initialContent = '', onChange, onImageUploaded }: PostEditorProps) {
   const [uploading, setUploading] = useState(false)
 
   const editor = useEditor({
@@ -60,6 +61,7 @@ export function PostEditor({ initialContent = '', onChange }: PostEditorProps) {
         fd.append('file', file)
         const url = await uploadImage(fd)
         editor.chain().focus().setImage({ src: url }).run()
+        onImageUploaded?.(url)
       } finally {
         setUploading(false)
       }
