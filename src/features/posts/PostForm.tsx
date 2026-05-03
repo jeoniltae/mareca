@@ -13,6 +13,7 @@ import {
   insertPostImages,
   uploadPostAttachment,
   insertPostAttachments,
+  deleteEditorImages,
 } from './actions'
 import { cn } from '@/lib/utils'
 import { ConfirmModal } from '@/components/shared/ConfirmModal'
@@ -42,10 +43,12 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [attachmentFiles, setAttachmentFiles] = useState<File[]>([])
   const [isPending, startTransition] = useTransition()
+  const [isCancelling, startCancelTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [pendingFormData, setPendingFormData] = useState<FormData | null>(null)
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false)
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
+  const [editorImageUrls, setEditorImageUrls] = useState<string[]>([])
 
   function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -139,7 +142,11 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
       {/* 본문 에디터 */}
       <div>
         <label className="text-sm font-medium text-slate-700 block mb-2">내용</label>
-        <PostEditor initialContent={initialValues?.content} onChange={setContent} />
+        <PostEditor
+          initialContent={initialValues?.content}
+          onChange={setContent}
+          onImageUploaded={(url) => setEditorImageUrls((prev) => [...prev, url])}
+        />
       </div>
 
       {/* 유튜브 URL */}
@@ -172,9 +179,13 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
         <button
           type="button"
           onClick={() => setShowCancelConfirm(true)}
-          className="px-5 py-2.5 text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+          disabled={isCancelling}
+          className={cn(
+            'px-5 py-2.5 text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors',
+            isCancelling && 'opacity-60 cursor-not-allowed',
+          )}
         >
-          취소
+          {isCancelling ? '취소 중...' : '취소'}
         </button>
         <button
           type="submit"
@@ -208,7 +219,13 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
         confirmLabel="취소하기"
         cancelLabel="계속 작성"
         confirmClassName="bg-red-500 hover:bg-red-600 text-white"
-        onConfirm={() => router.push(cancelHref)}
+        onConfirm={() => {
+          setShowCancelConfirm(false)
+          startCancelTransition(async () => {
+            await deleteEditorImages(editorImageUrls)
+            router.push(cancelHref)
+          })
+        }}
         onCancel={() => setShowCancelConfirm(false)}
       />
     </form>

@@ -208,9 +208,22 @@ export async function uploadPostAttachment(formData: FormData): Promise<{
 
   const file = formData.get('file') as File
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
-  const path = `${user.id}/${Date.now()}_${safeName}`
 
-  const { error: uploadError } = await supabase.storage.from('post-attachments').upload(path, file)
+  let uploadData: Buffer | File = file
+  let ext = safeName.split('.').pop() ?? ''
+  let contentType = file.type || 'application/octet-stream'
+
+  if (isImageFile(file)) {
+    const compressed = await compressImage(file)
+    uploadData = compressed.buffer
+    ext = compressed.ext
+    contentType = compressed.contentType
+  }
+
+  const baseName = safeName.replace(/\.[^.]+$/, '')
+  const path = `${user.id}/${Date.now()}_${baseName}.${ext}`
+
+  const { error: uploadError } = await supabase.storage.from('post-attachments').upload(path, uploadData, { contentType })
   if (uploadError) throw new Error(uploadError.message)
 
   const { data: { publicUrl } } = supabase.storage.from('post-attachments').getPublicUrl(path)
@@ -218,8 +231,8 @@ export async function uploadPostAttachment(formData: FormData): Promise<{
   return {
     file_name: file.name,
     file_url: publicUrl,
-    file_size: file.size,
-    mime_type: file.type || 'application/octet-stream',
+    file_size: isImageFile(file) ? (uploadData as Buffer).length : file.size,
+    mime_type: contentType,
   }
 }
 
@@ -249,12 +262,23 @@ export async function uploadAttachment(file: File): Promise<{
 
   if (!user) throw new Error('로그인이 필요합니다')
 
-  const ext = file.name.split('.').pop()
-  const path = `${user.id}/${Date.now()}_${file.name}`
+  let uploadData: Buffer | File = file
+  let ext = file.name.split('.').pop() ?? ''
+  let contentType = file.type || 'application/octet-stream'
+
+  if (isImageFile(file)) {
+    const compressed = await compressImage(file)
+    uploadData = compressed.buffer
+    ext = compressed.ext
+    contentType = compressed.contentType
+  }
+
+  const baseName = file.name.replace(/\.[^.]+$/, '')
+  const path = `${user.id}/${Date.now()}_${baseName}.${ext}`
 
   const { error: uploadError } = await supabase.storage
     .from('post-attachments')
-    .upload(path, file)
+    .upload(path, uploadData, { contentType })
 
   if (uploadError) throw new Error(uploadError.message)
 
@@ -265,8 +289,8 @@ export async function uploadAttachment(file: File): Promise<{
   return {
     file_name: file.name,
     file_url: publicUrl,
-    file_size: file.size,
-    mime_type: file.type || `application/octet-stream`,
+    file_size: isImageFile(file) ? (uploadData as Buffer).length : file.size,
+    mime_type: contentType,
   }
 }
 
@@ -355,4 +379,16 @@ export async function uploadImage(formData: FormData): Promise<string> {
   } = supabase.storage.from('post-images').getPublicUrl(path)
 
   return publicUrl
+}
+
+// ─── 에디터 임시 이미지 일괄 삭제 ───────────────────────────────────────────────
+export async function deleteEditorImages(urls: string[]): Promise<void> {
+  if (urls.length === 0) return
+  const supabase = await createClient()
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const bucketPrefix = `${supabaseUrl}/storage/v1/object/public/post-images/`
+  const paths = urls
+    .filter((url) => url.startsWith(bucketPrefix))
+    .map((url) => decodeURIComponent(url.slice(bucketPrefix.length)))
+  if (paths.length > 0) await supabase.storage.from('post-images').remove(paths)
 }
