@@ -18,12 +18,13 @@ const OFFICERS: OfficerGroup[] = [
     members: [
       { name: '박상경', title: '목사' },
       { name: '장광용', title: '교수' },
-      { name: '서문강', title: '목사', image: '/images/seomun-gang.png' },
+      { name: '서문 강', title: '목사'},
+      // { name: '서문 강', title: '목사', image: '/images/seomun-gang.png' },
     ],
   },
   {
     role: '의장(임시)',
-    members: [{ name: '최더함', title: '목사', image: '/images/choi_plus.png' }],
+    members: [{ name: '최더함', title: '목사', image: '/images/choi_plus2.png' }],
   },
   {
     role: '대변인',
@@ -44,7 +45,8 @@ const OFFICERS: OfficerGroup[] = [
   {
     role: '선교팀장',
     members: [
-      { name: '최상권', title: '목사', note: '(팀장)', image: '/images/choi_sang_kwon.png' }
+      { name: '최상권', title: '목사', note: '(팀장)', image: '/images/choi_sang_kwon.png' },
+      { name: '신민철', title: '선교사' }
     ],
   },
   {
@@ -60,13 +62,12 @@ const OFFICERS: OfficerGroup[] = [
   },
   {
     role: '마스터스세미너리',
-    members: [{ name: '최더함', title: '', image: '/images/choi_plus.png' }],
+    members: [{ name: '최더함', title: '', image: '/images/choi_plus2.png' }],
   },
   {
     role: '미디어팀',
     members: [
-      { name: '전정태', title: '' },
-      { name: '방예진', title: '' },
+      { name: '전정태', title: '' }
     ],
   },
   {
@@ -147,7 +148,7 @@ export default function AboutOfficersPage() {
               <div className="px-5 py-3" style={{ backgroundColor: '#C8A224' }}>
                 <h3 className="text-sm font-bold text-white tracking-wide">{group.role}</h3>
               </div>
-              <div className="px-6 py-5 bg-white">
+              <div className="px-3 sm:px-6 py-5 bg-white">
                 {group.vacant ? (
                   <p className="text-sm text-slate-400 italic">공석</p>
                 ) : (
