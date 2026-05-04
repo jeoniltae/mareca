@@ -6,7 +6,7 @@ import { GalleryImageViewer } from '@/features/gallery/GalleryImageViewer'
 import { GalleryActions } from '@/features/gallery/GalleryActions'
 import { ShareButtons } from '@/components/shared/ShareButtons'
 import { incrementGalleryViews } from '@/features/gallery/actions'
-import { Eye } from 'lucide-react'
+import { Eye, User } from 'lucide-react'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -99,7 +99,7 @@ export default async function GalleryDetailPage({ params }: Props) {
           <h1 className="text-xl font-bold text-slate-900 mb-2">{post.title}</h1>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 text-sm text-slate-500">
-              <span>{nickname}</span>
+              <span className="flex items-center gap-1"><User size={13} />{nickname}</span>
               <span>{formatted}</span>
               <span className="flex items-center gap-1">
                 <Eye size={13} />

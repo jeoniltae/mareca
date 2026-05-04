@@ -6,7 +6,7 @@ import { incrementViews } from '@/features/posts/actions'
 import { PostActions } from '@/features/posts/PostActions'
 import { PostImageGallery } from '@/features/posts/PostImageGallery'
 import { PostFileDownloadList } from '@/features/posts/PostFileDownloadList'
-import { Eye, Calendar, Tag } from 'lucide-react'
+import { Eye, Calendar, Tag, User } from 'lucide-react'
 import Link from 'next/link'
 import { ShareButtons } from '@/components/shared/ShareButtons'
 
@@ -89,7 +89,7 @@ export default async function SermonPostDetailPage({ params }: Props) {
           </h1>
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-4 text-sm text-slate-500">
-              <span className="font-medium text-slate-700">
+              <span className="flex items-center gap-1 font-medium text-slate-700"><User size={13} />
                 {(post.profiles as { nickname: string | null } | null)?.nickname ?? '알 수 없음'}
               </span>
               <span className="flex items-center gap-1">
