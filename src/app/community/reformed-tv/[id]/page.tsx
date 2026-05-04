@@ -7,7 +7,7 @@ import { ReformedTVActions } from '@/features/reformed-tv/ReformedTVActions'
 import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtube-utils'
 import { YoutubePlayer } from '@/features/reformed-tv/YoutubePlayer'
 import { ShareButtons } from '@/components/shared/ShareButtons'
-import { Calendar, Eye } from 'lucide-react'
+import { Calendar, Eye, User } from 'lucide-react'
 import Link from 'next/link'
 
 interface Props {
@@ -92,7 +92,7 @@ export default async function ReformedTVDetailPage({ params }: Props) {
           </h1>
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-4 text-sm text-slate-500">
-              <span className="font-medium text-slate-700">
+              <span className="flex items-center gap-1 font-medium text-slate-700"><User size={13} />
                 {(post.profiles as { nickname: string | null } | null)?.nickname ?? '알 수 없음'}
               </span>
               <span className="flex items-center gap-1">

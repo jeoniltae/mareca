@@ -95,6 +95,9 @@ export default function LoginPage() {
             <p className="text-sm text-slate-500">
               <strong className="text-slate-700">{email}</strong>으로<br />로그인 링크를 보냈습니다.
             </p>
+            <p className="mt-3 text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+              로그인 링크 이메일이 오지 않으면 <strong>스팸메일함</strong>을 확인해주세요.
+            </p>
           </div>
           <button
             type="button"
@@ -121,6 +124,9 @@ export default function LoginPage() {
             <p className="text-sm text-slate-500">
               <strong className="text-slate-700">{email}</strong>으로<br />
               8자리 인증 코드를 보냈습니다.
+            </p>
+            <p className="mt-3 text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+              인증 이메일이 오지 않으면 스팸메일함을 확인해주세요.
             </p>
           </div>
 

@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase-server";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Pagination } from "@/components/shared/Pagination";
 import Link from "next/link";
-import { PenSquare, Images, Eye } from "lucide-react";
+import { PenSquare, Images, Eye, User } from "lucide-react";
 import { GalleryImage } from "@/features/gallery/GalleryImage";
 import { YEAR_CATEGORIES } from '@/lib/constants'
 
@@ -162,9 +162,9 @@ export default async function CommunityGalleryPage({ searchParams }: Props) {
                       {post.title}
                     </p>
                     <div className="flex items-center justify-between text-xs text-slate-400">
-                      <span className="truncate">
-                        {(post.profiles as { nickname: string | null } | null)
-                          ?.nickname ?? "알 수 없음"}
+                      <span className="flex items-center gap-1 truncate">
+                        <User size={12} className="shrink-0" />
+                        <span className="truncate">{(post.profiles as { nickname: string | null } | null)?.nickname ?? "알 수 없음"}</span>
                       </span>
                       <div className="shrink-0 flex items-center gap-2">
                         <span className="flex items-center gap-0.5">

@@ -3,7 +3,7 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { Pagination } from '@/components/shared/Pagination'
 import { YEAR_CATEGORIES } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import { Search, PenSquare, Eye } from 'lucide-react'
+import { Search, PenSquare, Eye, User } from 'lucide-react'
 import Link from 'next/link'
 
 import type { Metadata } from 'next'
@@ -221,9 +221,10 @@ function PostRowDesktop({ post, basePath }: PostRowProps) {
       </div>
 
       <div className="shrink-0 flex items-center gap-3 text-xs text-slate-400">
-        <span className="w-28 text-right truncate">
-          {post.profiles?.nickname ?? '알 수 없음'}
-        </span>
+        <span className="flex items-center justify-end gap-1 w-28">
+            <User size={12} className="shrink-0" />
+            <span className="truncate">{post.profiles?.nickname ?? '알 수 없음'}</span>
+          </span>
         <span className="w-10 text-right">{formatted}</span>
         <span className="flex items-center gap-1 w-12 justify-end">
           <Eye size={11} />

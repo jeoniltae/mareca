@@ -40,18 +40,21 @@ export function PageHeader({ title, breadcrumbs = [], backgroundImage, bgColor =
                 홈
               </Link>
             </li>
-            {breadcrumbs.map((item, i) => (
-              <li key={i} className="flex items-center gap-1 tracking-[-1px]">
-                <ChevronRight size={12} className="text-slate-600" />
-                {item.href ? (
-                  <Link href={item.href} className="hover:text-white transition-colors">
-                    {item.label}
-                  </Link>
-                ) : (
-                  <span className="text-slate-200">{item.label}</span>
-                )}
-              </li>
-            ))}
+            {breadcrumbs.map((item, i) => {
+              const isLast = i === breadcrumbs.length - 1
+              return (
+                <li key={i} className={`flex items-center gap-1 tracking-[-1px] ${isLast && !item.href ? 'hidden sm:flex' : ''}`}>
+                  <ChevronRight size={12} className="text-slate-600" />
+                  {item.href ? (
+                    <Link href={item.href} className="hover:text-white transition-colors">
+                      {item.label}
+                    </Link>
+                  ) : (
+                    <span className="text-slate-200">{item.label}</span>
+                  )}
+                </li>
+              )
+            })}
           </ol>
         </nav>
       </div>

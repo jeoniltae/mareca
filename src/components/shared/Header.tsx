@@ -455,7 +455,7 @@ export function Header() {
                               className="overflow-hidden bg-slate-50 rounded-md mb-2"
                             >
                               {item.subItems?.map((sub) => {
-                                const isSubActive = pathname === sub.href
+                                const isSubActive = pathname === sub.href || pathname.startsWith(sub.href + '/')
                                 return (
                                   <li key={sub.href}>
                                     <Link

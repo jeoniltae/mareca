@@ -34,7 +34,7 @@ export default function AboutChairmanPage() {
           <div className="w-full lg:w-64 shrink-0 flex flex-col items-center lg:items-start">
             <div className="relative w-52 h-64 lg:w-full lg:h-72 rounded-2xl overflow-hidden shadow-lg">
               <Image
-                src="/images/choi_plus.png"
+                src="/images/choi_plus2.png"
                 alt="최더함 목사"
                 fill
                 className="object-cover object-top"
