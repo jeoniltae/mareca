@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase-server";
+import { formatYMD } from "@/lib/date";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Pagination } from "@/components/shared/Pagination";
 import Link from "next/link";
@@ -125,8 +126,7 @@ export default async function CommunityGalleryPage({ searchParams }: Props) {
         {posts && posts.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
             {posts.map((post) => {
-              const date = new Date(post.created_at ?? "");
-              const formatted = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, "0")}.${String(date.getDate()).padStart(2, "0")}`;
+              const formatted = formatYMD(post.created_at);
               const imgCount = countMap[post.id] ?? 0;
 
               return (

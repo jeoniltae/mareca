@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase-server'
+import { formatDateTimeVerbose } from '@/lib/date'
 import { articleJsonLd } from '@/lib/json-ld'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { notFound } from 'next/navigation'
@@ -62,13 +63,7 @@ export default async function ReformedTVDetailPage({ params }: Props) {
   const isAuthor = user?.id === post.user_id
   const videoId = post.youtube_url ? extractYoutubeId(post.youtube_url) : null
 
-  const date = new Date(post.created_at ?? '').toLocaleString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  })
+  const date = formatDateTimeVerbose(post.created_at)
 
   return (
     <>

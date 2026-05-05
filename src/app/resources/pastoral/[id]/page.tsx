@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase-server'
+import { formatDateTime } from '@/lib/date'
 import { articleJsonLd } from '@/lib/json-ld'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { notFound } from 'next/navigation'
@@ -57,13 +58,7 @@ export default async function PastoralPostDetailPage({ params }: Props) {
   incrementViews(id)
 
   const isAuthor = user?.id === post.user_id
-  const date = new Date(post.created_at ?? '').toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+  const date = formatDateTime(post.created_at)
 
   return (
     <>
