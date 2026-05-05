@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { formatMonthDay } from '@/lib/date'
 import {
   ArrowRight,
   ChevronRight,
@@ -68,7 +69,7 @@ async function QuickInfoSection() {
               ) : (notices ?? []).map((item) => (
                 <li key={item.id} className="flex items-start gap-3">
                   <span className="text-slate-400 text-sm shrink-0 mt-0.5 tabular-nums">
-                    {new Date(item.created_at!).toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' }).replace('. ', '-').replace('.', '')}
+                    {formatMonthDay(item.created_at)}
                   </span>
                   <Link
                     href={`/news/notice/${item.id}`}
@@ -99,7 +100,7 @@ async function QuickInfoSection() {
                 <li key={item.id} className="flex items-start gap-3">
                   <span className="text-slate-400 text-sm shrink-0 mt-0.5 tabular-nums">
                     {item.published_at
-                      ? new Date(item.published_at).toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' }).replace('. ', '-').replace('.', '')
+                      ? formatMonthDay(item.published_at)
                       : '--'}
                   </span>
                   <Link

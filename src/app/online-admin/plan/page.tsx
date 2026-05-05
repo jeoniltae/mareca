@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase-server'
+import { formatMonthDay, isNewPost } from '@/lib/date'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Pagination } from '@/components/shared/Pagination'
 import { YEAR_CATEGORIES } from '@/lib/constants'
@@ -159,9 +160,8 @@ type PostRowProps = {
 }
 
 function PostRow({ post, basePath }: PostRowProps) {
-  const date = new Date(post.created_at ?? '')
-  const formatted = `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-  const isNew = Date.now() - date.getTime() < 1000 * 60 * 60 * 24
+  const formatted = formatMonthDay(post.created_at)
+  const isNew = isNewPost(post.created_at)
 
   return (
     <Link
@@ -196,9 +196,8 @@ function PostRow({ post, basePath }: PostRowProps) {
 }
 
 function PostRowDesktop({ post, basePath }: PostRowProps) {
-  const date = new Date(post.created_at ?? '')
-  const formatted = `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-  const isNew = Date.now() - date.getTime() < 1000 * 60 * 60 * 24
+  const formatted = formatMonthDay(post.created_at)
+  const isNew = isNewPost(post.created_at)
 
   return (
     <Link

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase-server";
+import { formatYMD } from "@/lib/date";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Pagination } from "@/components/shared/Pagination";
 import {
@@ -106,8 +107,7 @@ export default async function ReformedTVPage({ searchParams }: Props) {
                 ? extractYoutubeId(post.youtube_url)
                 : null;
               const thumbnail = videoId ? getYoutubeThumbnail(videoId) : null;
-              const date = new Date(post.created_at ?? "");
-              const formatted = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, "0")}.${String(date.getDate()).padStart(2, "0")}`;
+              const formatted = formatYMD(post.created_at);
 
               return (
                 <Link

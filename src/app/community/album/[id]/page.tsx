@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase-server'
+import { formatDateTimeVerbose } from '@/lib/date'
 import { articleJsonLd } from '@/lib/json-ld'
 import { notFound } from 'next/navigation'
 import { PageHeader } from '@/components/shared/PageHeader'
@@ -69,13 +70,7 @@ export default async function GalleryDetailPage({ params }: Props) {
 
   const imageUrls = (images ?? []).map((img) => img.url)
 
-  const formatted = new Date(post.created_at ?? '').toLocaleString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  })
+  const formatted = formatDateTimeVerbose(post.created_at)
   const nickname = (post.profiles as { nickname: string | null } | null)?.nickname ?? '알 수 없음'
   const isOwner = user?.id === post.user_id
 
