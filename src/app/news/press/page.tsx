@@ -1,11 +1,9 @@
 import { createClient } from '@/lib/supabase-server'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Pagination } from '@/components/shared/Pagination'
-import { ExternalLink } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
-import { ArticleShareButton } from './ArticleShareButton'
 
 import type { Metadata } from 'next'
 
@@ -138,10 +136,8 @@ function ArticleCard({ article }: { article: Article }) {
     : false
 
   return (
-    <a
-      href={article.url}
-      target="_blank"
-      rel="noopener noreferrer"
+    <Link
+      href={`/news/press/${article.id}`}
       className="group flex flex-col border border-slate-200 rounded-xl overflow-hidden hover:shadow-md hover:border-slate-300 transition-all"
     >
       <div className="relative w-full h-40 bg-slate-100">
@@ -189,14 +185,12 @@ function ArticleCard({ article }: { article: Article }) {
           </p>
         )}
 
-        <div className="mt-auto pt-2 flex items-center justify-between">
-          <div className="flex items-center gap-1 text-xs text-slate-400 group-hover:text-sky-600 transition-colors">
-            <ExternalLink size={11} />
-            원문 보기
-          </div>
-          <ArticleShareButton url={article.url} />
+        <div className="mt-auto pt-2">
+          <span className="text-xs text-slate-400 group-hover:text-sky-600 transition-colors">
+            자세히 보기 →
+          </span>
         </div>
       </div>
-    </a>
+    </Link>
   )
 }

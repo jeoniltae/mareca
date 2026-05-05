@@ -171,6 +171,8 @@ src/
     - RLS 정책: 수정/삭제 정책에 `is_admin = true` 예외 추가
     - Server Action(`updatePost`, `deletePost`): `user_id` 일치 조건에 관리자 예외 처리 추가
     - `PostActions.tsx`: 관리자 로그인 시 본인 게시글이 아니어도 수정/삭제 버튼 노출
+    - `PostForm.tsx`: '공지' 카테고리 선택 옵션을 관리자만 볼 수 있도록 제한
+    - Server Action(`createPost`, `updatePost`): 비관리자가 `category='공지'`로 저장 시 거부 처리
 
 - **[미착수] 관련기사 상세 페이지 및 카카오톡 공유 기능**
   - 배경: 카카오 Share SDK는 `link`에 앱에 등록된 도메인만 허용하므로, 외부 기사 URL을 카카오 공유 링크로 직접 사용 불가. 현재 관련기사 목록에서 카카오 공유 버튼을 제거하고 링크 복사만 제공 중
@@ -216,7 +218,15 @@ src/
   - 관련 파일 위치 예정: `src/app/donate/page.tsx`, `src/features/donate/`
   - 기획 의도가 바뀌어서 푸터에 후원 계좌번호 노출하는것으로 변경
 
-- **[미착수] 스마트폰 홈 화면 바로가기 아이콘 추가 기능 (PWA)**
+- **[미착수] 웹 성능 개선 (Core Web Vitals)**
+  - 배경: Vercel Speed Insights 기준 FCP 2.06s, CLS 0.14, TTFB 1.54s — 세 항목 모두 개선 여지 있음
+  - 개선 항목 (임팩트 순):
+    1. **TTFB (1.54s)**: Supabase 쿼리가 많은 Server Component에 Next.js `revalidate` 또는 `cache` 적용 — 자주 바뀌지 않는 데이터(임원 목록, 게시판 목록 등) 우선
+    2. **FCP (2.06s)**: TTFB 개선 시 자동 개선 기대 / 추가로 외부 폰트 preload 설정 확인
+    3. **CLS (0.14)**: 이미지 `width`/`height` 미지정 요소 확인 및 Next.js `<Image>` 컴포넌트 적용, 폰트 로드 전후 레이아웃 밀림 제거
+  - 수정 난이도: CLS < FCP < TTFB
+
+- **[완료 - Service Worker 작업으로 대체] 스마트폰 홈 화면 바로가기 아이콘 추가 기능 (PWA)**
   - 개요: 메인 페이지에 "홈 화면에 추가" 버튼을 두고 클릭 시 스마트폰 바탕화면에 마레카 아이콘 바로가기 생성
   - 플랫폼별 동작:
     - Android (Chrome): `beforeinstallprompt` 이벤트 가로채기 → 버튼 클릭 시 시스템 설치 다이얼로그 표시
@@ -228,7 +238,7 @@ src/
   - 신규 컴포넌트: `src/components/shared/AddToHomeScreen.tsx`
   - 이미 설치됐거나 standalone 모드면 버튼 자동 숨김 처리 필요
 
-- **[미착수] 게시글 에디터 기능 추가**
+- **[완료] 게시글 에디터 기능 추가**
   - 대상 파일: `src/features/posts/PostEditor.tsx`
   - 추가할 기능:
     - 밑줄 (Underline) — StarterKit 미포함, `@tiptap/extension-underline` 설치 필요
