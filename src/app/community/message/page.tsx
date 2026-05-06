@@ -174,19 +174,21 @@ function PostRow({ post }: PostRowProps) {
           <span className="shrink-0 text-xs px-2 py-0.5 rounded-md font-medium bg-slate-100 text-slate-600">
             {post.category}
           </span>
+        </div>
+        <span className="text-xs text-slate-400">{formatted}</span>
+      </div>
+
+      <div className="flex items-end justify-between gap-2">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="text-sm line-clamp-2 group-hover:text-sky-700 transition-colors leading-snug text-slate-800">
+            {post.title}
+          </span>
           {isNew && (
             <span className="shrink-0 text-[10px] font-bold text-white bg-sky-500 px-1.5 py-0.5 rounded">
               NEW
             </span>
           )}
         </div>
-        <span className="text-xs text-slate-400">{formatted}</span>
-      </div>
-
-      <div className="flex items-end justify-between gap-2">
-        <span className="text-sm line-clamp-2 group-hover:text-sky-700 transition-colors leading-snug text-slate-800">
-          {post.title}
-        </span>
         <span className="shrink-0 flex items-center gap-1 text-xs text-slate-400">
           <Eye size={11} />
           {post.views}
