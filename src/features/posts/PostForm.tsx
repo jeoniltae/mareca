@@ -20,6 +20,10 @@ import { ConfirmModal } from '@/components/shared/ConfirmModal'
 
 const DEFAULT_CATEGORIES = ['일반', '질문', '나눔'] as const
 
+function extractEditorImageUrls(html: string): string[] {
+  return [...html.matchAll(/<img[^>]+src="([^"]+)"/g)].map((m) => m[1])
+}
+
 interface PostFormProps {
   mode: 'create' | 'edit'
   postId?: string
@@ -74,6 +78,14 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
         const targetId = mode === 'edit' && postId
           ? (await updatePost(postId, formData, boardPath), postId)
           : await createPost(formData)
+
+        // 에디터에서 제거된 이미지 스토리지 정리
+        const finalImageUrls = new Set(extractEditorImageUrls(content))
+        const urlsToDelete = [...new Set([
+          ...editorImageUrls.filter((url) => !finalImageUrls.has(url)),
+          ...extractEditorImageUrls(initialValues?.content ?? '').filter((url) => !finalImageUrls.has(url)),
+        ])]
+        if (urlsToDelete.length > 0) await deleteEditorImages(urlsToDelete)
 
         // 이미지 업로드 (파일별 FormData)
         const imageUrls = await Promise.all(
