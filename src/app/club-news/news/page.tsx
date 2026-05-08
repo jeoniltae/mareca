@@ -6,7 +6,10 @@ import { cn } from '@/lib/utils'
 import { Search, PenSquare, Eye, Pin, User } from 'lucide-react'
 import Link from 'next/link'
 
-export const metadata = { title: '소식 — 클럽소식' }
+export const metadata = {
+  title: '소식 — 클럽소식',
+  description: '마스터스개혁파총회 소속 교회들의 소식과 공지를 전합니다.',
+}
 
 const PAGE_SIZE = 10
 
