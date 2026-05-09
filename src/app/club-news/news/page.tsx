@@ -2,8 +2,9 @@ import { createClient } from '@/lib/supabase-server'
 import { formatMonthDay, isNewPost } from '@/lib/date'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Pagination } from '@/components/shared/Pagination'
+import { BoardSearch } from '@/components/shared/BoardSearch'
 import { cn } from '@/lib/utils'
-import { Search, PenSquare, Eye, Pin, User } from 'lucide-react'
+import { PenSquare, Eye, Pin, User } from 'lucide-react'
 import Link from 'next/link'
 
 export const metadata = {
@@ -14,11 +15,12 @@ export const metadata = {
 const PAGE_SIZE = 10
 
 interface Props {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ page?: string; q?: string }>
 }
 
 export default async function ClubNewsNewsPage({ searchParams }: Props) {
-  const { page: pageParam } = await searchParams
+  const { page: pageParam, q: qParam } = await searchParams
+  const q = qParam?.trim() ?? ''
   const page = Math.max(1, Number(pageParam ?? 1) || 1)
   const from = (page - 1) * PAGE_SIZE
   const to = from + PAGE_SIZE - 1
@@ -29,24 +31,44 @@ export default async function ClubNewsNewsPage({ searchParams }: Props) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const [{ data: pinned }, { data: regular, count: regularCount }] = await Promise.all([
-    supabase
+  type Post = { id: string; category: string; title: string; views: number; created_at: string | null; profiles: { nickname: string | null } | null }
+
+  let pinned: Post[] = []
+  let regular: Post[] = []
+  let regularCount = 0
+  let searchResults: Post[] = []
+
+  if (q) {
+    const { data } = await supabase
       .from('posts')
       .select('id, category, title, views, created_at, profiles(nickname)')
       .eq('board', 'club-news')
-      .eq('category', '공지')
-      .order('created_at', { ascending: false }),
-    supabase
-      .from('posts')
-      .select('id, category, title, views, created_at, profiles(nickname)', { count: 'exact' })
-      .eq('board', 'club-news')
-      .neq('category', '공지')
+      .ilike('title', `%${q}%`)
       .order('created_at', { ascending: false })
-      .range(from, to),
-  ])
+    searchResults = data ?? []
+  } else {
+    const [{ data: pinnedData }, { data: regularData, count }] = await Promise.all([
+      supabase
+        .from('posts')
+        .select('id, category, title, views, created_at, profiles(nickname)')
+        .eq('board', 'club-news')
+        .eq('category', '공지')
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('posts')
+        .select('id, category, title, views, created_at, profiles(nickname)', { count: 'exact' })
+        .eq('board', 'club-news')
+        .neq('category', '공지')
+        .order('created_at', { ascending: false })
+        .range(from, to),
+    ])
+    pinned = pinnedData ?? []
+    regular = regularData ?? []
+    regularCount = count ?? 0
+  }
 
-  const totalCount = (pinned?.length ?? 0) + (regularCount ?? 0)
-  const totalPages = Math.ceil((regularCount ?? 0) / PAGE_SIZE)
+  const totalCount = q ? searchResults.length : pinned.length + regularCount
+  const totalPages = Math.ceil(regularCount / PAGE_SIZE)
 
   return (
     <>
@@ -71,18 +93,7 @@ export default async function ClubNewsNewsPage({ searchParams }: Props) {
         </div>
 
         <div className="flex flex-col sm:block gap-2 mb-6">
-          <div className="relative">
-            <Search
-              size={15}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-            />
-            <input
-              type="text"
-              placeholder="제목 또는 내용으로 검색"
-              className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 focus:bg-white transition-all"
-            />
-          </div>
-
+          <BoardSearch defaultValue={q} />
           {user && (
             <Link
               href="/club-news/news/new"
@@ -97,30 +108,43 @@ export default async function ClubNewsNewsPage({ searchParams }: Props) {
         <div className="flex items-center justify-between text-sm text-slate-500 mb-2">
           <span>
             총 <strong className="text-slate-800">{totalCount}</strong>개의 게시글
+            {q && <span className="ml-1 text-sky-600">— &quot;{q}&quot; 검색 결과</span>}
           </span>
         </div>
 
         <div className="border-t border-slate-200 pt-1">
-          {pinned?.map((post) => (
-            <PostRowBoth key={post.id} post={post} isPinned />
-          ))}
-
-          {(pinned?.length ?? 0) > 0 && (regular?.length ?? 0) > 0 && (
-            <div className="border-t border-dashed border-slate-200 my-1" />
-          )}
-
-          {regular?.map((post, i) => (
-            <PostRowBoth key={post.id} post={post} rowNumber={(regularCount ?? 0) - from - i} />
-          ))}
-
-          {totalCount === 0 && (
-            <div className="py-16 text-center text-slate-400 text-sm">
-              아직 게시글이 없습니다.
-            </div>
+          {q ? (
+            <>
+              {searchResults.map((post, i) => (
+                <PostRowBoth key={post.id} post={post} isPinned={post.category === '공지'} rowNumber={i + 1} />
+              ))}
+              {searchResults.length === 0 && (
+                <div className="py-16 text-center text-slate-400 text-sm">
+                  검색 결과가 없습니다.
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              {pinned.map((post) => (
+                <PostRowBoth key={post.id} post={post} isPinned />
+              ))}
+              {pinned.length > 0 && regular.length > 0 && (
+                <div className="border-t border-dashed border-slate-200 my-1" />
+              )}
+              {regular.map((post, i) => (
+                <PostRowBoth key={post.id} post={post} rowNumber={regularCount - from - i} />
+              ))}
+              {totalCount === 0 && (
+                <div className="py-16 text-center text-slate-400 text-sm">
+                  아직 게시글이 없습니다.
+                </div>
+              )}
+            </>
           )}
         </div>
 
-        <Pagination currentPage={page} totalPages={totalPages} basePath="/club-news/news" />
+        {!q && <Pagination currentPage={page} totalPages={totalPages} basePath="/club-news/news" />}
       </div>
     </>
   )
@@ -169,21 +193,13 @@ function PostRow({ post, isPinned, rowNumber }: PostRowProps) {
         </div>
         <span className="text-xs text-slate-400">{formatted}</span>
       </div>
-
       <div className="flex items-end justify-between gap-2">
         <div className="flex items-center gap-1.5 min-w-0">
-          <span
-            className={cn(
-              'text-sm line-clamp-2 group-hover:text-sky-700 transition-colors leading-snug',
-              isPinned ? 'text-slate-700 font-medium' : 'text-slate-800',
-            )}
-          >
+          <span className={cn('text-sm line-clamp-2 group-hover:text-sky-700 transition-colors leading-snug', isPinned ? 'text-slate-700 font-medium' : 'text-slate-800')}>
             {post.title}
           </span>
           {isNew && !isPinned && (
-            <span className="shrink-0 text-[10px] font-bold text-white bg-sky-500 px-1.5 py-0.5 rounded">
-              NEW
-            </span>
+            <span className="shrink-0 text-[10px] font-bold text-white bg-sky-500 px-1.5 py-0.5 rounded">NEW</span>
           )}
         </div>
         <span className="shrink-0 flex items-center gap-1 text-xs text-slate-400">
@@ -216,24 +232,15 @@ function PostRowDesktop({ post, isPinned, rowNumber }: PostRowProps) {
           {rowNumber}
         </span>
       )}
-
       <div className="flex flex-1 min-w-0 items-center gap-2">
         {isPinned && <Pin size={12} className="shrink-0 text-slate-400" />}
-        <span
-          className={cn(
-            'text-sm line-clamp-1 group-hover:text-sky-700 transition-colors',
-            isPinned ? 'text-slate-700 font-medium' : 'text-slate-800',
-          )}
-        >
+        <span className={cn('text-sm line-clamp-1 group-hover:text-sky-700 transition-colors', isPinned ? 'text-slate-700 font-medium' : 'text-slate-800')}>
           {post.title}
         </span>
         {isNew && !isPinned && (
-          <span className="shrink-0 text-[10px] font-bold text-white bg-sky-500 px-1.5 py-0.5 rounded">
-            NEW
-          </span>
+          <span className="shrink-0 text-[10px] font-bold text-white bg-sky-500 px-1.5 py-0.5 rounded">NEW</span>
         )}
       </div>
-
       <div className="shrink-0 flex items-center gap-3 text-xs text-slate-400">
         <span className="flex items-center justify-end gap-1 w-28">
           <User size={12} className="shrink-0" />

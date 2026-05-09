@@ -3,7 +3,8 @@ import { formatMonthDay, isNewPost } from "@/lib/date";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Pagination } from "@/components/shared/Pagination";
 import { cn } from "@/lib/utils";
-import { Search, PenSquare, Eye, Pin, User } from "lucide-react";
+import { BoardSearch } from "@/components/shared/BoardSearch";
+import { PenSquare, Eye, Pin, User } from "lucide-react";
 import Link from "next/link";
 
 import type { Metadata } from 'next'
@@ -26,11 +27,12 @@ const CATEGORY_STYLE: Record<string, string> = {
 };
 
 interface Props {
-  searchParams: Promise<{ page?: string; category?: string }>;
+  searchParams: Promise<{ page?: string; category?: string; q?: string }>;
 }
 
 export default async function CommunityFreePage({ searchParams }: Props) {
-  const { page: pageParam, category: categoryParam } = await searchParams;
+  const { page: pageParam, category: categoryParam, q: qParam } = await searchParams;
+  const q = qParam?.trim() ?? '';
   const page = Math.max(1, Number(pageParam ?? 1) || 1);
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
@@ -44,14 +46,22 @@ export default async function CommunityFreePage({ searchParams }: Props) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // 특정 카테고리 필터 시 공지 고정 없이 해당 카테고리만 표시
   const isFiltered = activeCategory !== '전체';
 
   let pinned: { id: string; category: string; title: string; views: number; created_at: string | null; profiles: { nickname: string | null } | null }[] = [];
   let regular: typeof pinned = [];
   let regularCount = 0;
 
-  if (isFiltered) {
+  if (q) {
+    const { data, count } = await supabase
+      .from("posts")
+      .select("id, category, title, views, created_at, profiles(nickname)", { count: "exact" })
+      .eq("board", "free")
+      .ilike("title", `%${q}%`)
+      .order("created_at", { ascending: false });
+    regular = data ?? [];
+    regularCount = count ?? 0;
+  } else if (isFiltered) {
     const { data, count } = await supabase
       .from("posts")
       .select("id, category, title, views, created_at, profiles(nickname)", { count: "exact" })
@@ -135,17 +145,7 @@ export default async function CommunityFreePage({ searchParams }: Props) {
 
         {/* 검색 + 모바일 글쓰기 버튼 */}
         <div className="flex flex-col sm:block gap-2 mb-6">
-          <div className="relative">
-            <Search
-              size={15}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-            />
-            <input
-              type="text"
-              placeholder="제목 또는 내용으로 검색"
-              className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 focus:bg-white transition-all"
-            />
-          </div>
+          <BoardSearch defaultValue={q} />
 
           {user && (
             <Link
@@ -161,8 +161,8 @@ export default async function CommunityFreePage({ searchParams }: Props) {
         {/* 게시글 수 */}
         <div className="flex items-center justify-between text-sm text-slate-500 mb-2">
           <span>
-            총 <strong className="text-slate-800">{totalCount}</strong>개의
-            게시글
+            총 <strong className="text-slate-800">{totalCount}</strong>개의 게시글
+            {q && <span className="ml-1 text-sky-600">— &quot;{q}&quot; 검색 결과</span>}
           </span>
         </div>
 
@@ -187,11 +187,13 @@ export default async function CommunityFreePage({ searchParams }: Props) {
           )}
         </div>
 
-        <Pagination
-          currentPage={page}
-          totalPages={totalPages}
-          basePath={isFiltered ? `/community/free?category=${activeCategory}` : "/community/free"}
-        />
+        {!q && (
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            basePath={isFiltered ? `/community/free?category=${activeCategory}` : "/community/free"}
+          />
+        )}
       </div>
     </>
   );
