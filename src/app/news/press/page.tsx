@@ -69,7 +69,7 @@ export default async function NewsPressPage({ searchParams }: Props) {
         imagePosition="center 26%"
       />
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col gap-2 mb-5">
           <div className="flex gap-1.5 flex-wrap">
             {SOURCES.map((src) => (
@@ -92,13 +92,13 @@ export default async function NewsPressPage({ searchParams }: Props) {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           {articles?.map((article) => (
             <ArticleCard key={article.id} article={article} />
           ))}
 
           {(articles?.length ?? 0) === 0 && (
-            <div className="col-span-2 py-16 text-center text-slate-400 text-sm">
+            <div className="col-span-3 py-16 text-center text-slate-400 text-sm">
               관련 기사가 없습니다.
             </div>
           )}
