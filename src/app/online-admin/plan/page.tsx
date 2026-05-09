@@ -1,10 +1,11 @@
-import { createClient } from '@/lib/supabase-server'
+﻿import { createClient } from '@/lib/supabase-server'
 import { formatMonthDay, isNewPost } from '@/lib/date'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Pagination } from '@/components/shared/Pagination'
 import { YEAR_CATEGORIES } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import { Search, PenSquare, Eye, User } from 'lucide-react'
+import { BoardSearch } from '@/components/shared/BoardSearch'
+import { PenSquare, Eye, User } from 'lucide-react'
 import Link from 'next/link'
 
 import type { Metadata } from 'next'
@@ -23,11 +24,12 @@ const FILTER_CATEGORIES = ['전체', ...YEAR_CATEGORIES] as const
 type FilterCategory = typeof FILTER_CATEGORIES[number]
 
 interface Props {
-  searchParams: Promise<{ page?: string; category?: string }>
+  searchParams: Promise<{ page?: string; category?: string; q?: string }>
 }
 
 export default async function OnlineAdminPlanPage({ searchParams }: Props) {
-  const { page: pageParam, category: categoryParam } = await searchParams
+  const { page: pageParam, category: categoryParam, q: qParam } = await searchParams
+  const q = qParam?.trim() ?? ''
   const category: FilterCategory = FILTER_CATEGORIES.includes(categoryParam as FilterCategory)
     ? (categoryParam as FilterCategory)
     : '전체'
@@ -46,9 +48,10 @@ export default async function OnlineAdminPlanPage({ searchParams }: Props) {
     .select('id, category, title, views, created_at, profiles(nickname)', { count: 'exact' })
     .eq('board', BOARD)
     .order('created_at', { ascending: false })
-    .range(from, to)
 
   if (category !== '전체') query = query.eq('category', category)
+  if (q) query = query.ilike('title', `%${q}%`)
+  if (!q) query = query.range(from, to)
 
   const { data: posts, count } = await query
 
@@ -100,17 +103,7 @@ export default async function OnlineAdminPlanPage({ searchParams }: Props) {
         </div>
 
         <div className="flex flex-col sm:block gap-2 mb-6">
-          <div className="relative">
-            <Search
-              size={15}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-            />
-            <input
-              type="text"
-              placeholder="제목 또는 내용으로 검색"
-              className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300 focus:bg-white transition-all"
-            />
-          </div>
+          <BoardSearch defaultValue={q} />
 
           {user && (
             <Link
@@ -126,6 +119,7 @@ export default async function OnlineAdminPlanPage({ searchParams }: Props) {
         <div className="flex items-center justify-between text-sm text-slate-500 mb-2">
           <span>
             총 <strong className="text-slate-800">{count ?? 0}</strong>개의 게시글
+            {q && <span className="ml-1 text-sky-600">— &quot;{q}&quot; 검색 결과</span>}
           </span>
         </div>
 
@@ -141,7 +135,7 @@ export default async function OnlineAdminPlanPage({ searchParams }: Props) {
           )}
         </div>
 
-        <Pagination currentPage={page} totalPages={totalPages} basePath={basePath} />
+        {!q && <Pagination currentPage={page} totalPages={totalPages} basePath={basePath} />}
       </div>
     </>
   )
@@ -244,3 +238,5 @@ function PostRowBoth(props: PostRowProps) {
     </>
   )
 }
+
+

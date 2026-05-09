@@ -50,6 +50,7 @@ export default async function EditPostPage({ params }: Props) {
         <PostForm
           mode="edit"
           postId={id}
+          categories={['공지', '일반', '질문', '나눔']}
           initialValues={{
             title: post.title,
             category: post.category,

@@ -30,6 +30,7 @@ interface PostFormProps {
   board?: string
   boardPath?: string
   categories?: readonly string[]
+  pinOnly?: boolean
   initialValues?: {
     title: string
     category: string
@@ -41,7 +42,7 @@ interface PostFormProps {
   cancelHref: string
 }
 
-export function PostForm({ mode, postId, board = 'free', boardPath = '/community/free', categories = DEFAULT_CATEGORIES, initialValues, initialImages, initialAttachments, cancelHref }: PostFormProps) {
+export function PostForm({ mode, postId, board = 'free', boardPath = '/community/free', categories = DEFAULT_CATEGORIES, pinOnly = false, initialValues, initialImages, initialAttachments, cancelHref }: PostFormProps) {
   const router = useRouter()
   const [content, setContent] = useState(initialValues?.content ?? '')
   const [imageFiles, setImageFiles] = useState<File[]>([])
@@ -53,11 +54,12 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false)
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
   const [editorImageUrls, setEditorImageUrls] = useState<string[]>([])
+  const [isPin, setIsPin] = useState(initialValues?.category === '공지')
 
   function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
-    if (!formData.get('category')) {
+    if (!pinOnly && !formData.get('category')) {
       setError('분류를 선택해주세요.')
       return
     }
@@ -122,21 +124,37 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
     <form onSubmit={handleFormSubmit} className="space-y-5">
       <input type="hidden" name="board" value={board} />
       {/* 카테고리 */}
-      <div className="flex items-center gap-2">
-        <label className="text-sm font-medium text-slate-700 shrink-0 w-16">분류</label>
-        <select
-          name="category"
-          defaultValue={initialValues?.category ?? ''}
-          className="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-sky-300"
-        >
-          <option value="" disabled>선택하세요</option>
-          {categories.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-      </div>
+      {pinOnly ? (
+        <div className="flex items-center gap-2">
+          <input type="hidden" name="category" value={isPin ? '공지' : '일반'} />
+          <label className="text-sm font-medium text-slate-700 shrink-0 w-16">공지</label>
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={isPin}
+              onChange={(e) => setIsPin(e.target.checked)}
+              className="w-4 h-4 rounded border-slate-300 accent-sky-600"
+            />
+            <span className="text-sm text-slate-600">공지글로 등록</span>
+          </label>
+        </div>
+      ) : (
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-slate-700 shrink-0 w-16">분류</label>
+          <select
+            name="category"
+            defaultValue={initialValues?.category ?? ''}
+            className="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-sky-300"
+          >
+            <option value="" disabled>선택하세요</option>
+            {categories.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {/* 제목 */}
       <div className="flex items-center gap-2">
