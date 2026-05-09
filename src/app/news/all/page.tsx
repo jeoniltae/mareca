@@ -151,24 +151,17 @@ function PostRow({ post, isPinned, rowNumber }: PostRowProps) {
   const formatted = formatMonthDay(post.created_at)
   const isNew = isNewPost(post.created_at)
   return (
-    <Link href={`/news/all/${post.id}`} className={cn('group py-3.5 px-2 -mx-2 rounded-lg hover:bg-slate-50 transition-colors flex sm:hidden flex-col gap-1.5', isPinned && 'bg-slate-50/80 hover:bg-slate-100/80')}>
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5">
-          {isPinned ? (
-            <><Pin size={12} className="shrink-0 text-slate-400" /><span className="shrink-0 text-xs px-2 py-0.5 rounded-md font-medium bg-red-50 text-red-600 ring-1 ring-inset ring-red-200">공지</span></>
-          ) : (
-            <span className="shrink-0 text-xs w-8 text-center font-medium text-slate-400">{rowNumber}</span>
-          )}
-        </div>
-        <span className="text-xs text-slate-400">{formatted}</span>
+    <Link href={`/news/all/${post.id}`} className={cn('group py-3.5 px-2 -mx-2 rounded-lg hover:bg-slate-50 transition-colors flex sm:hidden items-center gap-2', isPinned && 'bg-slate-50/80 hover:bg-slate-100/80')}>
+      {isPinned ? (
+        <span className="shrink-0 text-xs px-2 py-0.5 rounded-md font-medium bg-red-50 text-red-600 ring-1 ring-inset ring-red-200">공지</span>
+      ) : (
+        <span className="shrink-0 text-xs w-8 text-center font-medium text-slate-400">{rowNumber}</span>
+      )}
+      <div className="flex flex-1 min-w-0 items-center gap-1.5">
+        <span className={cn('text-sm line-clamp-1 group-hover:text-sky-700 transition-colors', isPinned ? 'text-slate-700 font-medium' : 'text-slate-800')}>{post.title}</span>
+        {isNew && !isPinned && <span className="shrink-0 text-[10px] font-bold text-white bg-sky-500 px-1.5 py-0.5 rounded">NEW</span>}
       </div>
-      <div className="flex items-end justify-between gap-2">
-        <div className="flex items-center gap-1.5 min-w-0">
-          <span className={cn('text-sm line-clamp-2 group-hover:text-sky-700 transition-colors leading-snug', isPinned ? 'text-slate-700 font-medium' : 'text-slate-800')}>{post.title}</span>
-          {isNew && !isPinned && <span className="shrink-0 text-[10px] font-bold text-white bg-sky-500 px-1.5 py-0.5 rounded">NEW</span>}
-        </div>
-        <span className="shrink-0 flex items-center gap-1 text-xs text-slate-400"><Eye size={11} />{post.views}</span>
-      </div>
+      <span className="shrink-0 text-xs text-slate-400">{formatted}</span>
     </Link>
   )
 }
