@@ -5,8 +5,6 @@ import { PostForm } from '@/features/posts/PostForm'
 
 export const metadata = { title: '글쓰기 — 소식' }
 
-const NEWS_CATEGORIES = ['공지', '일반'] as const
-
 export default async function NewNewsPage() {
   const supabase = await createClient()
   const {
@@ -33,7 +31,7 @@ export default async function NewNewsPage() {
           mode="create"
           board="news"
           boardPath="/news/all"
-          categories={NEWS_CATEGORIES}
+          pinOnly
           cancelHref="/news/all"
         />
       </div>

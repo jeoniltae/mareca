@@ -5,8 +5,6 @@ import { PostForm } from '@/features/posts/PostForm'
 
 export const metadata = { title: '글쓰기 — Plus Voice' }
 
-const VOICE_CATEGORIES = ['공지', '일반'] as const
-
 export default async function NewVoicePage() {
   const supabase = await createClient()
   const {
@@ -33,7 +31,7 @@ export default async function NewVoicePage() {
           mode="create"
           board="voice"
           boardPath="/community/voice"
-          categories={VOICE_CATEGORIES}
+          pinOnly
           cancelHref="/community/voice"
         />
       </div>

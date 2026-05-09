@@ -9,8 +9,6 @@ interface Props {
 
 export const metadata = { title: '글 수정 — 소식' }
 
-const NEWS_CATEGORIES = ['공지', '일반'] as const
-
 export default async function EditNewsPage({ params }: Props) {
   const { id } = await params
   const supabase = await createClient()
@@ -54,7 +52,7 @@ export default async function EditNewsPage({ params }: Props) {
           postId={id}
           board="news"
           boardPath="/news/all"
-          categories={NEWS_CATEGORIES}
+          pinOnly
           initialValues={{
             title: post.title,
             category: post.category,

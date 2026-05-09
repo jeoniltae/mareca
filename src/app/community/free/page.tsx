@@ -26,14 +26,17 @@ const CATEGORY_STYLE: Record<string, string> = {
 };
 
 interface Props {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; category?: string }>;
 }
 
 export default async function CommunityFreePage({ searchParams }: Props) {
-  const { page: pageParam } = await searchParams;
+  const { page: pageParam, category: categoryParam } = await searchParams;
   const page = Math.max(1, Number(pageParam ?? 1) || 1);
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
+  const activeCategory = CATEGORIES.includes(categoryParam as typeof CATEGORIES[number])
+    ? (categoryParam as typeof CATEGORIES[number])
+    : '전체';
 
   const supabase = await createClient();
 
@@ -41,8 +44,25 @@ export default async function CommunityFreePage({ searchParams }: Props) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [{ data: pinned }, { data: regular, count: regularCount }] =
-    await Promise.all([
+  // 특정 카테고리 필터 시 공지 고정 없이 해당 카테고리만 표시
+  const isFiltered = activeCategory !== '전체';
+
+  let pinned: { id: string; category: string; title: string; views: number; created_at: string | null; profiles: { nickname: string | null } | null }[] = [];
+  let regular: typeof pinned = [];
+  let regularCount = 0;
+
+  if (isFiltered) {
+    const { data, count } = await supabase
+      .from("posts")
+      .select("id, category, title, views, created_at, profiles(nickname)", { count: "exact" })
+      .eq("board", "free")
+      .eq("category", activeCategory)
+      .order("created_at", { ascending: false })
+      .range(from, to);
+    regular = data ?? [];
+    regularCount = count ?? 0;
+  } else {
+    const [{ data: pinnedData }, { data: regularData, count }] = await Promise.all([
       supabase
         .from("posts")
         .select("id, category, title, views, created_at, profiles(nickname)")
@@ -51,17 +71,19 @@ export default async function CommunityFreePage({ searchParams }: Props) {
         .order("created_at", { ascending: false }),
       supabase
         .from("posts")
-        .select("id, category, title, views, created_at, profiles(nickname)", {
-          count: "exact",
-        })
+        .select("id, category, title, views, created_at, profiles(nickname)", { count: "exact" })
         .eq("board", "free")
         .neq("category", "공지")
         .order("created_at", { ascending: false })
         .range(from, to),
     ]);
+    pinned = pinnedData ?? [];
+    regular = regularData ?? [];
+    regularCount = count ?? 0;
+  }
 
-  const totalCount = (pinned?.length ?? 0) + (regularCount ?? 0);
-  const totalPages = Math.ceil((regularCount ?? 0) / PAGE_SIZE);
+  const totalCount = pinned.length + regularCount;
+  const totalPages = Math.ceil(regularCount / PAGE_SIZE);
 
   return (
     <>
@@ -80,19 +102,24 @@ export default async function CommunityFreePage({ searchParams }: Props) {
         {/* 툴바 */}
         <div className="flex items-center justify-between gap-3 mb-5">
           <div className="flex gap-1.5 flex-wrap">
-            {CATEGORIES.map((cat, i) => (
-              <button
-                key={cat}
-                className={cn(
-                  "px-3.5 py-1.5 rounded-full text-sm font-medium transition-colors",
-                  i === 0
-                    ? "bg-slate-800 text-white"
-                    : "text-slate-500 hover:text-slate-800 hover:bg-slate-100",
-                )}
-              >
-                {cat}
-              </button>
-            ))}
+            {CATEGORIES.map((cat) => {
+              const isActive = cat === activeCategory;
+              const href = cat === '전체' ? '/community/free' : `/community/free?category=${cat}`;
+              return (
+                <Link
+                  key={cat}
+                  href={href}
+                  className={cn(
+                    "px-3.5 py-1.5 rounded-full text-sm font-medium transition-colors",
+                    isActive
+                      ? "bg-slate-800 text-white"
+                      : "text-slate-500 hover:text-slate-800 hover:bg-slate-100",
+                  )}
+                >
+                  {cat}
+                </Link>
+              );
+            })}
           </div>
 
           {user && (
@@ -163,7 +190,7 @@ export default async function CommunityFreePage({ searchParams }: Props) {
         <Pagination
           currentPage={page}
           totalPages={totalPages}
-          basePath="/community/free"
+          basePath={isFiltered ? `/community/free?category=${activeCategory}` : "/community/free"}
         />
       </div>
     </>

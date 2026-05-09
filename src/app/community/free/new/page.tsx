@@ -27,7 +27,7 @@ export default async function NewPostPage() {
         imagePosition="center 10%"
       />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <PostForm mode="create" cancelHref="/community/free" />
+        <PostForm mode="create" categories={['공지', '일반', '질문', '나눔']} cancelHref="/community/free" />
       </div>
     </>
   )

@@ -16,13 +16,6 @@ export const metadata: Metadata = {
 
 const PAGE_SIZE = 10;
 
-const CATEGORIES = ["전체", "공지", "일반"] as const;
-
-const CATEGORY_STYLE: Record<string, string> = {
-  공지: "bg-red-50 text-red-600 ring-1 ring-inset ring-red-200",
-  일반: "bg-slate-100 text-slate-600",
-};
-
 interface Props {
   searchParams: Promise<{ page?: string }>;
 }
@@ -75,23 +68,7 @@ export default async function CommunityVoicePage({ searchParams }: Props) {
       />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-between gap-3 mb-5">
-          <div className="flex gap-1.5 flex-wrap">
-            {CATEGORIES.map((cat, i) => (
-              <button
-                key={cat}
-                className={cn(
-                  "px-3.5 py-1.5 rounded-full text-sm font-medium transition-colors",
-                  i === 0
-                    ? "bg-slate-800 text-white"
-                    : "text-slate-500 hover:text-slate-800 hover:bg-slate-100",
-                )}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
+        <div className="flex items-center justify-end gap-3 mb-5">
           {user && (
             <Link
               href="/community/voice/new"
@@ -143,8 +120,8 @@ export default async function CommunityVoicePage({ searchParams }: Props) {
             <div className="border-t border-dashed border-slate-200 my-1" />
           )}
 
-          {regular?.map((post) => (
-            <PostRowBoth key={post.id} post={post} />
+          {regular?.map((post, i) => (
+            <PostRowBoth key={post.id} post={post} rowNumber={(regularCount ?? 0) - from - i} />
           ))}
 
           {totalCount === 0 && (
@@ -174,9 +151,10 @@ type PostRowProps = {
     profiles: { nickname: string | null } | null;
   };
   isPinned?: boolean;
+  rowNumber?: number;
 };
 
-function PostRow({ post, isPinned }: PostRowProps) {
+function PostRow({ post, isPinned, rowNumber }: PostRowProps) {
   const formatted = formatMonthDay(post.created_at);
   const isNew = isNewPost(post.created_at);
 
@@ -191,15 +169,18 @@ function PostRow({ post, isPinned }: PostRowProps) {
     >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
-          {isPinned && <Pin size={12} className="shrink-0 text-slate-400" />}
-          <span
-            className={cn(
-              "shrink-0 text-xs px-2 py-0.5 rounded-md font-medium",
-              CATEGORY_STYLE[post.category],
-            )}
-          >
-            {post.category}
-          </span>
+          {isPinned ? (
+            <>
+              <Pin size={12} className="shrink-0 text-slate-400" />
+              <span className="shrink-0 text-xs px-2 py-0.5 rounded-md font-medium bg-red-50 text-red-600 ring-1 ring-inset ring-red-200">
+                공지
+              </span>
+            </>
+          ) : (
+            <span className="shrink-0 text-xs w-8 text-center font-medium text-slate-400">
+              {rowNumber}
+            </span>
+          )}
         </div>
         <span className="text-xs text-slate-400">{formatted}</span>
       </div>
@@ -229,7 +210,7 @@ function PostRow({ post, isPinned }: PostRowProps) {
   );
 }
 
-function PostRowDesktop({ post, isPinned }: PostRowProps) {
+function PostRowDesktop({ post, isPinned, rowNumber }: PostRowProps) {
   const formatted = formatMonthDay(post.created_at);
   const isNew = isNewPost(post.created_at);
 
@@ -241,14 +222,15 @@ function PostRowDesktop({ post, isPinned }: PostRowProps) {
         isPinned && "bg-slate-50/80 hover:bg-slate-100/80",
       )}
     >
-      <span
-        className={cn(
-          "shrink-0 text-xs px-2 py-0.5 rounded-md font-medium",
-          CATEGORY_STYLE[post.category],
-        )}
-      >
-        {post.category}
-      </span>
+      {isPinned ? (
+        <span className="shrink-0 text-xs px-2 py-0.5 rounded-md font-medium bg-red-50 text-red-600 ring-1 ring-inset ring-red-200">
+          공지
+        </span>
+      ) : (
+        <span className="shrink-0 text-xs w-8 text-center font-medium text-slate-400">
+          {rowNumber}
+        </span>
+      )}
 
       <div className="flex flex-1 min-w-0 items-center gap-2">
         {isPinned && <Pin size={12} className="shrink-0 text-slate-400" />}
@@ -269,9 +251,9 @@ function PostRowDesktop({ post, isPinned }: PostRowProps) {
 
       <div className="shrink-0 flex items-center gap-3 text-xs text-slate-400">
         <span className="flex items-center justify-end gap-1 w-28">
-            <User size={12} className="shrink-0" />
-            <span className="truncate">{post.profiles?.nickname ?? "알 수 없음"}</span>
-          </span>
+          <User size={12} className="shrink-0" />
+          <span className="truncate">{post.profiles?.nickname ?? "알 수 없음"}</span>
+        </span>
         <span className="w-10 text-right">{formatted}</span>
         <span className="flex items-center gap-1 w-12 justify-end">
           <Eye size={11} />
