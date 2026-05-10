@@ -1,16 +1,17 @@
 'use client'
 
 import { useRef } from 'react'
-import { X, Paperclip, FileText, FileSpreadsheet, File } from 'lucide-react'
+import { X, Paperclip, FileText, FileSpreadsheet, FileArchive, File } from 'lucide-react'
 import { deletePostAttachment } from './actions'
 
 const MAX_COUNT = 5
-const MAX_SIZE_MB = 10
-const ACCEPT_EXTENSIONS = '.pdf,.hwp,.doc,.docx,.xls,.xlsx'
+const MAX_SIZE_MB = 20
+const ACCEPT_EXTENSIONS = '.pdf,.hwp,.doc,.docx,.xls,.xlsx,.zip'
 
 function FileIcon({ mime }: { mime: string }) {
   if (mime === 'application/pdf') return <FileText size={14} className="text-red-400" />
   if (mime.includes('excel') || mime.includes('spreadsheet')) return <FileSpreadsheet size={14} className="text-green-500" />
+  if (mime === 'application/zip' || mime === 'application/x-zip-compressed') return <FileArchive size={14} className="text-yellow-500" />
   return <File size={14} className="text-slate-400" />
 }
 
@@ -129,7 +130,7 @@ export function FileAttachmentList({
         </ul>
       )}
 
-      <p className="text-xs text-slate-400">PDF, HWP, DOC, DOCX, XLS, XLSX · 최대 {MAX_SIZE_MB}MB · 최대 {MAX_COUNT}개</p>
+      <p className="text-xs text-slate-400">PDF, HWP, DOC, DOCX, XLS, XLSX, ZIP · 최대 {MAX_SIZE_MB}MB · 최대 {MAX_COUNT}개</p>
     </div>
   )
 }
