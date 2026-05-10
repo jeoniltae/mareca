@@ -11,14 +11,43 @@ import {
   updatePost,
   uploadPostImage,
   insertPostImages,
-  uploadPostAttachment,
   insertPostAttachments,
   deleteEditorImages,
 } from './actions'
+import { createClient } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import { ConfirmModal } from '@/components/shared/ConfirmModal'
 
 const DEFAULT_CATEGORIES = ['일반', '질문', '나눔'] as const
+
+async function uploadAttachmentClient(file: File): Promise<{
+  file_name: string
+  file_url: string
+  file_size: number
+  mime_type: string
+}> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('로그인이 필요합니다')
+
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+  const baseName = safeName.replace(/\.[^.]+$/, '')
+  const ext = safeName.split('.').pop() ?? ''
+  const contentType = file.type || 'application/octet-stream'
+  const path = `${user.id}/${Date.now()}_${baseName}.${ext}`
+
+  const { error } = await supabase.storage
+    .from('post-attachments')
+    .upload(path, file, { contentType })
+
+  if (error) throw new Error(error.message)
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('post-attachments')
+    .getPublicUrl(path)
+
+  return { file_name: file.name, file_url: publicUrl, file_size: file.size, mime_type: contentType }
+}
 
 function extractEditorImageUrls(html: string): string[] {
   return [...html.matchAll(/<img[^>]+src="([^"]+)"/g)].map((m) => m[1])
@@ -98,13 +127,9 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
             return uploadPostImage(fd)
           })
         )
-        // 파일 업로드 (파일별 FormData)
+        // 파일 업로드 (클라이언트에서 Supabase Storage 직접 업로드)
         const attachmentMetas = await Promise.all(
-          attachmentFiles.map((file) => {
-            const fd = new FormData()
-            fd.append('file', file)
-            return uploadPostAttachment(fd)
-          })
+          attachmentFiles.map((file) => uploadAttachmentClient(file))
         )
 
         await Promise.all([
