@@ -1,11 +1,12 @@
-﻿import { createClient } from '@/lib/supabase-server'
+﻿import { AuthorIcon } from '@/components/shared/AuthorIcon'
+import { createClient } from '@/lib/supabase-server'
 import { formatMonthDay, isNewPost } from '@/lib/date'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Pagination } from '@/components/shared/Pagination'
 import { YEAR_CATEGORIES } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { BoardSearch } from '@/components/shared/BoardSearch'
-import { PenSquare, Eye, User } from 'lucide-react'
+import { PenSquare, Eye } from 'lucide-react'
 import Link from 'next/link'
 
 import type { Metadata } from 'next'
@@ -45,7 +46,7 @@ export default async function ReportMinutesPage({ searchParams }: Props) {
 
   let query = supabase
     .from('posts')
-    .select('id, category, title, views, created_at, profiles(nickname)', { count: 'exact' })
+    .select('id, category, title, views, created_at, profiles(nickname, is_admin, is_masters)', { count: 'exact' })
     .eq('board', BOARD)
     .order('created_at', { ascending: false })
 
@@ -148,7 +149,7 @@ type PostRowProps = {
     title: string
     views: number
     created_at: string | null
-    profiles: { nickname: string | null } | null
+    profiles: { nickname: string | null; is_admin: boolean | null; is_masters: boolean | null } | null
   }
   basePath: string
 }
@@ -217,7 +218,7 @@ function PostRowDesktop({ post, basePath }: PostRowProps) {
 
       <div className="shrink-0 flex items-center gap-3 text-xs text-slate-400">
         <span className="flex items-center justify-end gap-1 w-28">
-            <User size={12} className="shrink-0" />
+            <AuthorIcon isAdmin={post.profiles?.is_admin} isMasters={post.profiles?.is_masters} />
             <span className="truncate">{post.profiles?.nickname ?? '알 수 없음'}</span>
           </span>
         <span className="w-10 text-right">{formatted}</span>

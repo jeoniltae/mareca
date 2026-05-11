@@ -3,7 +3,8 @@ import { formatYMD } from "@/lib/date";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Pagination } from "@/components/shared/Pagination";
 import Link from "next/link";
-import { PenSquare, Images, Eye, User } from "lucide-react";
+import { PenSquare, Images, Eye } from "lucide-react";
+import { AuthorIcon } from "@/components/shared/AuthorIcon";
 import { GalleryImage } from "@/features/gallery/GalleryImage";
 import { YEAR_CATEGORIES } from '@/lib/constants'
 
@@ -40,7 +41,7 @@ export default async function CommunityGalleryPage({ searchParams }: Props) {
 
   let query = supabase
     .from("posts")
-    .select("id, title, thumbnail_url, views, created_at, profiles(nickname)", {
+    .select("id, title, thumbnail_url, views, created_at, profiles(nickname, is_admin, is_masters)", {
       count: "exact",
     })
     .eq("board", "gallery")
@@ -163,8 +164,8 @@ export default async function CommunityGalleryPage({ searchParams }: Props) {
                     </p>
                     <div className="flex items-center justify-between text-xs text-slate-400">
                       <span className="flex items-center gap-1 truncate">
-                        <User size={12} className="shrink-0" />
-                        <span className="truncate">{(post.profiles as { nickname: string | null } | null)?.nickname ?? "알 수 없음"}</span>
+                        <AuthorIcon isAdmin={(post.profiles as { nickname: string | null; is_admin: boolean | null; is_masters: boolean | null } | null)?.is_admin} isMasters={(post.profiles as { nickname: string | null; is_admin: boolean | null; is_masters: boolean | null } | null)?.is_masters} />
+                        <span className="truncate">{(post.profiles as { nickname: string | null; is_admin: boolean | null; is_masters: boolean | null } | null)?.nickname ?? "알 수 없음"}</span>
                       </span>
                       <div className="shrink-0 flex items-center gap-2">
                         <span className="flex items-center gap-0.5">

@@ -1,10 +1,11 @@
+﻿import { AuthorIcon } from '@/components/shared/AuthorIcon'
 import { createClient } from '@/lib/supabase-server'
 import { formatMonthDay, isNewPost } from '@/lib/date'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Pagination } from '@/components/shared/Pagination'
 import { BoardSearch } from '@/components/shared/BoardSearch'
 import { cn } from '@/lib/utils'
-import { PenSquare, Eye, Pin, User } from 'lucide-react'
+import { PenSquare, Eye, Pin } from 'lucide-react'
 import Link from 'next/link'
 
 export const metadata = {
@@ -31,7 +32,7 @@ export default async function ClubNewsNewsPage({ searchParams }: Props) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  type Post = { id: string; category: string; title: string; views: number; created_at: string | null; profiles: { nickname: string | null } | null }
+  type Post = { id: string; category: string; title: string; views: number; created_at: string | null; profiles: { nickname: string | null; is_admin: boolean | null; is_masters: boolean | null } | null }
 
   let pinned: Post[] = []
   let regular: Post[] = []
@@ -41,7 +42,7 @@ export default async function ClubNewsNewsPage({ searchParams }: Props) {
   if (q) {
     const { data } = await supabase
       .from('posts')
-      .select('id, category, title, views, created_at, profiles(nickname)')
+      .select('id, category, title, views, created_at, profiles(nickname, is_admin, is_masters)')
       .eq('board', 'club-news')
       .ilike('title', `%${q}%`)
       .order('created_at', { ascending: false })
@@ -50,13 +51,13 @@ export default async function ClubNewsNewsPage({ searchParams }: Props) {
     const [{ data: pinnedData }, { data: regularData, count }] = await Promise.all([
       supabase
         .from('posts')
-        .select('id, category, title, views, created_at, profiles(nickname)')
+        .select('id, category, title, views, created_at, profiles(nickname, is_admin, is_masters)')
         .eq('board', 'club-news')
         .eq('category', '공지')
         .order('created_at', { ascending: false }),
       supabase
         .from('posts')
-        .select('id, category, title, views, created_at, profiles(nickname)', { count: 'exact' })
+        .select('id, category, title, views, created_at, profiles(nickname, is_admin, is_masters)', { count: 'exact' })
         .eq('board', 'club-news')
         .neq('category', '공지')
         .order('created_at', { ascending: false })
@@ -157,7 +158,7 @@ type PostRowProps = {
     title: string
     views: number
     created_at: string | null
-    profiles: { nickname: string | null } | null
+    profiles: { nickname: string | null; is_admin: boolean | null; is_masters: boolean | null } | null
   }
   isPinned?: boolean
   rowNumber?: number
@@ -230,7 +231,7 @@ function PostRowDesktop({ post, isPinned, rowNumber }: PostRowProps) {
       </div>
       <div className="shrink-0 flex items-center gap-3 text-xs text-slate-400">
         <span className="flex items-center justify-end gap-1 w-28">
-          <User size={12} className="shrink-0" />
+          <AuthorIcon isAdmin={post.profiles?.is_admin} isMasters={post.profiles?.is_masters} />
           <span className="truncate">{post.profiles?.nickname ?? '알 수 없음'}</span>
         </span>
         <span className="w-10 text-right">{formatted}</span>

@@ -1,10 +1,11 @@
+﻿import { AuthorIcon } from '@/components/shared/AuthorIcon'
 import { createClient } from "@/lib/supabase-server";
 import { formatMonthDay, isNewPost } from "@/lib/date";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Pagination } from "@/components/shared/Pagination";
 import { BoardSearch } from "@/components/shared/BoardSearch";
 import { cn } from "@/lib/utils";
-import { PenSquare, Eye, Pin, User } from "lucide-react";
+import { PenSquare, Eye, Pin } from "lucide-react";
 import Link from "next/link";
 
 import type { Metadata } from 'next'
@@ -31,7 +32,7 @@ export default async function CommunityVoicePage({ searchParams }: Props) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  type Post = { id: string; category: string; title: string; views: number; created_at: string | null; profiles: { nickname: string | null } | null }
+  type Post = { id: string; category: string; title: string; views: number; created_at: string | null; profiles: { nickname: string | null; is_admin: boolean | null; is_masters: boolean | null } | null }
 
   let pinned: Post[] = [];
   let regular: Post[] = [];
@@ -41,7 +42,7 @@ export default async function CommunityVoicePage({ searchParams }: Props) {
   if (q) {
     const { data } = await supabase
       .from("posts")
-      .select("id, category, title, views, created_at, profiles(nickname)")
+      .select("id, category, title, views, created_at, profiles(nickname, is_admin, is_masters)")
       .eq("board", "voice")
       .ilike("title", `%${q}%`)
       .order("created_at", { ascending: false });
@@ -50,13 +51,13 @@ export default async function CommunityVoicePage({ searchParams }: Props) {
     const [{ data: pinnedData }, { data: regularData, count }] = await Promise.all([
       supabase
         .from("posts")
-        .select("id, category, title, views, created_at, profiles(nickname)")
+        .select("id, category, title, views, created_at, profiles(nickname, is_admin, is_masters)")
         .eq("board", "voice")
         .eq("category", "공지")
         .order("created_at", { ascending: false }),
       supabase
         .from("posts")
-        .select("id, category, title, views, created_at, profiles(nickname)", { count: "exact" })
+        .select("id, category, title, views, created_at, profiles(nickname, is_admin, is_masters)", { count: "exact" })
         .eq("board", "voice")
         .neq("category", "공지")
         .order("created_at", { ascending: false })
@@ -142,7 +143,7 @@ export default async function CommunityVoicePage({ searchParams }: Props) {
 }
 
 type PostRowProps = {
-  post: { id: string; category: string; title: string; views: number; created_at: string | null; profiles: { nickname: string | null } | null };
+  post: { id: string; category: string; title: string; views: number; created_at: string | null; profiles: { nickname: string | null; is_admin: boolean | null; is_masters: boolean | null } | null };
   isPinned?: boolean;
   rowNumber?: number;
 };
@@ -182,7 +183,7 @@ function PostRowDesktop({ post, isPinned, rowNumber }: PostRowProps) {
         {isNew && !isPinned && <span className="shrink-0 text-[10px] font-bold text-white bg-sky-500 px-1.5 py-0.5 rounded">NEW</span>}
       </div>
       <div className="shrink-0 flex items-center gap-3 text-xs text-slate-400">
-        <span className="flex items-center justify-end gap-1 w-28"><User size={12} className="shrink-0" /><span className="truncate">{post.profiles?.nickname ?? "알 수 없음"}</span></span>
+        <span className="flex items-center justify-end gap-1 w-28"><AuthorIcon isAdmin={post.profiles?.is_admin} isMasters={post.profiles?.is_masters} /><span className="truncate">{post.profiles?.nickname ?? "알 수 없음"}</span></span>
         <span className="w-10 text-right">{formatted}</span>
         <span className="flex items-center gap-1 w-12 justify-end"><Eye size={11} />{post.views}</span>
       </div>
