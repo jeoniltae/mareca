@@ -1,13 +1,13 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase-server'
 
-const MASTERS_EMAIL = 'masters@mareca.kr'
+const ALLOWED_EMAILS = ['masters@mareca.kr', 'admin@mareca.kr']
 
 export default async function OnlineAdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (user?.email !== MASTERS_EMAIL) redirect('/')
+  if (!user?.email || !ALLOWED_EMAILS.includes(user.email)) redirect('/')
 
   return <>{children}</>
 }

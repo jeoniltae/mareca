@@ -26,11 +26,15 @@ export function formatDateTimeVerbose(value: string | null | undefined): string 
   })
 }
 
-/** 05-05 (목록용 짧은 날짜) */
+/** 올해: 05-09 / 작년 이전: '25.12.03 (목록용 짧은 날짜) */
 export function formatMonthDay(value: string | null | undefined): string {
   if (!value) return ''
   const d = new Date(new Date(value).toLocaleString('en-US', { timeZone: TZ }))
-  return `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  const now = new Date(new Date().toLocaleString('en-US', { timeZone: TZ }))
+  if (d.getFullYear() === now.getFullYear()) {
+    return `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  }
+  return `'${String(d.getFullYear()).slice(2)}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
 }
 
 /** 2025.05.05 (앨범/미디어 목록용) */

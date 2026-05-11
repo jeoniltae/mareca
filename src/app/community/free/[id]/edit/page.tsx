@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase-server'
 import { redirect, notFound } from 'next/navigation'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { PostForm } from '@/features/posts/PostForm'
+import { getIsAdmin } from '@/lib/admin'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -19,13 +20,12 @@ export default async function EditPostPage({ params }: Props) {
 
   if (!user) redirect(`/login?next=/community/free/${id}/edit`)
 
-  const { data: post } = await supabase
-    .from('posts')
-    .select('*')
-    .eq('id', id)
-    .single()
+  const [{ data: post }, isAdmin] = await Promise.all([
+    supabase.from('posts').select('*').eq('id', id).single(),
+    getIsAdmin(),
+  ])
 
-  if (!post || post.user_id !== user.id) return notFound()
+  if (!post || (!isAdmin && post.user_id !== user.id)) return notFound()
 
   const [{ data: postImages }, { data: postAttachments }] = await Promise.all([
     supabase.from('post_images').select('id, url').eq('post_id', id).order('display_order'),
@@ -51,6 +51,7 @@ export default async function EditPostPage({ params }: Props) {
           mode="edit"
           postId={id}
           categories={['공지', '일반', '질문', '나눔']}
+          isAdmin={isAdmin}
           initialValues={{
             title: post.title,
             category: post.category,

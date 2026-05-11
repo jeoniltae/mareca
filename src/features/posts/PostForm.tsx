@@ -60,6 +60,7 @@ interface PostFormProps {
   boardPath?: string
   categories?: readonly string[]
   pinOnly?: boolean
+  isAdmin?: boolean
   initialValues?: {
     title: string
     category: string
@@ -71,7 +72,7 @@ interface PostFormProps {
   cancelHref: string
 }
 
-export function PostForm({ mode, postId, board = 'free', boardPath = '/community/free', categories = DEFAULT_CATEGORIES, pinOnly = false, initialValues, initialImages, initialAttachments, cancelHref }: PostFormProps) {
+export function PostForm({ mode, postId, board = 'free', boardPath = '/community/free', categories = DEFAULT_CATEGORIES, pinOnly = false, isAdmin = false, initialValues, initialImages, initialAttachments, cancelHref }: PostFormProps) {
   const router = useRouter()
   const [content, setContent] = useState(initialValues?.content ?? '')
   const [imageFiles, setImageFiles] = useState<File[]>([])
@@ -150,19 +151,23 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
       <input type="hidden" name="board" value={board} />
       {/* 카테고리 */}
       {pinOnly ? (
-        <div className="flex items-center gap-2">
-          <input type="hidden" name="category" value={isPin ? '공지' : '일반'} />
-          <label className="text-sm font-medium text-slate-700 shrink-0 w-16">공지</label>
-          <label className="flex items-center gap-2 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={isPin}
-              onChange={(e) => setIsPin(e.target.checked)}
-              className="w-4 h-4 rounded border-slate-300 accent-sky-600"
-            />
-            <span className="text-sm text-slate-600">공지글로 등록</span>
-          </label>
-        </div>
+        isAdmin ? (
+          <div className="flex items-center gap-2">
+            <input type="hidden" name="category" value={isPin ? '공지' : '일반'} />
+            <label className="text-sm font-medium text-slate-700 shrink-0 w-16">공지</label>
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={isPin}
+                onChange={(e) => setIsPin(e.target.checked)}
+                className="w-4 h-4 rounded border-slate-300 accent-sky-600"
+              />
+              <span className="text-sm text-slate-600">공지글로 등록</span>
+            </label>
+          </div>
+        ) : (
+          <input type="hidden" name="category" value="일반" />
+        )
       ) : (
         <div className="flex items-center gap-2">
           <label className="text-sm font-medium text-slate-700 shrink-0 w-16">분류</label>
@@ -172,7 +177,7 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
             className="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-sky-300"
           >
             <option value="" disabled>선택하세요</option>
-            {categories.map((c) => (
+            {(isAdmin ? categories : categories.filter((c) => c !== '공지')).map((c) => (
               <option key={c} value={c}>
                 {c}
               </option>

@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { notFound } from "next/navigation";
 import { incrementViews } from "@/features/posts/actions";
 import { PostActions } from "@/features/posts/PostActions";
+import { getIsAdmin } from "@/lib/admin";
 import { PostImageGallery } from "@/features/posts/PostImageGallery";
 import { PostFileDownloadList } from "@/features/posts/PostFileDownloadList";
 import { Eye, Calendar, Tag, User } from "lucide-react";
@@ -55,6 +56,7 @@ export default async function VoiceDetailPage({ params }: Props) {
     },
     { data: postImages },
     { data: postAttachments },
+    isAdmin,
   ] = await Promise.all([
     supabase
       .from("posts")
@@ -71,6 +73,7 @@ export default async function VoiceDetailPage({ params }: Props) {
       .from("post_attachments")
       .select("id, file_name, file_url, file_size")
       .eq("post_id", id),
+    getIsAdmin(),
   ]);
 
   if (!post) return notFound();
@@ -119,7 +122,7 @@ export default async function VoiceDetailPage({ params }: Props) {
               </span>
             </div>
 
-            {isAuthor && <PostActions id={id} basePath="/community/voice" />}
+            {(isAuthor || isAdmin) && <PostActions id={id} basePath="/community/voice" />}
           </div>
         </div>
 

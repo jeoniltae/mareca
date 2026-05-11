@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { PostForm } from '@/features/posts/PostForm'
+import { getIsAdmin } from '@/lib/admin'
 
 export const metadata = { title: '글쓰기 — 자유게시판' }
 
@@ -12,6 +13,8 @@ export default async function NewPostPage() {
   } = await supabase.auth.getUser()
 
   if (!user) redirect('/login?next=/community/free/new')
+
+  const isAdmin = await getIsAdmin()
 
   return (
     <>
@@ -27,7 +30,7 @@ export default async function NewPostPage() {
         imagePosition="center 10%"
       />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <PostForm mode="create" categories={['공지', '일반', '질문', '나눔']} cancelHref="/community/free" />
+        <PostForm mode="create" categories={['공지', '일반', '질문', '나눔']} isAdmin={isAdmin} cancelHref="/community/free" />
       </div>
     </>
   )
