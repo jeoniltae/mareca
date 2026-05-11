@@ -21,8 +21,9 @@ export async function createPost(formData: FormData): Promise<string> {
   const board = (formData.get('board') as string) || 'free'
 
   if (category === '공지') {
-    const profileResult = (await supabase.from('profiles').select('is_admin').eq('id', user.id).maybeSingle()) as unknown as { data: { is_admin: boolean | null } | null }
-    if (!profileResult.data?.is_admin) throw new Error('공지 카테고리는 관리자만 사용할 수 있습니다.')
+    const canPin = user.email === 'masters@mareca.kr' ||
+      ((await supabase.from('profiles').select('is_admin').eq('id', user.id).maybeSingle()) as unknown as { data: { is_admin: boolean | null } | null }).data?.is_admin === true
+    if (!canPin) throw new Error('공지 카테고리는 관리자만 사용할 수 있습니다.')
   }
 
   const { data, error } = await supabase
@@ -54,8 +55,9 @@ export async function updatePost(id: string, formData: FormData, boardPath = '/c
 
   const profileResult = (await supabase.from('profiles').select('is_admin').eq('id', user.id).maybeSingle()) as unknown as { data: { is_admin: boolean | null } | null }
   const isAdmin = profileResult.data?.is_admin === true
+  const canPin = isAdmin || user.email === 'masters@mareca.kr'
 
-  if (category === '공지' && !isAdmin) throw new Error('공지 카테고리는 관리자만 사용할 수 있습니다.')
+  if (category === '공지' && !canPin) throw new Error('공지 카테고리는 관리자만 사용할 수 있습니다.')
 
   const baseQuery = supabase.from('posts').update({ category, title, content, youtube_url }).eq('id', id)
   const { error } = isAdmin ? await baseQuery : await baseQuery.eq('user_id', user.id)

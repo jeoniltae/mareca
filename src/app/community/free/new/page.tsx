@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { PostForm } from '@/features/posts/PostForm'
-import { getIsAdmin } from '@/lib/admin'
+import { getCanPin } from '@/lib/admin'
 
 export const metadata = { title: '글쓰기 — 자유게시판' }
 
@@ -14,7 +14,7 @@ export default async function NewPostPage() {
 
   if (!user) redirect('/login?next=/community/free/new')
 
-  const isAdmin = await getIsAdmin()
+  const isAdmin = await getCanPin()
 
   return (
     <>

@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { PostForm } from '@/features/posts/PostForm'
-import { getIsAdmin } from '@/lib/admin'
+import { getCanPin } from '@/lib/admin'
 
 export const metadata = { title: '글쓰기 — 공지사항' }
 
@@ -14,7 +14,7 @@ export default async function NewNoticePage() {
 
   if (!user) redirect('/login?next=/news/notice/new')
 
-  const isAdmin = await getIsAdmin()
+  const isAdmin = await getCanPin()
 
   return (
     <>

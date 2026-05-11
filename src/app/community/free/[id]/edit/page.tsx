@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase-server'
 import { redirect, notFound } from 'next/navigation'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { PostForm } from '@/features/posts/PostForm'
-import { getIsAdmin } from '@/lib/admin'
+import { getIsAdmin, getCanPin } from '@/lib/admin'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -20,9 +20,10 @@ export default async function EditPostPage({ params }: Props) {
 
   if (!user) redirect(`/login?next=/community/free/${id}/edit`)
 
-  const [{ data: post }, isAdmin] = await Promise.all([
+  const [{ data: post }, isAdmin, canPin] = await Promise.all([
     supabase.from('posts').select('*').eq('id', id).single(),
     getIsAdmin(),
+    getCanPin(),
   ])
 
   if (!post || (!isAdmin && post.user_id !== user.id)) return notFound()
@@ -51,7 +52,7 @@ export default async function EditPostPage({ params }: Props) {
           mode="edit"
           postId={id}
           categories={['공지', '일반', '질문', '나눔']}
-          isAdmin={isAdmin}
+          isAdmin={canPin}
           initialValues={{
             title: post.title,
             category: post.category,
