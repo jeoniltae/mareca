@@ -104,6 +104,7 @@ const megaMenuVariants = {
 }
 
 const MASTERS_EMAIL = 'masters@mareca.kr'
+const ADMIN_EMAIL = 'admin@mareca.kr'
 
 export function Header() {
   const pathname = usePathname()
@@ -114,7 +115,7 @@ export function Header() {
   const [openAccordion, setOpenAccordion] = useState<string | null>(null)
   const [user, setUser] = useState<SupabaseUser | null>(null)
 
-  const isMasters = user?.email === MASTERS_EMAIL
+  const isMasters = user?.email === MASTERS_EMAIL || user?.email === ADMIN_EMAIL
   const MASTERS_ONLY_HREFS = ['/resources', '/online-admin', '/report']
   const visibleNavItems = NAV_ITEMS.filter(
     (item) => !MASTERS_ONLY_HREFS.includes(item.href) || isMasters

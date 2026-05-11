@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { PostForm } from '@/features/posts/PostForm'
+import { getIsAdmin } from '@/lib/admin'
 
 export const metadata = { title: '글쓰기 — Plus Voice' }
 
@@ -12,6 +13,8 @@ export default async function NewVoicePage() {
   } = await supabase.auth.getUser()
 
   if (!user) redirect('/login?next=/community/voice/new')
+
+  const isAdmin = await getIsAdmin()
 
   return (
     <>
@@ -32,6 +35,7 @@ export default async function NewVoicePage() {
           board="voice"
           boardPath="/community/voice"
           pinOnly
+          isAdmin={isAdmin}
           cancelHref="/community/voice"
         />
       </div>

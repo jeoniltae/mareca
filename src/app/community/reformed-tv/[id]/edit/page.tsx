@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase-server'
 import { redirect, notFound } from 'next/navigation'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { ReformedTVForm } from '@/features/reformed-tv/ReformedTVForm'
+import { getIsAdmin } from '@/lib/admin'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -26,7 +27,8 @@ export default async function EditReformedTVPage({ params }: Props) {
     .eq('board', 'reformed-tv')
     .single()
 
-  if (!post || post.user_id !== user.id) return notFound()
+  const isAdmin = await getIsAdmin()
+  if (!post || (!isAdmin && post.user_id !== user.id)) return notFound()
 
   return (
     <>

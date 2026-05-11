@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { notFound } from 'next/navigation'
 import { incrementReformedTVViews } from '@/features/reformed-tv/actions'
 import { ReformedTVActions } from '@/features/reformed-tv/ReformedTVActions'
+import { getIsAdmin } from '@/lib/admin'
 import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtube-utils'
 import { YoutubePlayer } from '@/features/reformed-tv/YoutubePlayer'
 import { ShareButtons } from '@/components/shared/ShareButtons'
@@ -46,7 +47,7 @@ export default async function ReformedTVDetailPage({ params }: Props) {
   const { id } = await params
   const supabase = await createClient()
 
-  const [{ data: post }, { data: { user } }] = await Promise.all([
+  const [{ data: post }, { data: { user } }, isAdmin] = await Promise.all([
     supabase
       .from('posts')
       .select('*, profiles(nickname)')
@@ -54,6 +55,7 @@ export default async function ReformedTVDetailPage({ params }: Props) {
       .eq('board', 'reformed-tv')
       .single(),
     supabase.auth.getUser(),
+    getIsAdmin(),
   ])
 
   if (!post) return notFound()
@@ -99,7 +101,7 @@ export default async function ReformedTVDetailPage({ params }: Props) {
                 {post.views + 1}
               </span>
             </div>
-            {isAuthor && <ReformedTVActions id={id} />}
+            {(isAuthor || isAdmin) && <ReformedTVActions id={id} />}
           </div>
         </div>
 

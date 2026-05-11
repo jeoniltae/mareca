@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { notFound } from 'next/navigation'
 import { incrementViews } from '@/features/posts/actions'
 import { PostActions } from '@/features/posts/PostActions'
+import { getIsAdmin } from '@/lib/admin'
 import { PostImageGallery } from '@/features/posts/PostImageGallery'
 import { PostFileDownloadList } from '@/features/posts/PostFileDownloadList'
 import { Eye, Calendar, Tag, User } from 'lucide-react'
@@ -44,11 +45,12 @@ export default async function NewsDetailPage({ params }: Props) {
   const { id } = await params
   const supabase = await createClient()
 
-  const [{ data: post }, { data: { user } }, { data: postImages }, { data: postAttachments }] = await Promise.all([
+  const [{ data: post }, { data: { user } }, { data: postImages }, { data: postAttachments }, isAdmin] = await Promise.all([
     supabase.from('posts').select('*, profiles(nickname)').eq('id', id).single(),
     supabase.auth.getUser(),
     supabase.from('post_images').select('id, url').eq('post_id', id).order('display_order'),
     supabase.from('post_attachments').select('id, file_name, file_url, file_size').eq('post_id', id),
+    getIsAdmin(),
   ])
 
   if (!post) return notFound()
@@ -96,7 +98,7 @@ export default async function NewsDetailPage({ params }: Props) {
               </span>
             </div>
 
-            {isAuthor && <PostActions id={id} basePath="/news/all" />}
+            {(isAuthor || isAdmin) && <PostActions id={id} basePath="/news/all" />}
           </div>
         </div>
 

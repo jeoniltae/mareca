@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { PostForm } from '@/features/posts/PostForm'
+import { getIsAdmin } from '@/lib/admin'
 
 export const metadata = { title: '글쓰기 — 클럽소식' }
 
@@ -12,6 +13,8 @@ export default async function NewClubNewsPage() {
   } = await supabase.auth.getUser()
 
   if (!user) redirect('/login?next=/club-news/news/new')
+
+  const isAdmin = await getIsAdmin()
 
   return (
     <>
@@ -31,6 +34,7 @@ export default async function NewClubNewsPage() {
           board="club-news"
           boardPath="/club-news/news"
           pinOnly
+          isAdmin={isAdmin}
           cancelHref="/club-news/news"
         />
       </div>

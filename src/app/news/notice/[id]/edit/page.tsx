@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase-server'
 import { redirect, notFound } from 'next/navigation'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { PostForm } from '@/features/posts/PostForm'
+import { getIsAdmin } from '@/lib/admin'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -19,13 +20,12 @@ export default async function EditNoticePage({ params }: Props) {
 
   if (!user) redirect(`/login?next=/news/notice/${id}/edit`)
 
-  const { data: post } = await supabase
-    .from('posts')
-    .select('*')
-    .eq('id', id)
-    .single()
+  const [{ data: post }, isAdmin] = await Promise.all([
+    supabase.from('posts').select('*').eq('id', id).single(),
+    getIsAdmin(),
+  ])
 
-  if (!post || post.user_id !== user.id) return notFound()
+  if (!post || (!isAdmin && post.user_id !== user.id)) return notFound()
 
   const [{ data: postImages }, { data: postAttachments }] = await Promise.all([
     supabase.from('post_images').select('id, url').eq('post_id', id).order('display_order'),
@@ -53,6 +53,7 @@ export default async function EditNoticePage({ params }: Props) {
           board="notice"
           boardPath="/news/notice"
           pinOnly
+          isAdmin={isAdmin}
           initialValues={{
             title: post.title,
             category: post.category,

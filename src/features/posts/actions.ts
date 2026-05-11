@@ -20,6 +20,11 @@ export async function createPost(formData: FormData): Promise<string> {
   const youtube_url = (formData.get('youtube_url') as string) || null
   const board = (formData.get('board') as string) || 'free'
 
+  if (category === '공지') {
+    const profileResult = (await supabase.from('profiles').select('is_admin').eq('id', user.id).maybeSingle()) as unknown as { data: { is_admin: boolean | null } | null }
+    if (!profileResult.data?.is_admin) throw new Error('공지 카테고리는 관리자만 사용할 수 있습니다.')
+  }
+
   const { data, error } = await supabase
     .from('posts')
     .insert({ user_id: user.id, board, category, title, content, youtube_url })
@@ -47,11 +52,13 @@ export async function updatePost(id: string, formData: FormData, boardPath = '/c
   const category = (formData.get('category') as string) || '일반'
   const youtube_url = (formData.get('youtube_url') as string) || null
 
-  const { error } = await supabase
-    .from('posts')
-    .update({ category, title, content, youtube_url })
-    .eq('id', id)
-    .eq('user_id', user.id)
+  const profileResult = (await supabase.from('profiles').select('is_admin').eq('id', user.id).maybeSingle()) as unknown as { data: { is_admin: boolean | null } | null }
+  const isAdmin = profileResult.data?.is_admin === true
+
+  if (category === '공지' && !isAdmin) throw new Error('공지 카테고리는 관리자만 사용할 수 있습니다.')
+
+  const baseQuery = supabase.from('posts').update({ category, title, content, youtube_url }).eq('id', id)
+  const { error } = isAdmin ? await baseQuery : await baseQuery.eq('user_id', user.id)
 
   if (error) throw new Error(error.message)
 
@@ -68,13 +75,14 @@ export async function deletePost(id: string, boardPath = '/community/free') {
 
   if (!user) redirect('/login')
 
+  const profileResult = (await supabase.from('profiles').select('is_admin').eq('id', user.id).maybeSingle()) as unknown as { data: { is_admin: boolean | null } | null }
+  const isAdmin = profileResult.data?.is_admin === true
+
   // 삭제 전 본문에서 Storage 이미지 경로 추출
-  const { data: post } = await supabase
-    .from('posts')
-    .select('content')
-    .eq('id', id)
-    .eq('user_id', user.id)
-    .single()
+  const postContentQuery = supabase.from('posts').select('content').eq('id', id)
+  const { data: post } = isAdmin
+    ? await postContentQuery.maybeSingle()
+    : await postContentQuery.eq('user_id', user.id).single()
 
   if (post?.content) {
     const imagePaths = extractStorageImagePaths(post.content)
@@ -115,11 +123,8 @@ export async function deletePost(id: string, boardPath = '/community/free') {
     if (paths.length > 0) await supabase.storage.from('post-attachments').remove(paths)
   }
 
-  const { error } = await supabase
-    .from('posts')
-    .delete()
-    .eq('id', id)
-    .eq('user_id', user.id)
+  const deleteQuery = supabase.from('posts').delete().eq('id', id)
+  const { error } = isAdmin ? await deleteQuery : await deleteQuery.eq('user_id', user.id)
 
   if (error) throw new Error(error.message)
 
