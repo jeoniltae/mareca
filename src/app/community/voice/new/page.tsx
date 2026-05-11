@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { PostForm } from '@/features/posts/PostForm'
-import { getIsAdmin } from '@/lib/admin'
+import { getCanPin } from '@/lib/admin'
 
 export const metadata = { title: '글쓰기 — Plus Voice' }
 
@@ -14,7 +14,7 @@ export default async function NewVoicePage() {
 
   if (!user) redirect('/login?next=/community/voice/new')
 
-  const isAdmin = await getIsAdmin()
+  const isAdmin = await getCanPin()
 
   return (
     <>
