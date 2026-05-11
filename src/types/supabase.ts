@@ -197,18 +197,21 @@ export type Database = {
           created_at: string | null
           id: string
           is_admin: boolean | null
+          is_masters: boolean | null
           nickname: string | null
         }
         Insert: {
           created_at?: string | null
           id: string
           is_admin?: boolean | null
+          is_masters?: boolean | null
           nickname?: string | null
         }
         Update: {
           created_at?: string | null
           id?: string
           is_admin?: boolean | null
+          is_masters?: boolean | null
           nickname?: string | null
         }
         Relationships: []
