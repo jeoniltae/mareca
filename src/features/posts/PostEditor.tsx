@@ -9,6 +9,11 @@ import Underline from '@tiptap/extension-underline'
 import { Color } from '@tiptap/extension-color'
 import { TextStyle } from '@tiptap/extension-text-style'
 import Highlight from '@tiptap/extension-highlight'
+import TextAlign from '@tiptap/extension-text-align'
+import { Table } from '@tiptap/extension-table'
+import { TableRow } from '@tiptap/extension-table-row'
+import { TableHeader } from '@tiptap/extension-table-header'
+import { TableCell } from '@tiptap/extension-table-cell'
 import {
   Bold,
   Italic,
@@ -26,6 +31,14 @@ import {
   Link as LinkIcon,
   Link2Off,
   Highlighter,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  Table as TableIcon,
+  Rows3,
+  Columns3,
+  Trash2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { uploadImage } from './actions'
@@ -53,6 +66,8 @@ export function PostEditor({ initialContent = '', onChange, onImageUploaded }: P
   const [showColorPicker, setShowColorPicker] = useState(false)
   const [showLinkInput, setShowLinkInput] = useState(false)
   const [linkUrl, setLinkUrl] = useState('')
+  const [showTablePicker, setShowTablePicker] = useState(false)
+  const [tableHover, setTableHover] = useState({ rows: 0, cols: 0 })
   const linkInputRef = useRef<HTMLInputElement>(null)
 
   const editor = useEditor({
@@ -66,6 +81,11 @@ export function PostEditor({ initialContent = '', onChange, onImageUploaded }: P
       TextStyle,
       Color,
       Highlight.configure({ multicolor: false }),
+      TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      Table.configure({ resizable: false }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     content: initialContent,
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
@@ -121,6 +141,22 @@ export function PostEditor({ initialContent = '', onChange, onImageUploaded }: P
     <div className="border border-slate-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-sky-300 focus-within:border-sky-300 transition-all">
       {/* 툴바 */}
       <div className="flex items-center gap-0.5 px-2 py-1.5 border-b border-slate-200 bg-slate-50 flex-wrap">
+        {/* 텍스트 정렬 */}
+        <Btn onClick={() => editor.chain().focus().setTextAlign('left').run()} active={editor.isActive({ textAlign: 'left' })} title="왼쪽 정렬">
+          <AlignLeft size={14} />
+        </Btn>
+        <Btn onClick={() => editor.chain().focus().setTextAlign('center').run()} active={editor.isActive({ textAlign: 'center' })} title="가운데 정렬">
+          <AlignCenter size={14} />
+        </Btn>
+        <Btn onClick={() => editor.chain().focus().setTextAlign('right').run()} active={editor.isActive({ textAlign: 'right' })} title="오른쪽 정렬">
+          <AlignRight size={14} />
+        </Btn>
+        <Btn onClick={() => editor.chain().focus().setTextAlign('justify').run()} active={editor.isActive({ textAlign: 'justify' })} title="양쪽 정렬">
+          <AlignJustify size={14} />
+        </Btn>
+
+        <Divider />
+
         {/* 텍스트 서식 */}
         <Btn onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')} title="굵게 (Ctrl+B)">
           <Bold size={14} />
@@ -229,6 +265,103 @@ export function PostEditor({ initialContent = '', onChange, onImageUploaded }: P
 
         <Divider />
 
+        {/* 테이블 */}
+        <div className="relative">
+          <Btn
+            onClick={() => { setShowTablePicker(v => !v); setShowColorPicker(false); setShowLinkInput(false) }}
+            active={showTablePicker}
+            title="테이블 삽입"
+          >
+            <TableIcon size={14} />
+          </Btn>
+          {showTablePicker && (
+            <div className="absolute top-full left-0 mt-1 z-20 bg-white border border-slate-200 rounded-lg shadow-lg p-2">
+              <p className="text-[10px] text-slate-400 mb-1.5 text-center">
+                {tableHover.rows > 0 && tableHover.cols > 0
+                  ? `${tableHover.rows} × ${tableHover.cols}`
+                  : '행 × 열 선택'}
+              </p>
+              <div className="grid gap-0.5" style={{ gridTemplateColumns: 'repeat(6, 1fr)' }}>
+                {Array.from({ length: 36 }, (_, i) => {
+                  const r = Math.floor(i / 6) + 1
+                  const c = (i % 6) + 1
+                  const active = r <= tableHover.rows && c <= tableHover.cols
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      onMouseEnter={() => setTableHover({ rows: r, cols: c })}
+                      onMouseLeave={() => setTableHover({ rows: 0, cols: 0 })}
+                      onClick={() => {
+                        editor.chain().focus().insertTable({ rows: r, cols: c, withHeaderRow: true }).run()
+                        setShowTablePicker(false)
+                        setTableHover({ rows: 0, cols: 0 })
+                      }}
+                      className={cn(
+                        'w-5 h-5 border rounded-sm transition-colors',
+                        active ? 'bg-sky-200 border-sky-400' : 'bg-slate-100 border-slate-300',
+                      )}
+                    />
+                  )
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 테이블 조작 — 테이블 셀 안에 커서가 있을 때만 표시 */}
+        {editor.isActive('table') && (
+          <>
+            <Divider />
+            <Btn onClick={() => editor.chain().focus().addRowBefore().run()} title="위에 행 추가">
+              <span className="flex flex-col items-center gap-px">
+                <span className="w-3 h-px bg-sky-500 rounded" />
+                <Rows3 size={12} />
+              </span>
+            </Btn>
+            <Btn onClick={() => editor.chain().focus().addRowAfter().run()} title="아래에 행 추가">
+              <span className="flex flex-col items-center gap-px">
+                <Rows3 size={12} />
+                <span className="w-3 h-px bg-sky-500 rounded" />
+              </span>
+            </Btn>
+            <Btn onClick={() => editor.chain().focus().deleteRow().run()} title="현재 행 삭제">
+              <span className="flex items-center gap-0.5">
+                <Rows3 size={12} />
+                <Trash2 size={10} className="text-red-400" />
+              </span>
+            </Btn>
+            <Divider />
+            <Btn onClick={() => editor.chain().focus().addColumnBefore().run()} title="왼쪽에 열 추가">
+              <span className="flex items-center gap-px">
+                <span className="w-px h-3 bg-sky-500 rounded" />
+                <Columns3 size={12} />
+              </span>
+            </Btn>
+            <Btn onClick={() => editor.chain().focus().addColumnAfter().run()} title="오른쪽에 열 추가">
+              <span className="flex items-center gap-px">
+                <Columns3 size={12} />
+                <span className="w-px h-3 bg-sky-500 rounded" />
+              </span>
+            </Btn>
+            <Btn onClick={() => editor.chain().focus().deleteColumn().run()} title="현재 열 삭제">
+              <span className="flex items-center gap-0.5">
+                <Columns3 size={12} />
+                <Trash2 size={10} className="text-red-400" />
+              </span>
+            </Btn>
+            <Divider />
+            <Btn onClick={() => editor.chain().focus().deleteTable().run()} title="테이블 삭제">
+              <span className="flex items-center gap-0.5">
+                <TableIcon size={12} />
+                <Trash2 size={10} className="text-red-400" />
+              </span>
+            </Btn>
+          </>
+        )}
+
+        <Divider />
+
         {/* 이미지 */}
         <Btn onClick={handleImageUpload} disabled={uploading} title="이미지 삽입">
           {uploading ? (
@@ -286,7 +419,7 @@ export function PostEditor({ initialContent = '', onChange, onImageUploaded }: P
       <EditorContent
         editor={editor}
         className="bg-white"
-        onClick={() => { setShowColorPicker(false) }}
+        onClick={() => { setShowColorPicker(false); setShowTablePicker(false) }}
       />
     </div>
   )
