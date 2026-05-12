@@ -19,10 +19,8 @@ import {
   Feather,
   Image as ImageIcon,
   Play,
-  Megaphone,
-
-  Scale,
   MessageSquare,
+  Mail,
 } from 'lucide-react'
 import { HeroSlider } from '@/components/shared/HeroSlider'
 import { ComingSoonButton } from '@/components/shared/ComingSoonButton'
@@ -33,7 +31,13 @@ import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtub
 async function QuickInfoSection() {
   const supabase = await createClient()
 
-  const [{ data: notices }, { data: pressArticles }] = await Promise.all([
+  const [{ data: newsPosts }, { data: notices }, { data: pressArticles }] = await Promise.all([
+    supabase
+      .from('posts')
+      .select('id, title, created_at')
+      .eq('board', 'news')
+      .order('created_at', { ascending: false })
+      .limit(3),
     supabase
       .from('posts')
       .select('id, title, created_at')
@@ -47,13 +51,6 @@ async function QuickInfoSection() {
       .limit(3),
   ])
 
-  const quickLinks = [
-    { label: '이사장', href: '/about/chairman', icon: Users },
-    { label: '자유게시판', href: '/community/free', icon: FileText },
-    { label: '행사앨범', href: '/community/album', icon: Video },
-    { label: '총회헌법', href: '/constitution', icon: BookOpen },
-  ]
-
   return (
     <section className="bg-white border-b border-slate-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -62,6 +59,36 @@ async function QuickInfoSection() {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-slate-800 text-base">총회소식</h2>
+              <Link
+                href="/news/all"
+                className="text-sm text-sky-600 hover:underline flex items-center gap-0.5"
+              >
+                더보기 <ChevronRight size={14} />
+              </Link>
+            </div>
+            <ul className="space-y-3">
+              {(newsPosts ?? []).length === 0 ? (
+                <li className="text-sm text-slate-400">등록된 게시물이 없습니다.</li>
+              ) : (newsPosts ?? []).map((item) => (
+                <li key={item.id} className="flex items-start gap-3">
+                  <span className="text-slate-400 text-sm shrink-0 mt-0.5 tabular-nums">
+                    {formatMonthDay(item.created_at)}
+                  </span>
+                  <Link
+                    href={`/news/all/${item.id}`}
+                    className="text-base text-slate-600 hover:text-slate-900 line-clamp-1"
+                  >
+                    {item.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* 공지사항 */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-semibold text-slate-800 text-base">공지사항</h2>
               <Link
                 href="/news/notice"
                 className="text-sm text-sky-600 hover:underline flex items-center gap-0.5"
@@ -105,12 +132,10 @@ async function QuickInfoSection() {
               ) : (pressArticles ?? []).map((item) => (
                 <li key={item.id} className="flex items-start gap-3">
                   <span className="text-slate-400 text-sm shrink-0 mt-0.5 tabular-nums">
-                    {item.published_at
-                      ? formatMonthDay(item.published_at)
-                      : '--'}
+                    {item.published_at ? formatMonthDay(item.published_at) : '--'}
                   </span>
                   <Link
-                    href={`/news/press`}
+                    href={`/news/press/${item.id}`}
                     className="text-base text-slate-600 hover:text-slate-900 line-clamp-1"
                   >
                     {item.og_title ?? '제목 없음'}
@@ -118,23 +143,6 @@ async function QuickInfoSection() {
                 </li>
               ))}
             </ul>
-          </div>
-
-          {/* 바로가기 */}
-          <div>
-            <h2 className="font-semibold text-slate-800 text-base mb-4">바로가기</h2>
-            <div className="grid grid-cols-2 gap-2">
-              {quickLinks.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="flex items-center gap-2 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 text-base text-slate-700 transition-colors"
-                >
-                  <item.icon size={16} className="text-sky-600 shrink-0" />
-                  {item.label}
-                </Link>
-              ))}
-            </div>
           </div>
         </div>
       </div>
@@ -146,9 +154,9 @@ async function QuickInfoSection() {
 function ServicesSection() {
   const services = [
     { label: '선언문', href: '/vision/declaration', icon: Feather, color: 'text-slate-600 bg-slate-100' },
-    { label: '공지사항', href: '/news/notice', icon: Megaphone, color: 'text-sky-600 bg-sky-50' },
+    { label: '신앙고백', href: '/about/confession', icon: BookOpen, color: 'text-sky-600 bg-sky-50' },
     { label: '임원', href: '/about/officers', icon: Users, color: 'text-emerald-600 bg-emerald-50' },
-    { label: '총회헌법', href: '/constitution', icon: Scale, color: 'text-amber-600 bg-amber-50' },
+    { label: '마스터스 메시지', href: '/community/message', icon: Mail, color: 'text-amber-600 bg-amber-50' },
     { label: 'Plus Voice', href: '/community/voice', icon: MessageSquare, color: 'text-violet-600 bg-violet-50' },
     { label: 'ReformedTV', href: '/community/reformed-tv', icon: Video, color: 'text-red-500 bg-red-50' },
   ]

@@ -137,6 +137,44 @@ button {
   cursor: pointer;
 }
 
+/* ─── Tiptap 테이블 (에디터 + 상세 페이지 공통) ──────────────────────────── */
+.prose table,
+.ProseMirror table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 1rem 0;
+  overflow: hidden;
+}
+.prose table td,
+.prose table th,
+.ProseMirror table td,
+.ProseMirror table th {
+  min-width: 1em;
+  border: 1px solid #cbd5e1 !important;
+  padding: 0.4em 0.6em;
+  vertical-align: top;
+  box-sizing: border-box;
+  position: relative;
+}
+.prose table th,
+.ProseMirror table th {
+  background-color: #f1f5f9;
+  font-weight: 600;
+  text-align: left;
+}
+.ProseMirror table .selectedCell::after {
+  z-index: 2;
+  position: absolute;
+  content: '';
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(59, 130, 246, 0.12);
+  pointer-events: none;
+}
+
 /* ─── Scrollbar Hide ───────────────────────────────────────────────────────── */
 .scrollbar-hide {
   scrollbar-width: none; /* Firefox */
