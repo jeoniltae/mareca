@@ -138,6 +138,24 @@ src/
 
 ---
 
+## Supabase Data API GRANT 정책 (2026년 변경 사항)
+
+2026년 10월 30일부터 기존 프로젝트 포함 전체에 적용. `public` 스키마에 새로 만드는 테이블은 명시적 GRANT 없이는 supabase-js 클라이언트로 접근 불가.
+
+- **기존 테이블**: 영향 없음 (grant 이미 부여됨)
+- **새 테이블 추가 시**: 테이블 생성 SQL에 아래 GRANT 구문을 반드시 함께 실행
+
+```sql
+grant select on public.새테이블 to anon;
+grant select, insert, update, delete on public.새테이블 to authenticated;
+grant select, insert, update, delete on public.새테이블 to service_role;
+alter table public.새테이블 enable row level security;
+```
+
+에러 발생 시 PostgREST가 `42501` 에러와 함께 필요한 GRANT 구문을 안내함.
+
+---
+
 ## SEO 운영 가이드
 
 ### 자동 처리 (추가 작업 불필요)
