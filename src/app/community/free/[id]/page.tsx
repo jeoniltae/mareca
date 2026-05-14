@@ -22,20 +22,22 @@ export async function generateMetadata({ params }: Props) {
   const { data } = await supabase.from('posts').select('title, content').eq('id', id).single()
   const rawText = data?.content?.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim() ?? ''
   const description = rawText.slice(0, 120) || '마스터스개혁파총회 게시글입니다.'
+  const imageMatch = data?.content?.match(/<img[^>]+src="([^"]+)"/)
+  const imageUrl = imageMatch?.[1] ?? '/images/logo.png'
   return {
     title: data?.title ?? '게시글',
     description,
     openGraph: {
       title: data?.title ?? '게시글',
       description,
-      images: [{ url: '/images/logo.png', alt: data?.title ?? '' }],
+      images: [{ url: imageUrl, alt: data?.title ?? '' }],
       type: 'article',
     },
     twitter: {
       card: 'summary',
       title: data?.title ?? '게시글',
       description,
-      images: ['/images/logo.png'],
+      images: [imageUrl],
     },
     alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/community/free/${id}` },
   }
