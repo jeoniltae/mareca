@@ -11,6 +11,7 @@ import { PostFileDownloadList } from "@/features/posts/PostFileDownloadList";
 import { Eye, Calendar, Tag, User } from "lucide-react";
 import Link from "next/link";
 import { ShareButtons } from "@/components/shared/ShareButtons";
+import { BackToListLink } from "@/components/shared/BackToListLink";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -171,12 +172,10 @@ export default async function MessageDetailPage({ params }: Props) {
           }}
         />
         <div className="mt-4">
-          <Link
-            href="/community/message"
+          <BackToListLink
+            fallbackHref="/community/message"
             className="text-sm text-slate-500 hover:text-slate-800 transition-colors"
-          >
-            ← 목록으로
-          </Link>
+          />
         </div>
       </div>
     </>

@@ -9,8 +9,8 @@ import { getIsAdmin } from '@/lib/admin'
 import { PostImageGallery } from '@/features/posts/PostImageGallery'
 import { PostFileDownloadList } from '@/features/posts/PostFileDownloadList'
 import { Eye, Calendar, Tag, User } from 'lucide-react'
-import Link from 'next/link'
 import { ShareButtons } from '@/components/shared/ShareButtons'
+import { BackToListLink } from '@/components/shared/BackToListLink'
 
 const BOARD_PATH = '/resources/education'
 
@@ -145,9 +145,7 @@ export default async function EducationPostDetailPage({ params }: Props) {
           }}
         />
         <div className="mt-4">
-          <Link href={BOARD_PATH} className="text-sm text-slate-500 hover:text-slate-800 transition-colors">
-            ← 목록으로
-          </Link>
+          <BackToListLink fallbackHref={BOARD_PATH} className="text-sm text-slate-500 hover:text-slate-800 transition-colors" />
         </div>
       </div>
     </>
