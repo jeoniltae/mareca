@@ -6,7 +6,7 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { GalleryImageViewer } from '@/features/gallery/GalleryImageViewer'
 import { GalleryActions } from '@/features/gallery/GalleryActions'
 import { ShareButtons } from '@/components/shared/ShareButtons'
-import { incrementGalleryViews } from '@/features/gallery/actions'
+import { ViewTracker } from '@/features/posts/ViewTracker'
 import { Eye, User } from 'lucide-react'
 
 interface Props {
@@ -59,8 +59,6 @@ export default async function GalleryDetailPage({ params }: Props) {
     .single()
 
   if (!post) notFound()
-
-  incrementGalleryViews(id)
 
   const { data: images } = await supabase
     .from('post_images')
@@ -134,6 +132,7 @@ export default async function GalleryDetailPage({ params }: Props) {
             ),
           }}
         />
+        <ViewTracker id={id} />
         {/* 목록으로 */}
         <div className="mt-4">
           <a

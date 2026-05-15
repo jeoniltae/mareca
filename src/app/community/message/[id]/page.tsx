@@ -3,7 +3,7 @@ import { formatDateTime } from "@/lib/date";
 import { articleJsonLd } from "@/lib/json-ld";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { notFound } from "next/navigation";
-import { incrementViews } from "@/features/posts/actions";
+import { ViewTracker } from "@/features/posts/ViewTracker";
 import { PostActions } from "@/features/posts/PostActions";
 import { getIsAdmin } from "@/lib/admin";
 import { PostImageGallery } from "@/features/posts/PostImageGallery";
@@ -80,8 +80,6 @@ export default async function MessageDetailPage({ params }: Props) {
 
   if (!post) return notFound();
 
-  incrementViews(id);
-
   const isAuthor = user?.id === post.user_id;
   const date = formatDateTime(post.created_at);
 
@@ -135,6 +133,7 @@ export default async function MessageDetailPage({ params }: Props) {
 
         <PostImageGallery images={postImages ?? []} />
         <PostFileDownloadList attachments={postAttachments ?? []} />
+        <ViewTracker id={id} />
 
         {post.youtube_url && (
           <div className="mt-8 p-4 bg-slate-50 rounded-xl border border-slate-200">
