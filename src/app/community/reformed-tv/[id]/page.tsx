@@ -4,6 +4,7 @@ import { articleJsonLd } from '@/lib/json-ld'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { notFound } from 'next/navigation'
 import { incrementReformedTVViews } from '@/features/reformed-tv/actions'
+import { ViewTracker } from '@/features/posts/ViewTracker'
 import { ReformedTVActions } from '@/features/reformed-tv/ReformedTVActions'
 import { getIsAdmin } from '@/lib/admin'
 import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtube-utils'
@@ -59,8 +60,6 @@ export default async function ReformedTVDetailPage({ params }: Props) {
   ])
 
   if (!post) return notFound()
-
-  incrementReformedTVViews(id)
 
   const isAuthor = user?.id === post.user_id
   const videoId = post.youtube_url ? extractYoutubeId(post.youtube_url) : null
@@ -154,6 +153,7 @@ export default async function ReformedTVDetailPage({ params }: Props) {
             ),
           }}
         />
+        <ViewTracker action={() => incrementReformedTVViews(id)} />
         {/* 목록으로 */}
         <div className="mt-4">
           <Link
