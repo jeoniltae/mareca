@@ -11,7 +11,7 @@ interface Props {
 export function Pagination({ currentPage, totalPages, basePath }: Props) {
   if (totalPages <= 1) return null
 
-  const href = (page: number) => `${basePath}?page=${page}`
+  const href = (page: number) => `${basePath}${basePath.includes('?') ? '&' : '?'}page=${page}`
 
   const pages: (number | '...')[] = []
   if (totalPages <= 7) {
