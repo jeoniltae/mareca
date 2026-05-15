@@ -4,7 +4,7 @@ import { ShareButtons } from '@/components/shared/ShareButtons'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import { ExternalLink, CalendarDays, Newspaper, ChevronLeft } from 'lucide-react'
-import Link from 'next/link'
+import { BackToListLink } from '@/components/shared/BackToListLink'
 import { articleJsonLd } from '@/lib/json-ld'
 
 import type { Metadata } from 'next'
@@ -84,13 +84,13 @@ export default async function PressArticleDetailPage({ params }: Props) {
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* 목록으로 */}
-        <Link
-          href="/news/press"
+        <BackToListLink
+          fallbackHref="/news/press"
           className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-300 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-colors mb-6"
         >
           <ChevronLeft size={15} />
           목록으로
-        </Link>
+        </BackToListLink>
 
         {/* 기사 헤더 */}
         <div className="mb-6">

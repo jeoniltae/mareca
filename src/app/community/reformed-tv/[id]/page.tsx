@@ -9,9 +9,8 @@ import { getIsAdmin } from '@/lib/admin'
 import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtube-utils'
 import { YoutubePlayer } from '@/features/reformed-tv/YoutubePlayer'
 import { ShareButtons } from '@/components/shared/ShareButtons'
+import { BackToListLink } from '@/components/shared/BackToListLink'
 import { Calendar, Eye, User } from 'lucide-react'
-import Link from 'next/link'
-
 interface Props {
   params: Promise<{ id: string }>
 }
@@ -155,12 +154,10 @@ export default async function ReformedTVDetailPage({ params }: Props) {
         <ViewTracker id={id} />
         {/* 목록으로 */}
         <div className="mt-4">
-          <Link
-            href="/community/reformed-tv"
+          <BackToListLink
+            fallbackHref="/community/reformed-tv"
             className="text-sm text-slate-500 hover:text-slate-800 transition-colors"
-          >
-            ← 목록으로
-          </Link>
+          />
         </div>
       </div>
     </>

@@ -9,8 +9,8 @@ import { getIsAdmin } from '@/lib/admin'
 import { PostImageGallery } from '@/features/posts/PostImageGallery'
 import { PostFileDownloadList } from '@/features/posts/PostFileDownloadList'
 import { Eye, Calendar, Tag, User } from 'lucide-react'
-import Link from 'next/link'
 import { ShareButtons } from '@/components/shared/ShareButtons'
+import { BackToListLink } from '@/components/shared/BackToListLink'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -152,12 +152,10 @@ export default async function PostDetailPage({ params }: Props) {
         />
         {/* 목록으로 */}
         <div className="mt-4">
-          <Link
-            href="/community/free"
+          <BackToListLink
+            fallbackHref="/community/free"
             className="text-sm text-slate-500 hover:text-slate-800 transition-colors"
-          >
-            ← 목록으로
-          </Link>
+          />
         </div>
       </div>
     </>

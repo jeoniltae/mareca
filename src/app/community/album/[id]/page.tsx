@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { GalleryImageViewer } from '@/features/gallery/GalleryImageViewer'
 import { GalleryActions } from '@/features/gallery/GalleryActions'
 import { ShareButtons } from '@/components/shared/ShareButtons'
+import { BackToListLink } from '@/components/shared/BackToListLink'
 import { ViewTracker } from '@/features/posts/ViewTracker'
 import { Eye, User } from 'lucide-react'
 
@@ -135,12 +136,10 @@ export default async function GalleryDetailPage({ params }: Props) {
         <ViewTracker id={id} />
         {/* 목록으로 */}
         <div className="mt-4">
-          <a
-            href="/community/album"
+          <BackToListLink
+            fallbackHref="/community/album"
             className="text-sm text-slate-500 hover:text-slate-800 transition-colors"
-          >
-            ← 목록으로
-          </a>
+          />
         </div>
       </div>
     </>
