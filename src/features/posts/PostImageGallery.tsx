@@ -16,6 +16,11 @@ export function PostImageGallery({ images }: PostImageGalleryProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const [scale, setScale] = useState(1)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
+  const [isTouch, setIsTouch] = useState(false)
+
+  useEffect(() => {
+    setIsTouch(window.matchMedia('(pointer: coarse)').matches)
+  }, [])
 
   // 드래그 상태
   const dragStart = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null)
@@ -201,58 +206,60 @@ export function PostImageGallery({ images }: PostImageGalleryProps) {
             </>
           )}
 
-          {/* 줌 컨트롤 */}
-          <div
-            className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1.5 z-10"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              onClick={zoomOut}
-              disabled={scale <= MIN_SCALE}
-              className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/15 disabled:opacity-30 transition-colors"
+          {/* 줌 컨트롤 (PC 전용) */}
+          {!isTouch && (
+            <div
+              className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1.5 z-10"
+              onClick={(e) => e.stopPropagation()}
             >
-              <ZoomOut size={15} className="text-white" />
-            </button>
-            <button
-              type="button"
-              onClick={resetZoom}
-              className="text-xs text-white/80 hover:text-white w-10 text-center transition-colors"
-            >
-              {Math.round(scale * 100)}%
-            </button>
-            <button
-              type="button"
-              onClick={zoomIn}
-              disabled={scale >= MAX_SCALE}
-              className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/15 disabled:opacity-30 transition-colors"
-            >
-              <ZoomIn size={15} className="text-white" />
-            </button>
-            {scale > 1 && (
+              <button
+                type="button"
+                onClick={zoomOut}
+                disabled={scale <= MIN_SCALE}
+                className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/15 disabled:opacity-30 transition-colors"
+              >
+                <ZoomOut size={15} className="text-white" />
+              </button>
               <button
                 type="button"
                 onClick={resetZoom}
-                className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/15 transition-colors ml-1"
+                className="text-xs text-white/80 hover:text-white w-10 text-center transition-colors"
               >
-                <RotateCcw size={13} className="text-white/70" />
+                {Math.round(scale * 100)}%
               </button>
-            )}
-          </div>
+              <button
+                type="button"
+                onClick={zoomIn}
+                disabled={scale >= MAX_SCALE}
+                className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/15 disabled:opacity-30 transition-colors"
+              >
+                <ZoomIn size={15} className="text-white" />
+              </button>
+              {scale > 1 && (
+                <button
+                  type="button"
+                  onClick={resetZoom}
+                  className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/15 transition-colors ml-1"
+                >
+                  <RotateCcw size={13} className="text-white/70" />
+                </button>
+              )}
+            </div>
+          )}
 
           {/* 이미지 영역 */}
           <div
             className="flex items-center justify-center w-full h-full overflow-hidden"
             style={{ cursor: scale > 1 ? 'grab' : 'default' }}
             onClick={(e) => e.stopPropagation()}
-            onWheel={handleWheel}
+            onWheel={isTouch ? undefined : handleWheel}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
+            onTouchStart={isTouch ? undefined : handleTouchStart}
+            onTouchMove={isTouch ? undefined : handleTouchMove}
+            onTouchEnd={isTouch ? undefined : handleTouchEnd}
           >
             <img
               src={currentUrl}
