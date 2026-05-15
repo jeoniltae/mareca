@@ -3,7 +3,6 @@ import { formatDateTime } from '@/lib/date'
 import { articleJsonLd } from '@/lib/json-ld'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { notFound } from 'next/navigation'
-import { incrementViews } from '@/features/posts/actions'
 import { ViewTracker } from '@/features/posts/ViewTracker'
 import { PostActions } from '@/features/posts/PostActions'
 import { getIsAdmin } from '@/lib/admin'
@@ -109,7 +108,7 @@ export default async function ClubNewsDetailPage({ params }: Props) {
 
         <PostImageGallery images={postImages ?? []} />
         <PostFileDownloadList attachments={postAttachments ?? []} />
-        <ViewTracker action={() => incrementViews(id)} />
+        <ViewTracker id={id} />
 
         {post.youtube_url && (
           <div className="mt-8 p-4 bg-slate-50 rounded-xl border border-slate-200">
