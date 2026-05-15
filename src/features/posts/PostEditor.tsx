@@ -61,8 +61,11 @@ const TEXT_COLORS = [
   { label: '회색', value: '#6b7280' },
 ]
 
+const MAX_IMAGE_SIZE_MB = 4
+
 export function PostEditor({ initialContent = '', onChange, onImageUploaded }: PostEditorProps) {
   const [uploading, setUploading] = useState(false)
+  const [imageError, setImageError] = useState<string | null>(null)
   const [showColorPicker, setShowColorPicker] = useState(false)
   const [showLinkInput, setShowLinkInput] = useState(false)
   const [linkUrl, setLinkUrl] = useState('')
@@ -103,6 +106,12 @@ export function PostEditor({ initialContent = '', onChange, onImageUploaded }: P
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0]
       if (!file) return
+      if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+        setImageError(`이미지 크기는 ${MAX_IMAGE_SIZE_MB}MB 이하여야 합니다.`)
+        setTimeout(() => setImageError(null), 4000)
+        return
+      }
+      setImageError(null)
       setUploading(true)
       try {
         const fd = new FormData()
@@ -412,6 +421,13 @@ export function PostEditor({ initialContent = '', onChange, onImageUploaded }: P
           >
             취소
           </button>
+        </div>
+      )}
+
+      {/* 이미지 용량 초과 에러 */}
+      {imageError && (
+        <div className="px-3 py-2 text-xs text-red-600 bg-red-50 border-b border-red-200">
+          {imageError}
         </div>
       )}
 
