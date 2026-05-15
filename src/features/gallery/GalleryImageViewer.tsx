@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Keyboard } from 'swiper/modules'
+import { Keyboard, Zoom } from 'swiper/modules'
 import type { Swiper as SwiperType } from 'swiper'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, ChevronLeft, ChevronRight, ImageOff } from 'lucide-react'
 import { GalleryImage } from './GalleryImage'
 
 import 'swiper/css'
+import 'swiper/css/zoom'
 
 interface GalleryImageViewerProps {
   images: string[]
@@ -133,9 +134,10 @@ export function GalleryImageViewer({ images }: GalleryImageViewerProps) {
               >
                 <Swiper
                   key={lightboxIndex}
-                  modules={[Keyboard]}
+                  modules={[Keyboard, Zoom]}
                   initialSlide={lightboxIndex}
                   keyboard={{ enabled: true }}
+                  zoom={{ maxRatio: 4, minRatio: 1 }}
                   loop={images.length > 1}
                   onSwiper={(swiper) => { swiperRef.current = swiper }}
                   onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
@@ -144,7 +146,9 @@ export function GalleryImageViewer({ images }: GalleryImageViewerProps) {
                   {images.map((url, i) => (
                     <SwiperSlide key={url}>
                       <div className="flex items-center justify-center h-[80vh] px-4">
-                        <LightboxImage src={url} alt={`이미지 ${i + 1}`} />
+                        <div className="swiper-zoom-container">
+                          <LightboxImage src={url} alt={`이미지 ${i + 1}`} />
+                        </div>
                       </div>
                     </SwiperSlide>
                   ))}
