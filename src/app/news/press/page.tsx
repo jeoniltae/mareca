@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase-server'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Pagination } from '@/components/shared/Pagination'
+import { BoardSearch } from '@/components/shared/BoardSearch'
 import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
@@ -24,11 +25,12 @@ const SOURCE_STYLE: Record<string, string> = {
 }
 
 interface Props {
-  searchParams: Promise<{ page?: string; source?: string }>
+  searchParams: Promise<{ page?: string; source?: string; q?: string }>
 }
 
 export default async function NewsPressPage({ searchParams }: Props) {
-  const { page: pageParam, source: sourceParam } = await searchParams
+  const { page: pageParam, source: sourceParam, q: qParam } = await searchParams
+  const q = qParam?.trim() ?? ''
   const page = Math.max(1, Number(pageParam ?? 1) || 1)
   const from = (page - 1) * PAGE_SIZE
   const to = from + PAGE_SIZE - 1
@@ -42,10 +44,15 @@ export default async function NewsPressPage({ searchParams }: Props) {
     .from('press_articles')
     .select('id, url, og_title, og_image, og_description, source_name, published_at, created_at', { count: 'exact' })
     .order('published_at', { ascending: false })
-    .range(from, to)
 
   if (activeSource !== '전체') {
     query = query.eq('source_name', activeSource)
+  }
+
+  if (q) {
+    query = query.or(`og_title.ilike.%${q}%,og_description.ilike.%${q}%`)
+  } else {
+    query = query.range(from, to)
   }
 
   const { data: articles, count } = await query
@@ -55,6 +62,7 @@ export default async function NewsPressPage({ searchParams }: Props) {
   function sourceHref(source: Source) {
     const params = new URLSearchParams()
     if (source !== '전체') params.set('source', source)
+    if (q) params.set('q', q)
     const qs = params.toString()
     return `/news/press${qs ? `?${qs}` : ''}`
   }
@@ -70,7 +78,8 @@ export default async function NewsPressPage({ searchParams }: Props) {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col gap-2 mb-5">
+        <div className="flex flex-col gap-3 mb-5">
+          <BoardSearch />
           <div className="flex gap-1.5 flex-wrap">
             {SOURCES.map((src) => (
               <Link
@@ -88,7 +97,8 @@ export default async function NewsPressPage({ searchParams }: Props) {
             ))}
           </div>
           <span className="text-sm text-right text-slate-500">
-            총 <strong className="text-slate-800">{count ?? 0}</strong>개
+            총 <strong className="text-slate-800">{count ?? 0}</strong>개의 기사
+            {q && <span className="ml-1 text-sky-600">— &quot;{q}&quot; 검색 결과</span>}
           </span>
         </div>
 
@@ -99,16 +109,18 @@ export default async function NewsPressPage({ searchParams }: Props) {
 
           {(articles?.length ?? 0) === 0 && (
             <div className="col-span-3 py-16 text-center text-slate-400 text-sm">
-              관련 기사가 없습니다.
+              {q ? '검색 결과가 없습니다.' : '관련 기사가 없습니다.'}
             </div>
           )}
         </div>
 
-        <Pagination
-          currentPage={page}
-          totalPages={totalPages}
-          basePath={activeSource !== '전체' ? `/news/press?source=${activeSource}` : '/news/press'}
-        />
+        {!q && (
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            basePath={activeSource !== '전체' ? `/news/press?source=${activeSource}` : '/news/press'}
+          />
+        )}
       </div>
     </>
   )
