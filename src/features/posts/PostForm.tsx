@@ -138,7 +138,7 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
           insertPostAttachments(targetId, attachmentMetas),
         ])
 
-        router.push(`${boardPath}/${targetId}`)
+        router.replace(`${boardPath}/${targetId}`)
       } catch (error) {
         if ((error as { digest?: string }).digest?.startsWith('NEXT_REDIRECT')) throw error
         setError('저장 중 오류가 발생했습니다. 다시 시도해주세요.')
