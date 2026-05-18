@@ -16,7 +16,6 @@ const BOARD_PATH_MAP: Record<string, string> = {
   'pastoral': '/resources/pastoral',
   'worship': '/resources/worship',
   'minutes': '/report/minutes',
-  'church-plan': '/online-admin/plan',
   'club-news': '/club-news/news',
 }
 

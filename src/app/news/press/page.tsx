@@ -79,7 +79,7 @@ export default async function NewsPressPage({ searchParams }: Props) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col gap-3 mb-5">
-          <BoardSearch />
+          <BoardSearch defaultValue={q} />
           <div className="flex gap-1.5 flex-wrap">
             {SOURCES.map((src) => (
               <Link
