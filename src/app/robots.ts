@@ -12,6 +12,7 @@ export default function robots(): MetadataRoute.Robots {
         '/login/',
         '/*/new$',
         '/*/edit$',
+        '/*.php',
       ],
     },
     sitemap: `${baseUrl}/sitemap.xml`,
