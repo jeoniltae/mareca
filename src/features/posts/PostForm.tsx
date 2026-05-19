@@ -9,16 +9,34 @@ import { ExistingAttachment } from './FileAttachmentList'
 import {
   createPost,
   updatePost,
-  uploadPostImage,
   insertPostImages,
   insertPostAttachments,
   deleteEditorImages,
 } from './actions'
 import { createClient } from '@/lib/supabase'
+import { compressImageClient } from '@/lib/compress-image-client'
 import { cn } from '@/lib/utils'
 import { ConfirmModal } from '@/components/shared/ConfirmModal'
 
 const DEFAULT_CATEGORIES = ['일반', '질문', '나눔'] as const
+
+async function uploadImageClient(file: File, order: number): Promise<string> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('로그인이 필요합니다')
+
+  const { blob, ext, contentType } = await compressImageClient(file)
+  const path = `${user.id}/${Date.now()}_${order}.${ext}`
+
+  const { error } = await supabase.storage
+    .from('post-images')
+    .upload(path, blob, { contentType })
+
+  if (error) throw new Error(error.message)
+
+  const { data: { publicUrl } } = supabase.storage.from('post-images').getPublicUrl(path)
+  return publicUrl
+}
 
 async function uploadAttachmentClient(file: File): Promise<{
   file_name: string
@@ -107,6 +125,12 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
 
     startTransition(async () => {
       try {
+        // 파일 업로드 먼저 — 실패 시 게시글 저장 안 함
+        const [imageUrls, attachmentMetas] = await Promise.all([
+          Promise.all(imageFiles.map((file, i) => uploadImageClient(file, i))),
+          Promise.all(attachmentFiles.map((file) => uploadAttachmentClient(file))),
+        ])
+
         const targetId = mode === 'edit' && postId
           ? (await updatePost(postId, formData, boardPath), postId)
           : await createPost(formData)
@@ -118,20 +142,6 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
           ...extractEditorImageUrls(initialValues?.content ?? '').filter((url) => !finalImageUrls.has(url)),
         ])]
         if (urlsToDelete.length > 0) await deleteEditorImages(urlsToDelete)
-
-        // 이미지 업로드 (파일별 FormData)
-        const imageUrls = await Promise.all(
-          imageFiles.map((file, i) => {
-            const fd = new FormData()
-            fd.append('file', file)
-            fd.append('order', String(i))
-            return uploadPostImage(fd)
-          })
-        )
-        // 파일 업로드 (클라이언트에서 Supabase Storage 직접 업로드)
-        const attachmentMetas = await Promise.all(
-          attachmentFiles.map((file) => uploadAttachmentClient(file))
-        )
 
         await Promise.all([
           insertPostImages(targetId, imageUrls),
