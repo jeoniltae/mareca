@@ -125,6 +125,12 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
 
     startTransition(async () => {
       try {
+        // 파일 업로드 먼저 — 실패 시 게시글 저장 안 함
+        const [imageUrls, attachmentMetas] = await Promise.all([
+          Promise.all(imageFiles.map((file, i) => uploadImageClient(file, i))),
+          Promise.all(attachmentFiles.map((file) => uploadAttachmentClient(file))),
+        ])
+
         const targetId = mode === 'edit' && postId
           ? (await updatePost(postId, formData, boardPath), postId)
           : await createPost(formData)
@@ -136,15 +142,6 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
           ...extractEditorImageUrls(initialValues?.content ?? '').filter((url) => !finalImageUrls.has(url)),
         ])]
         if (urlsToDelete.length > 0) await deleteEditorImages(urlsToDelete)
-
-        // 이미지 업로드 (클라이언트에서 Canvas 압축 후 Supabase 직접 업로드)
-        const imageUrls = await Promise.all(
-          imageFiles.map((file, i) => uploadImageClient(file, i))
-        )
-        // 파일 업로드 (클라이언트에서 Supabase Storage 직접 업로드)
-        const attachmentMetas = await Promise.all(
-          attachmentFiles.map((file) => uploadAttachmentClient(file))
-        )
 
         await Promise.all([
           insertPostImages(targetId, imageUrls),
