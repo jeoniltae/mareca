@@ -15,6 +15,7 @@ export const metadata: Metadata = {
   title: '총회의사록',
   description: '마스터스개혁파총회 총회 및 각종 회의 공식 회의록입니다.',
   openGraph: { title: '총회의사록', description: '마스터스개혁파총회 총회 및 각종 회의 공식 회의록입니다.', url: '/report/minutes' },
+  alternates: { canonical: '/report/minutes' },
 }
 
 const PAGE_SIZE = 10

@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   title: '행사앨범',
   description: '마스터스개혁파총회 행사 및 모임의 사진 앨범입니다.',
   openGraph: { title: '행사앨범', description: '마스터스개혁파총회 행사 및 모임의 사진 앨범입니다.', url: '/community/album' },
+  alternates: { canonical: '/community/album' },
 }
 
 const PAGE_SIZE = 12;

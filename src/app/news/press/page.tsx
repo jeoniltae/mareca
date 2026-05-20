@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   title: '관련기사',
   description: '마스터스개혁파총회와 관련된 언론 기사를 모아볼 수 있습니다.',
   openGraph: { title: '관련기사', description: '마스터스개혁파총회와 관련된 언론 기사를 모아볼 수 있습니다.', url: '/news/press' },
+  alternates: { canonical: '/news/press' },
 }
 
 const PAGE_SIZE = 12

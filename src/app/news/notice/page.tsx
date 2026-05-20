@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   title: '공지사항',
   description: '마스터스개혁파총회의 최신 공지사항을 확인하세요.',
   openGraph: { title: '공지사항', description: '마스터스개혁파총회의 최신 공지사항을 확인하세요.', url: '/news/notice' },
+  alternates: { canonical: '/news/notice' },
 }
 
 const PAGE_SIZE = 10
