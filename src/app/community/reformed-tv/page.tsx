@@ -15,6 +15,7 @@ export const metadata: Metadata = {
   title: 'ReformedTV',
   description: '개혁신학 강의, 설교, 특강 영상을 모아볼 수 있는 채널입니다.',
   openGraph: { title: 'ReformedTV', description: '개혁신학 강의, 설교, 특강 영상을 모아볼 수 있는 채널입니다.', url: '/community/reformed-tv' },
+  alternates: { canonical: '/community/reformed-tv' },
 }
 
 const PAGE_SIZE = 12;
