@@ -41,7 +41,9 @@ const OFFICERS: OfficerGroup[] = [
   },
   {
     role: '본부팀장',
-    members: [{ name: '최상권', title: '목사', image: '/images/choi_sang_kwon.png' }],
+    // members: [{ name: '최상권', title: '목사', image: '/images/choi_sang_kwon.png' }],
+    members: [{ name: '공석', title: '' }],
+    vacant: true,
   },
   {
     role: '선교팀장',
