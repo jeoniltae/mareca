@@ -97,7 +97,7 @@ export default async function GalleryDetailPage({ params }: Props) {
               <span>{formatted}</span>
               <span className="flex items-center gap-1">
                 <Eye size={13} />
-                {post.views + 1}
+                {post.views}
               </span>
             </div>
             {isOwner && <GalleryActions id={id} />}
@@ -133,7 +133,7 @@ export default async function GalleryDetailPage({ params }: Props) {
             ),
           }}
         />
-        <ViewTracker id={id} />
+        <ViewTracker id={id} boardPath="/community/album" />
         {/* 목록으로 */}
         <div className="mt-4">
           <BackToListLink

@@ -95,7 +95,7 @@ export default async function PostDetailPage({ params }: Props) {
               </span>
               <span className="flex items-center gap-1">
                 <Eye size={13} />
-                {post.views + 1}
+                {post.views}
               </span>
             </div>
 
@@ -114,7 +114,7 @@ export default async function PostDetailPage({ params }: Props) {
 
         {/* 첨부 파일 */}
         <PostFileDownloadList attachments={postAttachments ?? []} />
-        <ViewTracker id={id} />
+        <ViewTracker id={id} boardPath="/community/free" />
 
         {/* 유튜브 링크 */}
         {post.youtube_url && (

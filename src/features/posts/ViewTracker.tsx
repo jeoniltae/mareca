@@ -6,16 +6,17 @@ import { incrementViews } from './actions'
 
 interface ViewTrackerProps {
   id: string
+  boardPath: string
 }
 
-export function ViewTracker({ id }: ViewTrackerProps) {
+export function ViewTracker({ id, boardPath }: ViewTrackerProps) {
   const called = useRef(false)
 
   useEffect(() => {
     if (called.current) return
     called.current = true
-    incrementViews(id)
-  }, [id])
+    incrementViews(id, boardPath)
+  }, [id, boardPath])
 
   return null
 }
