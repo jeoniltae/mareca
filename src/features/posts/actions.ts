@@ -346,9 +346,11 @@ export async function deletePostAttachment(id: string): Promise<void> {
 }
 
 // ─── 조회수 증가 ────────────────────────────────────────────────────────────────
-export async function incrementViews(id: string) {
+export async function incrementViews(id: string, boardPath: string) {
   const supabase = await createClient()
   await supabase.rpc('increment_views', { post_id: id })
+  revalidatePath(boardPath)
+  revalidatePath(`${boardPath}/${id}`)
 }
 
 // ─── 이미지 업로드 ──────────────────────────────────────────────────────────────

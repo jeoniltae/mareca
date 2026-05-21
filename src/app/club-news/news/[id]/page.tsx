@@ -93,7 +93,7 @@ export default async function ClubNewsDetailPage({ params }: Props) {
               </span>
               <span className="flex items-center gap-1">
                 <Eye size={13} />
-                {post.views + 1}
+                {post.views}
               </span>
             </div>
 
@@ -108,7 +108,7 @@ export default async function ClubNewsDetailPage({ params }: Props) {
 
         <PostImageGallery images={postImages ?? []} />
         <PostFileDownloadList attachments={postAttachments ?? []} />
-        <ViewTracker id={id} />
+        <ViewTracker id={id} boardPath="/club-news/news" />
 
         {post.youtube_url && (
           <div className="mt-8 p-4 bg-slate-50 rounded-xl border border-slate-200">
