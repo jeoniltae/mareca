@@ -13,6 +13,7 @@ import { ShareButtons } from '@/components/shared/ShareButtons'
 import { BackToListLink } from '@/components/shared/BackToListLink'
 import { Calendar, Eye, User, MapPin, Clock, ExternalLink, Newspaper } from 'lucide-react'
 import Image from 'next/image'
+import { transformImageLinks } from '@/lib/transform-content'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -239,7 +240,7 @@ export default async function OpenLectureDetailPage({ params }: Props) {
             {isNotice ? (
               <div
                 className="prose prose-slate max-w-none text-sm"
-                dangerouslySetInnerHTML={{ __html: post.content }}
+                dangerouslySetInnerHTML={{ __html: transformImageLinks(post.content) }}
               />
             ) : (
               <div className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">

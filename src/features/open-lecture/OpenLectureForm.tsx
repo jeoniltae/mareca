@@ -2,7 +2,7 @@
 // 마스터스 오픈강좌 게시글 작성/수정 폼 컴포넌트
 
 import { useState, useTransition } from 'react'
-import { Link2, Newspaper } from 'lucide-react'
+import { Link2, Newspaper, ImageIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { ConfirmModal } from '@/components/shared/ConfirmModal'
@@ -214,10 +214,24 @@ export function OpenLectureForm({
           내용 <span className="text-slate-400 font-normal text-xs">(선택)</span>
         </label>
         {category === '공지' ? (
-          <PostEditor
-            initialContent={content}
-            onChange={(html) => setContent(html)}
-          />
+          <>
+            <PostEditor
+              initialContent={content}
+              onChange={(html) => setContent(html)}
+            />
+            <div className="mt-2.5 flex items-start gap-2.5 rounded-lg border border-sky-200 bg-sky-50 px-3.5 py-3">
+              <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sky-500">
+                <ImageIcon size={11} className="text-white" />
+              </div>
+              <div className="text-xs text-sky-700 leading-relaxed">
+                <span className="font-semibold">이미지 삽입 방법 2가지</span>
+                <ul className="mt-1 space-y-0.5 list-none">
+                  <li>① 툴바 <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-sky-100 font-medium">🖼️ 이미지 버튼</span> → 파일 직접 업로드 (권장)</li>
+                  <li>② 이미지 URL을 에디터에 붙여넣기 → 상세 화면에서 자동으로 이미지로 표시됨</li>
+                </ul>
+              </div>
+            </div>
+          </>
         ) : (
           <textarea
             rows={6}
