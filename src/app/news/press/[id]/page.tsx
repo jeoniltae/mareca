@@ -4,6 +4,7 @@ import { ShareButtons } from '@/components/shared/ShareButtons'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import { ExternalLink, CalendarDays, Newspaper, ChevronLeft } from 'lucide-react'
+import { formatYMD } from '@/lib/date'
 import { BackToListLink } from '@/components/shared/BackToListLink'
 import { articleJsonLd } from '@/lib/json-ld'
 
@@ -50,7 +51,7 @@ export default async function PressArticleDetailPage({ params }: Props) {
 
   const { data: article } = await supabase
     .from('press_articles')
-    .select('id, url, og_title, og_image, og_description, source_name, published_at')
+    .select('id, url, og_title, og_image, og_description, source_name, published_at, created_at')
     .eq('id', id)
     .single()
 
@@ -100,12 +101,10 @@ export default async function PressArticleDetailPage({ params }: Props) {
                 {article.source_name}
               </span>
             )}
-            {article.published_at && (
-              <span className="flex items-center gap-1 text-xs text-slate-400">
-                <CalendarDays size={12} />
-                {article.published_at}
-              </span>
-            )}
+            <span className="flex items-center gap-1 text-xs text-slate-400">
+              <CalendarDays size={12} />
+              {formatYMD(article.published_at ?? article.created_at)}
+            </span>
           </div>
 
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 leading-snug tracking-tight mb-4">
