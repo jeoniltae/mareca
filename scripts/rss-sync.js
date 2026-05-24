@@ -104,7 +104,7 @@ async function syncFeed({ url, source_name }) {
       og_image: extractImageFromRSS(item),
       og_description: item.contentSnippet ?? item.summary ?? null,
       source_name,
-      published_at: parseDate(item.pubDate ?? item.isoDate),
+      published_at: parseDate(item.pubDate ?? item.isoDate ?? item.date) ?? new Date().toISOString().split('T')[0],
     }))
     .filter((a) => {
       if (!a.url) return false;

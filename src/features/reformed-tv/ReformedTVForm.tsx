@@ -2,8 +2,9 @@
 
 import { useState, useTransition } from 'react'
 import { Link2 } from 'lucide-react'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { ConfirmModal } from '@/components/shared/ConfirmModal'
 import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtube-utils'
 import { isRedirectError } from 'next/dist/client/components/redirect-error'
 import { createReformedTVPost, updateReformedTVPost } from './actions'
@@ -23,7 +24,10 @@ interface ReformedTVFormProps {
 }
 
 export function ReformedTVForm({ mode, postId, initialValues, cancelHref }: ReformedTVFormProps) {
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const [isCancelling, startCancelTransition] = useTransition()
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [youtubeUrl, setYoutubeUrl] = useState(initialValues?.youtube_url ?? '')
   const [category, setCategory] = useState(initialValues?.category ?? '')
@@ -157,12 +161,17 @@ export function ReformedTVForm({ mode, postId, initialValues, cancelHref }: Refo
       {error && <p className="text-sm text-red-500">{error}</p>}
 
       <div className="flex items-center justify-end gap-3 pt-2">
-        <Link
-          href={cancelHref}
-          className="px-5 py-2.5 text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+        <button
+          type="button"
+          onClick={() => setShowCancelConfirm(true)}
+          disabled={isCancelling}
+          className={cn(
+            'px-5 py-2.5 text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors',
+            isCancelling && 'opacity-60 cursor-not-allowed',
+          )}
         >
-          취소
-        </Link>
+          {isCancelling ? '취소 중...' : '취소'}
+        </button>
         <button
           type="submit"
           disabled={isPending}
@@ -174,6 +183,22 @@ export function ReformedTVForm({ mode, postId, initialValues, cancelHref }: Refo
           {isPending ? '저장 중...' : mode === 'edit' ? '수정 완료' : '등록'}
         </button>
       </div>
+
+      <ConfirmModal
+        open={showCancelConfirm}
+        title="작성 취소"
+        description="작성 중인 내용이 저장되지 않습니다. 취소하시겠어요?"
+        confirmLabel="취소하기"
+        cancelLabel="계속 작성"
+        confirmClassName="bg-red-500 hover:bg-red-600 text-white"
+        onConfirm={() => {
+          setShowCancelConfirm(false)
+          startCancelTransition(() => {
+            router.push(cancelHref)
+          })
+        }}
+        onCancel={() => setShowCancelConfirm(false)}
+      />
     </form>
   )
 }

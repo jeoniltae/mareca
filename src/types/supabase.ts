@@ -111,11 +111,15 @@ export type Database = {
       }
       posts: {
         Row: {
+          article_url: string | null
           board: string
           category: string
           content: string | null
           created_at: string | null
+          event_date: string | null
+          event_time: string | null
           id: string
+          location: string | null
           thumbnail_url: string | null
           title: string
           updated_at: string | null
@@ -124,11 +128,15 @@ export type Database = {
           youtube_url: string | null
         }
         Insert: {
+          article_url?: string | null
           board?: string
           category?: string
           content?: string | null
           created_at?: string | null
+          event_date?: string | null
+          event_time?: string | null
           id?: string
+          location?: string | null
           thumbnail_url?: string | null
           title: string
           updated_at?: string | null
@@ -137,11 +145,15 @@ export type Database = {
           youtube_url?: string | null
         }
         Update: {
+          article_url?: string | null
           board?: string
           category?: string
           content?: string | null
           created_at?: string | null
+          event_date?: string | null
+          event_time?: string | null
           id?: string
+          location?: string | null
           thumbnail_url?: string | null
           title?: string
           updated_at?: string | null

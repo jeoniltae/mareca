@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     url: '/',
   },
 }
-import { formatMonthDay } from '@/lib/date'
+import { formatMonthDay, formatYMD } from '@/lib/date'
 import {
   ArrowRight,
   ChevronRight,
@@ -51,8 +51,8 @@ async function QuickInfoSection() {
       .limit(3),
     supabase
       .from('press_articles')
-      .select('id, og_title, source_name, published_at')
-      .order('published_at', { ascending: false })
+      .select('id, og_title, source_name, published_at, created_at')
+      .order('created_at', { ascending: false })
       .limit(3),
   ])
 
@@ -137,7 +137,7 @@ async function QuickInfoSection() {
               ) : (pressArticles ?? []).map((item) => (
                 <li key={item.id} className="flex items-start gap-3">
                   <span className="text-slate-400 text-sm shrink-0 mt-0.5 tabular-nums">
-                    {item.published_at ? formatMonthDay(item.published_at) : '--'}
+                    {formatYMD(item.published_at ?? item.created_at?.split('T')[0])}
                   </span>
                   <Link
                     href={`/news/press/${item.id}`}
