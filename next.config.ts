@@ -10,6 +10,12 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      { source: '/posts/message', destination: '/community/message', permanent: true },
+      { source: '/posts/voice', destination: '/community/voice', permanent: true },
+    ];
+  },
   turbopack: {},
   experimental: {
     serverActions: {

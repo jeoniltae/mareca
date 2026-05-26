@@ -167,7 +167,14 @@ alter table public.새테이블 enable row level security;
 ### 새 페이지/게시판 추가 시에만 수동 작업 필요
 1. **새 정적 페이지** (`page.tsx` 신규 생성) → 파일 상단에 `export const metadata: Metadata = { title, description, openGraph }` 추가
 2. **새 게시판 추가** → `src/app/sitemap.ts`의 `BOARD_PATH_MAP`과 `STATIC_ROUTES` 목록에 경로 추가
+   - **단, 비로그인 접근 불가 페이지(layout.tsx에서 redirect 처리)는 사이트맵에 추가하지 않는다**
 3. **새 동적 라우트** (`[id]/page.tsx` 신규 생성) → `generateMetadata` + `articleJsonLd` 추가 (`src/lib/json-ld.ts`의 헬퍼 사용)
+
+### 접근 제한으로 사이트맵에서 제외된 경로
+- `/resources/*` — `src/app/resources/layout.tsx`에서 특정 이메일(`masters@mareca.kr`, `admin@mareca.kr`)만 허용, 그 외 `/`로 리다이렉트
+- `/report/minutes` — `src/app/report/layout.tsx`에서 동일한 이메일 제한
+- `/online-admin/*` — 로그인 필요
+- 위 경로들의 게시글 상세 URL도 `BOARD_PATH_MAP`에서 제외됨
 
 ### 관련 파일
 - `src/app/sitemap.ts` — 사이트맵 (정적 + 동적 URL 자동 생성)
