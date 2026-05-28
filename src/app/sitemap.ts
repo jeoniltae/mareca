@@ -6,6 +6,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mareca.org'
 const BOARD_PATH_MAP: Record<string, string> = {
   'news': '/news/all',
   'notice': '/news/notice',
+  'reformed-books': '/news/books',
   'message': '/community/message',
   'voice': '/community/voice',
   'free': '/community/free',
@@ -32,6 +33,7 @@ const STATIC_ROUTES: MetadataRoute.Sitemap = [
   { url: `${BASE_URL}/news/all`, changeFrequency: 'daily', priority: 0.8 },
   { url: `${BASE_URL}/news/notice`, changeFrequency: 'weekly', priority: 0.8 },
   { url: `${BASE_URL}/news/press`, changeFrequency: 'daily', priority: 0.7 },
+  { url: `${BASE_URL}/news/books`, changeFrequency: 'weekly', priority: 0.7 },
   { url: `${BASE_URL}/community/free`, changeFrequency: 'daily', priority: 0.7 },
   { url: `${BASE_URL}/community/message`, changeFrequency: 'weekly', priority: 0.7 },
   { url: `${BASE_URL}/community/voice`, changeFrequency: 'weekly', priority: 0.7 },

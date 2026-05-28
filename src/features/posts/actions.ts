@@ -80,8 +80,8 @@ export async function deletePost(id: string, boardPath = '/community/free') {
   const profileResult = (await supabase.from('profiles').select('is_admin').eq('id', user.id).maybeSingle()) as unknown as { data: { is_admin: boolean | null } | null }
   const isAdmin = profileResult.data?.is_admin === true
 
-  // 삭제 전 본문에서 Storage 이미지 경로 추출
-  const postContentQuery = supabase.from('posts').select('content').eq('id', id)
+  // 삭제 전 본문 및 thumbnail_url에서 Storage 이미지 경로 추출
+  const postContentQuery = supabase.from('posts').select('content, thumbnail_url').eq('id', id)
   const { data: post } = isAdmin
     ? await postContentQuery.maybeSingle()
     : await postContentQuery.eq('user_id', user.id).single()
@@ -90,6 +90,16 @@ export async function deletePost(id: string, boardPath = '/community/free') {
     const imagePaths = extractStorageImagePaths(post.content)
     if (imagePaths.length > 0) {
       await supabase.storage.from('post-images').remove(imagePaths)
+    }
+  }
+
+  // thumbnail_url이 Supabase Storage 파일인 경우 삭제
+  if (post?.thumbnail_url) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const bucketPrefix = `${supabaseUrl}/storage/v1/object/public/post-images/`
+    if (post.thumbnail_url.startsWith(bucketPrefix)) {
+      const path = decodeURIComponent(post.thumbnail_url.slice(bucketPrefix.length))
+      await supabase.storage.from('post-images').remove([path])
     }
   }
 
