@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase-server";
+﻿import { createClient } from "@/lib/supabase-server";
 import { formatYMD } from "@/lib/date";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Pagination } from "@/components/shared/Pagination";
@@ -14,8 +14,8 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'ReformedTV',
   description: '개혁신학 강의, 설교, 특강 영상을 모아볼 수 있는 채널입니다.',
-  openGraph: { title: 'ReformedTV', description: '개혁신학 강의, 설교, 특강 영상을 모아볼 수 있는 채널입니다.', url: '/community/reformed-tv' },
-  alternates: { canonical: '/community/reformed-tv' },
+  openGraph: { title: 'ReformedTV', description: '개혁신학 강의, 설교, 특강 영상을 모아볼 수 있는 채널입니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/community/reformed-tv` },
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/community/reformed-tv` },
 }
 
 const PAGE_SIZE = 12;

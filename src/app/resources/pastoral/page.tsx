@@ -14,8 +14,8 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: '목회자료실',
   description: '목회자를 위한 실천적 자료와 참고 문서를 제공합니다.',
-  openGraph: { title: '목회자료실', description: '목회자를 위한 실천적 자료와 참고 문서를 제공합니다.', url: '/resources/pastoral' },
-  alternates: { canonical: '/resources/pastoral' },
+  openGraph: { title: '목회자료실', description: '목회자를 위한 실천적 자료와 참고 문서를 제공합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/resources/pastoral` },
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/resources/pastoral` },
 }
 
 const PAGE_SIZE = 10

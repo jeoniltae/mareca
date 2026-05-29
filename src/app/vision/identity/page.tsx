@@ -1,4 +1,4 @@
-import { PageHeader } from '@/components/shared/PageHeader'
+﻿import { PageHeader } from '@/components/shared/PageHeader'
 import Image from 'next/image'
 
 import type { Metadata } from 'next'
@@ -6,7 +6,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: '우리는 누구인가?',
   description: '마스터스개혁파총회의 정체성과 신학적 입장을 소개합니다.',
-  openGraph: { title: '우리는 누구인가?', description: '마스터스개혁파총회의 정체성과 신학적 입장을 소개합니다.', url: '/vision/identity' },
+  openGraph: { title: '우리는 누구인가?', description: '마스터스개혁파총회의 정체성과 신학적 입장을 소개합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/vision/identity` },
 }
 
 const IDENTITY_ITEMS = [

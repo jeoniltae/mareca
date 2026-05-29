@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 
 import type { Metadata } from 'next'
@@ -6,7 +6,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: '선언문',
   description: '성경무오성, 개혁신학 등 마스터스개혁파총회의 5대 선언문입니다.',
-  openGraph: { title: '선언문', description: '성경무오성, 개혁신학 등 마스터스개혁파총회의 5대 선언문입니다.', url: '/vision/declaration' },
+  openGraph: { title: '선언문', description: '성경무오성, 개혁신학 등 마스터스개혁파총회의 5대 선언문입니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/vision/declaration` },
 }
 
 const DECLARATIONS = [

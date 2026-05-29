@@ -14,8 +14,8 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: '교회계획',
   description: '마스터스개혁파총회 행정 계획 및 일정 관리 자료입니다.',
-  openGraph: { title: '교회계획', description: '마스터스개혁파총회 행정 계획 및 일정 관리 자료입니다.', url: '/online-admin/plan' },
-  alternates: { canonical: '/online-admin/plan' },
+  openGraph: { title: '교회계획', description: '마스터스개혁파총회 행정 계획 및 일정 관리 자료입니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/online-admin/plan` },
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/online-admin/plan` },
 }
 
 const PAGE_SIZE = 10

@@ -1,4 +1,4 @@
-import { PageHeader } from '@/components/shared/PageHeader'
+﻿import { PageHeader } from '@/components/shared/PageHeader'
 import Image from 'next/image'
 
 import type { Metadata } from 'next'
@@ -6,7 +6,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: '이사장',
   description: '마스터스개혁파총회 이사장 최더함 목사의 인사말입니다.',
-  openGraph: { title: '이사장', description: '마스터스개혁파총회 이사장 최더함 목사의 인사말입니다.', url: '/about/chairman' },
+  openGraph: { title: '이사장', description: '마스터스개혁파총회 이사장 최더함 목사의 인사말입니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/chairman` },
 }
 
 const PARAGRAPHS = [

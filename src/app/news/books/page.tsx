@@ -1,4 +1,4 @@
-// 리폼드북스 목록 페이지 — 4열 그리드
+﻿// 리폼드북스 목록 페이지 — 4열 그리드
 import { createClient } from '@/lib/supabase-server'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Pagination } from '@/components/shared/Pagination'
@@ -14,9 +14,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: '리폼드북스',
     description: '마스터스개혁파총회가 소개하는 리폼드북스 도서 목록입니다.',
-    url: '/news/books',
+    url: `${process.env.NEXT_PUBLIC_SITE_URL}/news/books`,
   },
-  alternates: { canonical: '/news/books' },
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/news/books` },
 }
 
 const PAGE_SIZE = 16
