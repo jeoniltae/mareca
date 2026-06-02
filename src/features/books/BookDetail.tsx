@@ -11,6 +11,7 @@ import {
 import { PostActions } from "@/features/posts/PostActions";
 import { ShareButtons } from "@/components/shared/ShareButtons";
 import { BackToListLink } from "@/components/shared/BackToListLink";
+import { BookTOCBar, BookTOCSidebar } from "./BookTOC";
 import { useState } from "react";
 import { ChevronDown, ChevronRight, ShoppingCart } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -111,10 +112,20 @@ export function BookDetail({
     },
   ].filter((item) => item.value);
 
+  const tocSections = [
+    { id: 'book-info', label: '품목정보' },
+    ...(book_intro ? [{ id: 'book-intro', label: '책 소개' }] : []),
+    ...(recommendation ? [{ id: 'recommendation', label: '추천사' }] : []),
+    ...(table_of_contents ? [{ id: 'table-of-contents', label: '목차' }] : []),
+    ...(body_preview ? [{ id: 'body-preview', label: '본문 미리보기' }] : []),
+    ...(author_intro ? [{ id: 'author-intro', label: '저자 소개' }] : []),
+    ...(translator_intro ? [{ id: 'translator-intro', label: '역자 소개' }] : []),
+  ]
+
   return (
     <div className="bg-slate-50 min-h-screen">
       {/* 히어로 카드 */}
-      <div className="bg-linear-to-b from-white to-slate-50 border-b border-slate-200 shadow-sm">
+      <div id="book-info" className="bg-linear-to-b from-white to-slate-50 border-b border-slate-200 shadow-sm">
         {/* 상단 액센트 바 */}
         <div className="h-1 bg-linear-to-r from-sky-500 via-sky-400 to-indigo-400" />
 
@@ -204,11 +215,17 @@ export function BookDetail({
         </div>
       </div>
 
+      {/* 모바일 섹션 탭 바 */}
+      <BookTOCBar sections={tocSections} />
+
       {/* 섹션 콘텐츠 */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="lg:grid lg:grid-cols-[1fr_180px] lg:gap-10">
+        <div className="space-y-6 min-w-0 self-start">
         {/* 책 소개 */}
         {book_intro && (
           <motion.section
+            id="book-intro"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-60px" }}
@@ -228,6 +245,7 @@ export function BookDetail({
         {/* 추천사 */}
         {recommendation && (
           <motion.section
+            id="recommendation"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-60px" }}
@@ -247,11 +265,12 @@ export function BookDetail({
         )}
 
         {/* 목차 */}
-        {table_of_contents && <TocSection text={table_of_contents} />}
+        {table_of_contents && <TocSection id="table-of-contents" text={table_of_contents} />}
 
         {/* 본문 미리보기 */}
         {body_preview && (
           <motion.section
+            id="body-preview"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-60px" }}
@@ -271,6 +290,7 @@ export function BookDetail({
         {/* 저자 소개 */}
         {author_intro && (
           <motion.section
+            id="author-intro"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-60px" }}
@@ -303,6 +323,7 @@ export function BookDetail({
         {/* 역자 소개 */}
         {translator_intro && (
           <motion.section
+            id="translator-intro"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-60px" }}
@@ -342,15 +363,19 @@ export function BookDetail({
             <PostActions id={id} basePath="/news/books" />
           )}
         </div>
+        </div>
+        <BookTOCSidebar sections={tocSections} />
+        </div>
       </div>
     </div>
   );
 }
 
-function TocSection({ text }: { text: string }) {
+function TocSection({ id, text }: { id: string; text: string }) {
   const [open, setOpen] = useState(true);
   return (
     <motion.section
+      id={id}
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-60px" }}

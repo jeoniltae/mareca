@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/news/books` },
 }
 
-const PAGE_SIZE = 16
+const PAGE_SIZE = 12
 
 interface Props {
   searchParams: Promise<{ page?: string }>
@@ -54,7 +54,7 @@ export default async function BooksPage({ searchParams }: Props) {
         imagePosition="center 26%"
       />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {isAdmin && (
           <div className="flex justify-end mb-6">
             <Link
@@ -68,7 +68,7 @@ export default async function BooksPage({ searchParams }: Props) {
         )}
 
         {books && books.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {books.map((book) => (
               <BookSquare key={book.id} book={book} />
             ))}
