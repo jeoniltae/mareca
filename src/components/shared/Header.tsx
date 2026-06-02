@@ -82,6 +82,7 @@ const NAV_ITEMS: NavItem[] = [
       { label: '소식', href: '/news/all' },
       { label: '공지사항', href: '/news/notice' },
       { label: '관련기사', href: '/news/press' },
+      { label: '리폼드북스', href: '/news/books' },
     ],
   },
   {

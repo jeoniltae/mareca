@@ -14,8 +14,8 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: '예배자료실',
   description: '예배 순서지, 악보, 예배 관련 자료를 제공합니다.',
-  openGraph: { title: '예배자료실', description: '예배 순서지, 악보, 예배 관련 자료를 제공합니다.', url: '/resources/worship' },
-  alternates: { canonical: '/resources/worship' },
+  openGraph: { title: '예배자료실', description: '예배 순서지, 악보, 예배 관련 자료를 제공합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/resources/worship` },
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/resources/worship` },
 }
 
 const PAGE_SIZE = 10

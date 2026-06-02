@@ -13,8 +13,8 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: '소식',
   description: '마스터스개혁파총회의 최신 소식과 행사 정보를 전합니다.',
-  openGraph: { title: '소식', description: '마스터스개혁파총회의 최신 소식과 행사 정보를 전합니다.', url: '/news/all' },
-  alternates: { canonical: '/news/all' },
+  openGraph: { title: '소식', description: '마스터스개혁파총회의 최신 소식과 행사 정보를 전합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/news/all` },
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/news/all` },
 }
 
 const PAGE_SIZE = 10

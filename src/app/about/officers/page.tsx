@@ -1,4 +1,4 @@
-import Image from 'next/image'
+﻿import Image from 'next/image'
 import { PageHeader } from '@/components/shared/PageHeader'
 
 import type { Metadata } from 'next'
@@ -6,8 +6,8 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: '임원',
   description: '마스터스개혁파총회 임원진 및 주요 직책자를 소개합니다.',
-  openGraph: { title: '임원', description: '마스터스개혁파총회 임원진 및 주요 직책자를 소개합니다.', url: '/about/officers' },
-  alternates: { canonical: '/about/officers' },
+  openGraph: { title: '임원', description: '마스터스개혁파총회 임원진 및 주요 직책자를 소개합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/officers` },
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/about/officers` },
 }
 
 type Member = { name: string; title: string; note?: string; image?: string }

@@ -11,8 +11,8 @@ import Link from 'next/link'
 export const metadata = {
   title: '소식 — 클럽소식',
   description: '마스터스개혁파총회 소속 교회들의 소식과 공지를 전합니다.',
-  openGraph: { title: '소식 — 클럽소식', description: '마스터스개혁파총회 소속 교회들의 소식과 공지를 전합니다.', url: '/club-news/news' },
-  alternates: { canonical: '/club-news/news' },
+  openGraph: { title: '소식 — 클럽소식', description: '마스터스개혁파총회 소속 교회들의 소식과 공지를 전합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/club-news/news` },
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/club-news/news` },
 }
 
 const PAGE_SIZE = 10

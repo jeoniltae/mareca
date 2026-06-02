@@ -13,8 +13,8 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Plus Voice',
   description: '마스터스개혁파총회 각 교회와 사역자들의 소식과 목소리입니다.',
-  openGraph: { title: 'Plus Voice', description: '마스터스개혁파총회 각 교회와 사역자들의 소식과 목소리입니다.', url: '/community/voice' },
-  alternates: { canonical: '/community/voice' },
+  openGraph: { title: 'Plus Voice', description: '마스터스개혁파총회 각 교회와 사역자들의 소식과 목소리입니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/community/voice` },
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/community/voice` },
 }
 
 const PAGE_SIZE = 10;

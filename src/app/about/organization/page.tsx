@@ -1,4 +1,4 @@
-import { PageHeader } from '@/components/shared/PageHeader'
+﻿import { PageHeader } from '@/components/shared/PageHeader'
 import { CheckCircle2, Users } from 'lucide-react'
 
 import type { Metadata } from 'next'
@@ -6,7 +6,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: '총회조직 및 사역원칙',
   description: '마스터스개혁파총회의 조직 구조와 사역 원칙을 안내합니다.',
-  openGraph: { title: '총회조직 및 사역원칙', description: '마스터스개혁파총회의 조직 구조와 사역 원칙을 안내합니다.', url: '/about/organization' },
+  openGraph: { title: '총회조직 및 사역원칙', description: '마스터스개혁파총회의 조직 구조와 사역 원칙을 안내합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/organization` },
 }
 
 const AFFILIATED_CHURCHES = [

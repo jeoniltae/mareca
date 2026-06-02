@@ -1,4 +1,4 @@
-import { PageHeader } from '@/components/shared/PageHeader'
+﻿import { PageHeader } from '@/components/shared/PageHeader'
 import { Crown, BookOpen, Building2 } from 'lucide-react'
 import { confessionPageJsonLd } from '@/lib/json-ld'
 
@@ -9,7 +9,7 @@ const DESCRIPTION = '마스터스개혁파총회(MRA)가 고백하는 성경적 
 export const metadata: Metadata = {
   title: '신앙고백 — 웨스트민스터 신앙고백서와 개혁파 신조',
   description: DESCRIPTION,
-  alternates: { canonical: '/about/confession' },
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/about/confession` },
   openGraph: {
     title: '신앙고백 — 웨스트민스터 신앙고백서와 개혁파 신조',
     description: DESCRIPTION,

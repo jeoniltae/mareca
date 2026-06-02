@@ -120,6 +120,7 @@ export type Database = {
           event_time: string | null
           id: string
           location: string | null
+          sections: Json | null
           thumbnail_url: string | null
           title: string
           updated_at: string | null
@@ -137,6 +138,7 @@ export type Database = {
           event_time?: string | null
           id?: string
           location?: string | null
+          sections?: Json | null
           thumbnail_url?: string | null
           title: string
           updated_at?: string | null
@@ -154,6 +156,7 @@ export type Database = {
           event_time?: string | null
           id?: string
           location?: string | null
+          sections?: Json | null
           thumbnail_url?: string | null
           title?: string
           updated_at?: string | null

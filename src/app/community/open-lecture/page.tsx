@@ -1,4 +1,4 @@
-// 마스터스 오픈강좌 목록 페이지 — 공지 상단 고정 리스트 + 일반 썸네일 그리드
+﻿// 마스터스 오픈강좌 목록 페이지 — 공지 상단 고정 리스트 + 일반 썸네일 그리드
 import { createClient } from '@/lib/supabase-server'
 import { formatYMD } from '@/lib/date'
 import { PageHeader } from '@/components/shared/PageHeader'
@@ -14,9 +14,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: '마스터스 오픈강좌',
     description: '마스터스개혁파총회가 주관하는 오픈강좌 영상과 일정을 확인하세요.',
-    url: '/community/open-lecture',
+    url: `${process.env.NEXT_PUBLIC_SITE_URL}/community/open-lecture`,
   },
-  alternates: { canonical: '/community/open-lecture' },
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/community/open-lecture` },
 }
 
 const PAGE_SIZE = 12

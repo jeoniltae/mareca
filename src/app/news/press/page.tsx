@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase-server'
+﻿import { createClient } from '@/lib/supabase-server'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Pagination } from '@/components/shared/Pagination'
 import { BoardSearch } from '@/components/shared/BoardSearch'
@@ -11,8 +11,8 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: '관련기사',
   description: '마스터스개혁파총회와 관련된 언론 기사를 모아볼 수 있습니다.',
-  openGraph: { title: '관련기사', description: '마스터스개혁파총회와 관련된 언론 기사를 모아볼 수 있습니다.', url: '/news/press' },
-  alternates: { canonical: '/news/press' },
+  openGraph: { title: '관련기사', description: '마스터스개혁파총회와 관련된 언론 기사를 모아볼 수 있습니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/news/press` },
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/news/press` },
 }
 
 const PAGE_SIZE = 12

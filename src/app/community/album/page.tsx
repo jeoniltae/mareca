@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase-server";
+﻿import { createClient } from "@/lib/supabase-server";
 import { formatYMD } from "@/lib/date";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Pagination } from "@/components/shared/Pagination";
@@ -13,8 +13,8 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: '행사앨범',
   description: '마스터스개혁파총회 행사 및 모임의 사진 앨범입니다.',
-  openGraph: { title: '행사앨범', description: '마스터스개혁파총회 행사 및 모임의 사진 앨범입니다.', url: '/community/album' },
-  alternates: { canonical: '/community/album' },
+  openGraph: { title: '행사앨범', description: '마스터스개혁파총회 행사 및 모임의 사진 앨범입니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/community/album` },
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/community/album` },
 }
 
 const PAGE_SIZE = 12;
