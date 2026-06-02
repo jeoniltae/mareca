@@ -137,6 +137,16 @@ button {
   cursor: pointer;
 }
 
+/* ─── 페이지 콘텐츠 진입 애니메이션 (Suspense 전환 시 공백 플래시 완화) ─────── */
+main > * {
+  animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 /* ─── Tiptap 테이블 (에디터 + 상세 페이지 공통) ──────────────────────────── */
 .prose table,
 .ProseMirror table {
