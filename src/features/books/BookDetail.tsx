@@ -113,7 +113,7 @@ export function BookDetail({
   ].filter((item) => item.value);
 
   const tocSections = [
-    { id: 'book-info', label: '품목정보' },
+    { id: 'book-info', label: '책 정보' },
     ...(book_intro ? [{ id: 'book-intro', label: '책 소개' }] : []),
     ...(recommendation ? [{ id: 'recommendation', label: '추천사' }] : []),
     ...(table_of_contents ? [{ id: 'table-of-contents', label: '목차' }] : []),
