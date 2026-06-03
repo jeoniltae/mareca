@@ -1,8 +1,10 @@
 'use client'
-// 목록으로 버튼 — 같은 사이트에서 진입한 경우 router.back(), 외부 진입 시 fallbackHref로 이동
+// 목록으로 버튼 — sessionStorage에 기록된 이전 목록 경로로 복원, 외부 진입 시 fallbackHref로 이동
 
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+
+const SESSION_KEY = 'listHref'
 
 interface Props {
   fallbackHref: string
@@ -12,16 +14,15 @@ interface Props {
 
 export function BackToListLink({ fallbackHref, className, children = '← 목록으로' }: Props) {
   const router = useRouter()
-  const [canGoBack, setCanGoBack] = useState(false)
+  const [href, setHref] = useState<string | null>(null)
 
   useEffect(() => {
-    const isSameSite = document.referrer.startsWith(window.location.origin)
-    setCanGoBack(isSameSite)
+    const saved = sessionStorage.getItem(SESSION_KEY)
+    setHref(saved)
   }, [])
 
   const handleClick = () => {
-    if (canGoBack) router.back()
-    else router.push(fallbackHref)
+    router.push(href ?? fallbackHref)
   }
 
   return (

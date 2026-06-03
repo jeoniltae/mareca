@@ -7,6 +7,8 @@ import { Footer } from '@/components/shared/Footer'
 import { ScrollToTop } from '@/components/shared/ScrollToTop'
 import { KakaoScript } from '@/components/shared/KakaoScript'
 import { NavigationProgress } from '@/components/shared/NavigationProgress'
+import { NavigationTracker } from '@/components/shared/NavigationTracker'
+import { Suspense } from 'react'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 
@@ -69,6 +71,7 @@ export default function RootLayout({
         <ScrollToTop />
         <KakaoScript />
         <NavigationProgress />
+        <Suspense fallback={null}><NavigationTracker /></Suspense>
         <Analytics />
         <SpeedInsights />
         <script
