@@ -1,5 +1,4 @@
 // 리폼드북스 도서 상세 페이지
-export const revalidate = 3600
 
 import { createClient } from '@/lib/supabase-server'
 import { notFound } from 'next/navigation'

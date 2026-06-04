@@ -1,6 +1,4 @@
-﻿export const revalidate = 60
-
-import { createClient } from "@/lib/supabase-server";
+﻿import { createClient } from "@/lib/supabase-server";
 import { formatYMD } from "@/lib/date";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Pagination } from "@/components/shared/Pagination";

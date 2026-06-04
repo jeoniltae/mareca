@@ -1,5 +1,4 @@
 ﻿// 마스터스 오픈강좌 목록 페이지 — 공지 상단 고정 리스트 + 일반 썸네일 그리드
-export const revalidate = 60
 
 import { createClient } from '@/lib/supabase-server'
 import { formatYMD } from '@/lib/date'

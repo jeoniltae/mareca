@@ -1,6 +1,4 @@
-﻿export const revalidate = 60
-
-import { AuthorIcon } from '@/components/shared/AuthorIcon'
+﻿import { AuthorIcon } from '@/components/shared/AuthorIcon'
 import { createClient } from "@/lib/supabase-server";
 import { formatMonthDay, isNewPost } from "@/lib/date";
 import { PageHeader } from "@/components/shared/PageHeader";

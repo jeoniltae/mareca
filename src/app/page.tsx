@@ -1,7 +1,6 @@
 ﻿import type { Metadata } from 'next'
 import Link from 'next/link'
 
-export const revalidate = 300
 
 export const metadata: Metadata = {
   title: '마스터스개혁파총회',
