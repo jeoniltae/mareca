@@ -401,6 +401,8 @@ async function VideosSection() {
                 <img
                   src={thumbnail}
                   alt={video.title}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300"
                 />
                 <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors flex items-center justify-center">
