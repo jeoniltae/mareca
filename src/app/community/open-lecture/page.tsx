@@ -1,4 +1,5 @@
 ﻿// 마스터스 오픈강좌 목록 페이지 — 공지 상단 고정 리스트 + 일반 썸네일 그리드
+
 import { createClient } from '@/lib/supabase-server'
 import { formatYMD } from '@/lib/date'
 import { PageHeader } from '@/components/shared/PageHeader'
@@ -135,6 +136,8 @@ export default async function OpenLecturePage({ searchParams }: Props) {
                       <img
                         src={thumbnail}
                         alt={post.title}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : hasArticle ? (

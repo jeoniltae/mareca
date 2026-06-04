@@ -49,5 +49,5 @@ next-env.d.ts
 /public/workbox-*.js
 /public/workbox-*.js.map
 
-#TODO.md
-TODO.md
+#/docs
+/docs/context-notes.md

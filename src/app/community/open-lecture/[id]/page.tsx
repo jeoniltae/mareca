@@ -1,4 +1,5 @@
 // 마스터스 오픈강좌 상세 페이지 — 유튜브 또는 기사 OG 미리보기 표시
+
 import { createClient } from '@/lib/supabase-server'
 import { formatDateTimeVerbose } from '@/lib/date'
 import { articleJsonLd } from '@/lib/json-ld'
