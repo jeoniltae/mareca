@@ -251,7 +251,7 @@ alter table public.새테이블 enable row level security;
   - 관련 파일 위치 예정: `src/app/donate/page.tsx`, `src/features/donate/`
   - 기획 의도가 바뀌어서 푸터에 후원 계좌번호 노출하는것으로 변경
 
-- **[미착수] 웹 성능 개선 (Core Web Vitals)**
+- **[완료] 웹 성능 개선 (Core Web Vitals)**
   - 배경: Vercel Speed Insights 기준 FCP 2.06s, CLS 0.14, TTFB 1.54s — 세 항목 모두 개선 여지 있음
   - 개선 항목 (임팩트 순):
     1. **TTFB (1.54s)**: Supabase 쿼리가 많은 Server Component에 Next.js `revalidate` 또는 `cache` 적용 — 자주 바뀌지 않는 데이터(임원 목록, 게시판 목록 등) 우선
@@ -294,7 +294,7 @@ alter table public.새테이블 enable row level security;
   - Plus Voice: `board='voice'`, 경로 `/community/voice` — 기존 `src/app/community/voice/page.tsx` ComingSoon → 게시판으로 교체
   - 카테고리: `공지`, `일반` (단순)
 
-- **[미해결] 404/500 페이지에서 "이전 페이지" 버튼(BackButton) 클릭 후 GNB 애니메이션·인터랙션 불작동**
+- **[보류] 404/500 페이지에서 "이전 페이지" 버튼(BackButton) 클릭 후 GNB 애니메이션·인터랙션 불작동**
   - 증상: 404/500 같은 하드 네비게이션 페이지에서 `router.back()` 또는 `history.back()` 사용 시 이전 페이지로 돌아왔을 때 Header의 Framer Motion 애니메이션 및 hover 인터랙션이 동작하지 않음
   - "홈으로 가기"(`Link href="/"`) 클릭 시에는 정상 동작
   - 시도한 접근: bfcache `pageshow` 감지, `useEffect` → `useLayoutEffect` 변경, `isNavigatingRef` 네비게이션 가드, `BackButton` popstate+reload — 모두 미해결
