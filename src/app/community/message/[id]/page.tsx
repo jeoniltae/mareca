@@ -1,3 +1,5 @@
+export const revalidate = 3600
+
 import { createClient } from "@/lib/supabase-server";
 import { formatDateTime } from "@/lib/date";
 import { articleJsonLd } from "@/lib/json-ld";

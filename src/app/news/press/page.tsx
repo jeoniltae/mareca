@@ -1,4 +1,6 @@
-﻿import { createClient } from '@/lib/supabase-server'
+﻿export const revalidate = 60
+
+import { createClient } from '@/lib/supabase-server'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Pagination } from '@/components/shared/Pagination'
 import { BoardSearch } from '@/components/shared/BoardSearch'
