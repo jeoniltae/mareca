@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase-server'
+import { getIsAdmin } from '@/lib/admin'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { compressImage } from '@/lib/compress-image'
@@ -48,7 +49,7 @@ export async function createGalleryPost(
   description: string,
   imageUrls: string[],
   category: string,
-): Promise<never> {
+): Promise<string> {
   const supabase = await createClient()
   const {
     data: { user },
@@ -79,7 +80,7 @@ export async function createGalleryPost(
   }
 
   revalidatePath('/community/album')
-  redirect(`/community/album/${post.id}`)
+  return post.id
 }
 
 // ─── 게시글 수정 ────────────────────────────────────────────────────────────────
@@ -90,15 +91,16 @@ export async function updateGalleryPost(
   imageUrls: string[],
   deletedUrls: string[],
   category: string,
-): Promise<never> {
+): Promise<string> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const [{ data: { user } }, isAdmin] = await Promise.all([
+    supabase.auth.getUser(),
+    getIsAdmin(),
+  ])
 
   if (!user) redirect('/login')
 
-  const { error: postError } = await supabase
+  let updateQuery = supabase
     .from('posts')
     .update({
       title,
@@ -107,7 +109,10 @@ export async function updateGalleryPost(
       category,
     })
     .eq('id', id)
-    .eq('user_id', user.id)
+
+  if (!isAdmin) updateQuery = updateQuery.eq('user_id', user.id)
+
+  const { error: postError } = await updateQuery
 
   if (postError) throw new Error(postError.message)
 
@@ -128,8 +133,7 @@ export async function updateGalleryPost(
   }
 
   revalidatePath('/community/album')
-  revalidatePath(`/community/album/${id}`)
-  redirect(`/community/album/${id}`)
+  return id
 }
 
 // ─── 이미지 파일만 Storage에서 삭제 ────────────────────────────────────────────
@@ -151,9 +155,10 @@ export async function incrementGalleryViews(id: string) {
 // ─── 게시글 삭제 ────────────────────────────────────────────────────────────────
 export async function deleteGalleryPost(id: string): Promise<never> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const [{ data: { user } }, isAdmin] = await Promise.all([
+    supabase.auth.getUser(),
+    getIsAdmin(),
+  ])
 
   if (!user) redirect('/login')
 
@@ -169,11 +174,11 @@ export async function deleteGalleryPost(id: string): Promise<never> {
     }
   }
 
-  const { error } = await supabase
-    .from('posts')
-    .delete()
-    .eq('id', id)
-    .eq('user_id', user.id)
+  let deleteQuery = supabase.from('posts').delete().eq('id', id)
+
+  if (!isAdmin) deleteQuery = deleteQuery.eq('user_id', user.id)
+
+  const { error } = await deleteQuery
 
   if (error) throw new Error(error.message)
 

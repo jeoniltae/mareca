@@ -55,9 +55,11 @@ export function ReformedTVForm({ mode, postId, initialValues, cancelHref }: Refo
     startTransition(async () => {
       try {
         if (mode === 'edit' && postId) {
-          await updateReformedTVPost(postId, formData)
+          const targetId = await updateReformedTVPost(postId, formData)
+          router.replace(`/community/reformed-tv/${targetId}`)
         } else {
-          await createReformedTVPost(formData)
+          const targetId = await createReformedTVPost(formData)
+          router.replace(`/community/reformed-tv/${targetId}`)
         }
       } catch (e) {
         if (isRedirectError(e)) throw e

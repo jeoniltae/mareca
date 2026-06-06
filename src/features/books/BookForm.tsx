@@ -69,10 +69,10 @@ export function BookForm({ mode, id, defaultValues, cancelHref }: BookFormProps)
       try {
         if (mode === 'create') {
           const newId = await createBook(formData)
-          router.push(`/news/books/${newId}`)
+          router.replace(`/news/books/${newId}`)
         } else {
           await updateBook(id!, formData)
-          router.push(`/news/books/${id}`)
+          router.replace(`/news/books/${id}`)
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : '저장에 실패했습니다.')
