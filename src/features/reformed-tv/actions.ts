@@ -1,13 +1,14 @@
 'use server'
 
 import { createClient } from '@/lib/supabase-server'
+import { getIsAdmin } from '@/lib/admin'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 const BOARD = 'reformed-tv'
 const BASE_PATH = '/community/reformed-tv'
 
-export async function createReformedTVPost(formData: FormData) {
+export async function createReformedTVPost(formData: FormData): Promise<string> {
   const supabase = await createClient()
   const {
     data: { user },
@@ -29,14 +30,15 @@ export async function createReformedTVPost(formData: FormData) {
   if (error) throw new Error(error.message)
 
   revalidatePath(BASE_PATH)
-  redirect(`${BASE_PATH}/${data.id}`)
+  return data.id
 }
 
-export async function updateReformedTVPost(id: string, formData: FormData) {
+export async function updateReformedTVPost(id: string, formData: FormData): Promise<string> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const [{ data: { user } }, isAdmin] = await Promise.all([
+    supabase.auth.getUser(),
+    getIsAdmin(),
+  ])
 
   if (!user) redirect('/login')
 
@@ -45,32 +47,35 @@ export async function updateReformedTVPost(id: string, formData: FormData) {
   const content = (formData.get('description') as string) || null
   const category = formData.get('category') as string
 
-  const { error } = await supabase
+  let query = supabase
     .from('posts')
     .update({ title, content, youtube_url, category })
     .eq('id', id)
-    .eq('user_id', user.id)
+
+  if (!isAdmin) query = query.eq('user_id', user.id)
+
+  const { error } = await query
 
   if (error) throw new Error(error.message)
 
   revalidatePath(BASE_PATH)
-  revalidatePath(`${BASE_PATH}/${id}`)
-  redirect(`${BASE_PATH}/${id}`)
+  return id
 }
 
 export async function deleteReformedTVPost(id: string) {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const [{ data: { user } }, isAdmin] = await Promise.all([
+    supabase.auth.getUser(),
+    getIsAdmin(),
+  ])
 
   if (!user) redirect('/login')
 
-  const { error } = await supabase
-    .from('posts')
-    .delete()
-    .eq('id', id)
-    .eq('user_id', user.id)
+  let query = supabase.from('posts').delete().eq('id', id)
+
+  if (!isAdmin) query = query.eq('user_id', user.id)
+
+  const { error } = await query
 
   if (error) throw new Error(error.message)
 

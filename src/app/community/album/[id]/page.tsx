@@ -9,6 +9,7 @@ import { GalleryActions } from '@/features/gallery/GalleryActions'
 import { ShareButtons } from '@/components/shared/ShareButtons'
 import { BackToListLink } from '@/components/shared/BackToListLink'
 import { ViewTracker } from '@/features/posts/ViewTracker'
+import { getIsAdmin } from '@/lib/admin'
 import { Eye, User } from 'lucide-react'
 
 interface Props {
@@ -49,9 +50,10 @@ export default async function GalleryDetailPage({ params }: Props) {
   const { id } = await params
   const supabase = await createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const [{ data: { user } }, isAdmin] = await Promise.all([
+    supabase.auth.getUser(),
+    getIsAdmin(),
+  ])
 
   const { data: post } = await supabase
     .from('posts')
@@ -72,7 +74,7 @@ export default async function GalleryDetailPage({ params }: Props) {
 
   const formatted = formatDateTimeVerbose(post.created_at)
   const nickname = (post.profiles as { nickname: string | null } | null)?.nickname ?? '알 수 없음'
-  const isOwner = user?.id === post.user_id
+  const isOwner = user?.id === post.user_id || isAdmin
 
   return (
     <>

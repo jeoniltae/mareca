@@ -78,9 +78,11 @@ export function OpenLectureForm({
     startTransition(async () => {
       try {
         if (mode === 'edit' && postId) {
-          await updateOpenLecture(postId, formData)
+          const targetId = await updateOpenLecture(postId, formData)
+          router.replace(`/community/open-lecture/${targetId}`)
         } else {
-          await createOpenLecture(formData)
+          const targetId = await createOpenLecture(formData)
+          router.replace(`/community/open-lecture/${targetId}`)
         }
       } catch (e) {
         if (isRedirectError(e)) throw e

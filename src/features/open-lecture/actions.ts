@@ -9,7 +9,7 @@ import { getIsAdmin } from '@/lib/admin'
 const BOARD = 'open-lecture'
 const BASE_PATH = '/community/open-lecture'
 
-export async function createOpenLecture(formData: FormData) {
+export async function createOpenLecture(formData: FormData): Promise<string> {
   const supabase = await createClient()
   const {
     data: { user },
@@ -52,10 +52,10 @@ export async function createOpenLecture(formData: FormData) {
   if (error) throw new Error(error.message)
 
   revalidatePath(BASE_PATH)
-  redirect(`${BASE_PATH}/${data.id}`)
+  return data.id
 }
 
-export async function updateOpenLecture(id: string, formData: FormData) {
+export async function updateOpenLecture(id: string, formData: FormData): Promise<string> {
   const supabase = await createClient()
   const {
     data: { user },
@@ -101,8 +101,7 @@ export async function updateOpenLecture(id: string, formData: FormData) {
   }
 
   revalidatePath(BASE_PATH)
-  revalidatePath(`${BASE_PATH}/${id}`)
-  redirect(`${BASE_PATH}/${id}`)
+  return id
 }
 
 export async function deleteOpenLecture(id: string) {

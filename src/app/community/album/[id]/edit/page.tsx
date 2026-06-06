@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase-server'
+import { getIsAdmin } from '@/lib/admin'
 import { notFound, redirect } from 'next/navigation'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { GalleryForm } from '@/features/gallery/GalleryForm'
@@ -13,9 +14,10 @@ export default async function GalleryEditPage({ params }: Props) {
   const { id } = await params
   const supabase = await createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const [{ data: { user } }, isAdmin] = await Promise.all([
+    supabase.auth.getUser(),
+    getIsAdmin(),
+  ])
 
   if (!user) redirect('/login')
 
@@ -27,7 +29,7 @@ export default async function GalleryEditPage({ params }: Props) {
     .single()
 
   if (!post) notFound()
-  if (post.user_id !== user.id) redirect(`/community/album/${id}`)
+  if (!isAdmin && post.user_id !== user.id) redirect(`/community/album/${id}`)
 
   const { data: images } = await supabase
     .from('post_images')

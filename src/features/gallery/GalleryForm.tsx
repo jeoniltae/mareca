@@ -93,9 +93,11 @@ export function GalleryForm({
     startTransition(async () => {
       try {
         if (mode === 'create') {
-          await createGalleryPost(title.trim(), description.trim(), images, category)
+          const targetId = await createGalleryPost(title.trim(), description.trim(), images, category)
+          router.replace(`/community/album/${targetId}`)
         } else if (mode === 'edit' && postId) {
-          await updateGalleryPost(postId, title.trim(), description.trim(), images, deletedUrls, category)
+          const targetId = await updateGalleryPost(postId, title.trim(), description.trim(), images, deletedUrls, category)
+          router.replace(`/community/album/${targetId}`)
         }
       } catch (err) {
         if ((err as { digest?: string }).digest?.startsWith('NEXT_REDIRECT')) throw err
