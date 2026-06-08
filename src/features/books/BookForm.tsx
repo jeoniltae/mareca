@@ -368,7 +368,7 @@ export function BookForm({ mode, id, defaultValues, cancelHref }: BookFormProps)
         confirmLabel="취소하기"
         cancelLabel="계속 작성"
         confirmClassName="bg-slate-700 hover:bg-slate-800 text-white"
-        onConfirm={() => router.push(cancelHref)}
+        onConfirm={() => router.replace(cancelHref)}
         onCancel={() => setShowCancelConfirm(false)}
       />
     </>

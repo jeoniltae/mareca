@@ -22,7 +22,7 @@ export function OpenLectureActions({ id }: OpenLectureActionsProps) {
   function handleConfirm() {
     if (dialog === 'edit') {
       setDialog(null)
-      router.push(`/community/open-lecture/${id}/edit`)
+      router.replace(`/community/open-lecture/${id}/edit`)
     } else if (dialog === 'delete') {
       setDialog(null)
       startTransition(async () => {

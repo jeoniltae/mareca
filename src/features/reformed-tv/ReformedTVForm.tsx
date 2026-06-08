@@ -196,7 +196,7 @@ export function ReformedTVForm({ mode, postId, initialValues, cancelHref }: Refo
         onConfirm={() => {
           setShowCancelConfirm(false)
           startCancelTransition(() => {
-            router.push(cancelHref)
+            router.replace(cancelHref)
           })
         }}
         onCancel={() => setShowCancelConfirm(false)}

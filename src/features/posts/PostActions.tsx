@@ -22,7 +22,7 @@ export function PostActions({ id, basePath = '/community/free' }: PostActionsPro
   function handleConfirm() {
     if (dialog === 'edit') {
       setDialog(null)
-      router.push(`${basePath}/${id}/edit`)
+      router.replace(`${basePath}/${id}/edit`)
     } else if (dialog === 'delete') {
       setDialog(null)
       startTransition(async () => {

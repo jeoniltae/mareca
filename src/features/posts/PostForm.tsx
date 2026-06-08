@@ -293,7 +293,7 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
           setShowCancelConfirm(false)
           startCancelTransition(async () => {
             await deleteEditorImages(editorImageUrls)
-            router.push(cancelHref)
+            router.replace(cancelHref)
           })
         }}
         onCancel={() => setShowCancelConfirm(false)}
