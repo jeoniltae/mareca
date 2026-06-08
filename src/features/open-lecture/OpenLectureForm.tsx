@@ -332,7 +332,7 @@ export function OpenLectureForm({
         onConfirm={() => {
           setShowCancelConfirm(false)
           startCancelTransition(() => {
-            router.push(cancelHref)
+            router.replace(cancelHref)
           })
         }}
         onCancel={() => setShowCancelConfirm(false)}

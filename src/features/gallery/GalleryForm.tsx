@@ -270,7 +270,11 @@ export function GalleryForm({
         onConfirm={async () => {
           const newlyUploaded = images.filter((url) => !initialImages.includes(url))
           if (newlyUploaded.length > 0) await deleteGalleryImages(newlyUploaded)
-          router.back()
+          if (mode === 'edit' && postId) {
+            router.replace(`/community/album/${postId}`)
+          } else {
+            router.replace('/community/album')
+          }
         }}
         onCancel={() => setShowCancelConfirm(false)}
       />

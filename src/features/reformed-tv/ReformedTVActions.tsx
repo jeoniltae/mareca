@@ -21,7 +21,7 @@ export function ReformedTVActions({ id }: ReformedTVActionsProps) {
   function handleConfirm() {
     if (dialog === 'edit') {
       setDialog(null)
-      router.push(`/community/reformed-tv/${id}/edit`)
+      router.replace(`/community/reformed-tv/${id}/edit`)
     } else if (dialog === 'delete') {
       setDialog(null)
       startTransition(async () => {
