@@ -14,6 +14,8 @@ const nextConfig: NextConfig = {
     return [
       { source: '/posts/message', destination: '/community/message', permanent: true },
       { source: '/posts/voice', destination: '/community/voice', permanent: true },
+      // 레거시 PHP 홈페이지 → 현재 홈으로 영구 이동 (Google 색인 정리용)
+      { source: '/index.php', destination: '/', permanent: true },
     ];
   },
   turbopack: {},
