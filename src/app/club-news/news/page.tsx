@@ -6,7 +6,7 @@ import { Pagination } from '@/components/shared/Pagination'
 import { BoardSearch } from '@/components/shared/BoardSearch'
 import { cn } from '@/lib/utils'
 import { PenSquare, Eye, Pin } from 'lucide-react'
-import Link from 'next/link'
+import { Link } from 'next-view-transitions'
 
 export const metadata = {
   title: '소식 — 클럽소식',

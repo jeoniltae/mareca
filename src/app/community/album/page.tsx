@@ -2,7 +2,7 @@
 import { formatYMD } from "@/lib/date";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Pagination } from "@/components/shared/Pagination";
-import Link from "next/link";
+import { Link } from 'next-view-transitions'
 import { PenSquare, Images, Eye } from "lucide-react";
 import { AuthorIcon } from "@/components/shared/AuthorIcon";
 import { GalleryImage } from "@/features/gallery/GalleryImage";

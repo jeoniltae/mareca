@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { Link } from 'next-view-transitions'
 import { Phone, Copy, Check } from 'lucide-react'
 import { PolicyModals } from './PolicyModals'
 import { useState } from 'react'

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { KeyRound, Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react'
-import Link from 'next/link'
+import { Link } from 'next-view-transitions'
 
 const MASTERS_EMAIL = 'masters@mareca.kr'
 

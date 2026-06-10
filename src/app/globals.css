@@ -137,9 +137,27 @@ button {
   cursor: pointer;
 }
 
-/* ─── 페이지 콘텐츠 진입 애니메이션 (Suspense 전환 시 공백 플래시 완화) ─────── */
-main > * {
-  animation: fadeIn 0.15s ease-out;
+/* ─── 페이지 전환 (View Transitions API) ──────────────────────────────────── */
+/* VT 지원 브라우저(Chrome/Edge 111+, Safari 18+): 페이지 전환 시 root 크로스페이드 */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.22s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 모션 최소화 설정 시 전환 애니메이션 비활성화 */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+/* VT 미지원 브라우저(Firefox 등): 기존 진입 fade 유지 (Suspense 공백 플래시 완화) */
+@supports not (view-transition-name: none) {
+  main > * {
+    animation: fadeIn 0.15s ease-out;
+  }
 }
 
 @keyframes fadeIn {

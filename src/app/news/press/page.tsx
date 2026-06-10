@@ -3,7 +3,7 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { Pagination } from '@/components/shared/Pagination'
 import { BoardSearch } from '@/components/shared/BoardSearch'
 import Image from 'next/image'
-import Link from 'next/link'
+import { Link } from 'next-view-transitions'
 import { cn } from '@/lib/utils'
 
 import type { Metadata } from 'next'

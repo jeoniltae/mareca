@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { Link } from 'next-view-transitions'
 import { BackButton } from '@/components/shared/BackButton'
 
 export default function NotFound() {

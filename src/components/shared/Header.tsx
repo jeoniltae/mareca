@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useLayoutEffect } from 'react'
-import Link from 'next/link'
+import { Link } from 'next-view-transitions'
 import { usePathname, useRouter } from 'next/navigation'
 import { Menu, X, LogIn, LogOut, User, CheckCircle2, ChevronDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
