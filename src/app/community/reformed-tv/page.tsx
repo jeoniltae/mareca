@@ -7,7 +7,7 @@ import {
   getYoutubeThumbnail,
 } from "@/features/youtube/youtube-utils";
 import { PenSquare, Play, Calendar, Eye } from "lucide-react";
-import Link from "next/link";
+import { Link } from 'next-view-transitions'
 
 import type { Metadata } from 'next'
 

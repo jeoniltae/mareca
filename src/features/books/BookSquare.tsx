@@ -1,6 +1,6 @@
 // 리폼드북스 목록에서 사용하는 도서 카드 컴포넌트
 import Image from 'next/image'
-import Link from 'next/link'
+import { Link } from 'next-view-transitions'
 import type { BookSections } from './actions'
 
 interface BookSquareProps {

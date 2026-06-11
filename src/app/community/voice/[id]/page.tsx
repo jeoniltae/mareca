@@ -10,7 +10,7 @@ import { getIsAdmin } from "@/lib/admin";
 import { PostImageGallery } from "@/features/posts/PostImageGallery";
 import { PostFileDownloadList } from "@/features/posts/PostFileDownloadList";
 import { Eye, Calendar, Tag, User } from "lucide-react";
-import Link from "next/link";
+import { Link } from 'next-view-transitions'
 import { ShareButtons } from "@/components/shared/ShareButtons";
 import { BackToListLink } from "@/components/shared/BackToListLink";
 

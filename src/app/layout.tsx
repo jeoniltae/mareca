@@ -9,6 +9,7 @@ import { KakaoScript } from '@/components/shared/KakaoScript'
 import { NavigationProgress } from '@/components/shared/NavigationProgress'
 import { NavigationTracker } from '@/components/shared/NavigationTracker'
 import { Suspense } from 'react'
+import { ViewTransitions } from 'next-view-transitions'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 
@@ -63,22 +64,24 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ko" className={`${notoSansKR.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <ScrollToTop />
-        <KakaoScript />
-        <NavigationProgress />
-        <Suspense fallback={null}><NavigationTracker /></Suspense>
-        <Analytics />
-        <SpeedInsights />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
-        />
-      </body>
-    </html>
+    <ViewTransitions>
+      <html lang="ko" className={`${notoSansKR.variable} h-full antialiased`}>
+        <body className="min-h-full flex flex-col">
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+          <ScrollToTop />
+          <KakaoScript />
+          <NavigationProgress />
+          <Suspense fallback={null}><NavigationTracker /></Suspense>
+          <Analytics />
+          <SpeedInsights />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
+          />
+        </body>
+      </html>
+    </ViewTransitions>
   )
 }

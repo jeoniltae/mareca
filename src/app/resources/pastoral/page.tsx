@@ -7,7 +7,7 @@ import { YEAR_CATEGORIES } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { BoardSearch } from '@/components/shared/BoardSearch'
 import { PenSquare, Eye } from 'lucide-react'
-import Link from 'next/link'
+import { Link } from 'next-view-transitions'
 
 import type { Metadata } from 'next'
 

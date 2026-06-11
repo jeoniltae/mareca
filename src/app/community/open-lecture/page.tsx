@@ -6,7 +6,7 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { Pagination } from '@/components/shared/Pagination'
 import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtube-utils'
 import { PenSquare, Play, MapPin, Calendar, Eye, Pin } from 'lucide-react'
-import Link from 'next/link'
+import { Link } from 'next-view-transitions'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
