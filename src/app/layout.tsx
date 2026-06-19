@@ -21,6 +21,26 @@ const notoSansKR = Noto_Sans_KR({
   preload: false,
 })
 
+// scripts/generate-apple-splash.mjs로 생성된 public/images/splash/* 와 1:1 대응 (세로 모드만)
+const APPLE_SPLASH_DEVICES = [
+  { width: 375, height: 667, ratio: 2 },
+  { width: 414, height: 736, ratio: 3 },
+  { width: 375, height: 812, ratio: 3 },
+  { width: 414, height: 896, ratio: 2 },
+  { width: 414, height: 896, ratio: 3 },
+  { width: 390, height: 844, ratio: 3 },
+  { width: 428, height: 926, ratio: 3 },
+  { width: 393, height: 852, ratio: 3 },
+  { width: 430, height: 932, ratio: 3 },
+  { width: 402, height: 874, ratio: 3 },
+  { width: 440, height: 956, ratio: 3 },
+]
+
+const APPLE_SPLASH_SCREENS = APPLE_SPLASH_DEVICES.map(({ width, height, ratio }) => ({
+  url: `/images/splash/apple-splash-${width * ratio}x${height * ratio}.png`,
+  media: `(device-width: ${width}px) and (device-height: ${height}px) and (-webkit-device-pixel-ratio: ${ratio}) and (orientation: portrait)`,
+}))
+
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
   title: {
@@ -34,7 +54,7 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: 'default',
     title: '마스터스개혁파총회',
-    startupImage: '/images/icons/apple-touch-icon.png',
+    startupImage: APPLE_SPLASH_SCREENS,
   },
   openGraph: {
     type: 'website',
@@ -65,17 +85,7 @@ export default function RootLayout({
 }>) {
   return (
     <ViewTransitions>
-      <html
-        lang="ko"
-        className={`${notoSansKR.variable} h-full antialiased`}
-        style={{
-          backgroundColor: '#ffffff',
-          backgroundImage: 'url(/images/logo.png)',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center',
-          backgroundSize: 'min(160px, 35vw)',
-        }}
-      >
+      <html lang="ko" className={`${notoSansKR.variable} h-full antialiased`}>
         <body className="min-h-full flex flex-col">
           <Header />
           <main className="flex-1">{children}</main>
