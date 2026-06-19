@@ -65,7 +65,17 @@ export default function RootLayout({
 }>) {
   return (
     <ViewTransitions>
-      <html lang="ko" className={`${notoSansKR.variable} h-full antialiased`}>
+      <html
+        lang="ko"
+        className={`${notoSansKR.variable} h-full antialiased`}
+        style={{
+          backgroundColor: '#ffffff',
+          backgroundImage: 'url(/images/logo.png)',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          backgroundSize: 'min(160px, 35vw)',
+        }}
+      >
         <body className="min-h-full flex flex-col">
           <Header />
           <main className="flex-1">{children}</main>
