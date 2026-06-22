@@ -169,16 +169,23 @@ alter table public.새테이블 enable row level security;
 ### 자동 처리 (추가 작업 불필요)
 - **게시글 상세 페이지**: `generateMetadata`가 DB에서 동적으로 title/description/OG/canonical 생성
 - **sitemap.xml**: `src/app/sitemap.ts`가 DB 조회해서 자동 생성 — 새 게시글도 자동 포함
-- **JSON-LD (Article)**: 게시글 작성 시 자동 적용 (14개 동적 라우트에 구현됨)
-- **JSON-LD (Organization)**: `src/app/layout.tsx`에서 전역 적용
+- **JSON-LD (Article)**: 게시글 작성 시 자동 적용 (17개 동적 라우트에 구현됨), 작성자 닉네임을 `author`(Person)로 포함 — 없으면 Organization으로 fallback
+- **JSON-LD (Organization·WebSite)**: `src/app/layout.tsx`에서 전역 적용
+- **JSON-LD (BreadcrumbList)**: about/vision/constitution 핵심 정적 페이지(confession 제외)에 적용
 
 ### 새 페이지/게시판 추가 시에만 수동 작업 필요
 1. **새 정적 페이지** (`page.tsx` 신규 생성) → 파일 상단에 `export const metadata: Metadata = { title, description, openGraph }` 추가
 2. **새 게시판 추가** → `src/app/sitemap.ts`의 `BOARD_PATH_MAP`과 `STATIC_ROUTES` 목록에 경로 추가
    - **단, 비로그인 접근 불가 페이지(layout.tsx에서 redirect 처리)는 사이트맵에 추가하지 않는다**
+   - `public/llms.txt`에도 해당 섹션 링크 추가 (접근 제한 페이지는 사이트맵과 동일하게 제외)
 3. **새 동적 라우트** (`[id]/page.tsx` 신규 생성) → `generateMetadata` + `articleJsonLd` 추가 (`src/lib/json-ld.ts`의 헬퍼 사용)
+4. **새 핵심 정적 페이지(about/vision/constitution류)** → `src/lib/json-ld.ts`의 `breadcrumbJsonLd()`로 BreadcrumbList 적용 (페이지의 `breadcrumbs={[...]}` 리터럴을 변수로 추출해 `PageHeader`와 JSON-LD 양쪽에 전달). 페이지가 자체 FAQPage 등 BreadcrumbList를 이미 포함한 JSON-LD 헬퍼(예: `confessionPageJsonLd`)를 쓰고 있다면 중복 추가하지 않음
 
-### 접근 제한으로 사이트맵에서 제외된 경로
+### AI 크롤러 정책
+- `src/app/robots.ts`에 GPTBot, ClaudeBot, PerplexityBot, Google-Extended 등 주요 AI 크롤러를 명시적으로 allow — 학습용/검색용 구분 없이 전부 허용(최대 노출 우선, 2026-06-19 결정)
+- `public/llms.txt` — AI 검색·답변 엔진을 위한 사이트 개요 및 핵심 섹션 링크(llmstxt.org 표준 포맷). 게시글 개별 URL은 나열하지 않음(sitemap.xml의 역할)
+
+### 접근 제한으로 사이트맵/llms.txt에서 제외된 경로
 - `/resources/*` — `src/app/resources/layout.tsx`에서 특정 이메일(`masters@mareca.kr`, `admin@mareca.kr`)만 허용, 그 외 `/`로 리다이렉트
 - `/report/minutes` — `src/app/report/layout.tsx`에서 동일한 이메일 제한
 - `/online-admin/*` — 로그인 필요
@@ -186,10 +193,11 @@ alter table public.새테이블 enable row level security;
 
 ### 관련 파일
 - `src/app/sitemap.ts` — 사이트맵 (정적 + 동적 URL 자동 생성)
-- `src/app/robots.ts` — 크롤러 허용/차단 규칙
+- `src/app/robots.ts` — 크롤러 허용/차단 규칙 (AI 크롤러 포함)
+- `public/llms.txt` — AI 검색·답변 엔진용 사이트 개요
 - `src/app/manifest.ts` — PWA 설정
-- `src/lib/json-ld.ts` — JSON-LD 헬퍼 (`organizationJsonLd`, `articleJsonLd`)
-- `src/app/layout.tsx` — 전역 metadata (OG, Twitter, canonical, 구글/네이버 인증, Organization JSON-LD)
+- `src/lib/json-ld.ts` — JSON-LD 헬퍼 (`organizationJsonLd`, `websiteJsonLd`, `breadcrumbJsonLd`, `articleJsonLd`, `confessionPageJsonLd`)
+- `src/app/layout.tsx` — 전역 metadata (OG, Twitter, canonical, 구글/네이버 인증, Organization·WebSite JSON-LD)
 
 ---
 

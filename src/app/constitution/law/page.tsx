@@ -4,8 +4,10 @@ import { useState } from 'react'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { constitutionData } from './law-data'
 import { ConstitutionContent } from './ConstitutionContent'
+import { breadcrumbJsonLd } from '@/lib/json-ld'
 
 const TABS = constitutionData.map((s) => ({ id: s.id, title: s.title }))
+const BREADCRUMBS = [{ label: '총회헌법', href: '/constitution' }, { label: '총회헌법' }]
 
 export default function ConstitutionLawPage() {
   const [activeTab, setActiveTab] = useState(TABS[0].id)
@@ -13,9 +15,13 @@ export default function ConstitutionLawPage() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(BREADCRUMBS)) }}
+      />
       <PageHeader
         title="총회헌법"
-        breadcrumbs={[{ label: '총회헌법', href: '/constitution' }, { label: '총회헌법' }]}
+        breadcrumbs={BREADCRUMBS}
         backgroundImage="/images/breadcrumb/john_calvin.jpg"
         bgColor="bg-slate-800"
         imagePosition="center 40%"

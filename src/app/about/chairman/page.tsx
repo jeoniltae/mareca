@@ -1,4 +1,5 @@
 ﻿import { PageHeader } from '@/components/shared/PageHeader'
+import { breadcrumbJsonLd } from '@/lib/json-ld'
 import Image from 'next/image'
 
 import type { Metadata } from 'next'
@@ -8,6 +9,8 @@ export const metadata: Metadata = {
   description: '마스터스개혁파총회 이사장 최더함 목사의 인사말입니다.',
   openGraph: { title: '이사장', description: '마스터스개혁파총회 이사장 최더함 목사의 인사말입니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/chairman` },
 }
+
+const BREADCRUMBS = [{ label: '총회소개', href: '/about' }, { label: '이사장' }]
 
 const PARAGRAPHS = [
   '이것이 마스터스 개혁파총회 설립에 대한 첫 반응이었습니다. 그런 분들에게 일일이 새로운 총회를 설립해야 하는 이유와 당위성을 설명하는 일이 쉽지 않았습니다.',
@@ -20,9 +23,13 @@ const PARAGRAPHS = [
 export default function AboutChairmanPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(BREADCRUMBS)) }}
+      />
       <PageHeader
         title="이사장"
-        breadcrumbs={[{ label: '총회소개', href: '/about' }, { label: '이사장' }]}
+        breadcrumbs={BREADCRUMBS}
         backgroundImage="/images/breadcrumb/john_calvin.jpg"
         bgColor="bg-slate-800"
       />

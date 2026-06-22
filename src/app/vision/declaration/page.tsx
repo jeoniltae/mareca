@@ -1,5 +1,6 @@
 ﻿import { Link } from 'next-view-transitions'
 import { ChevronRight } from 'lucide-react'
+import { breadcrumbJsonLd } from '@/lib/json-ld'
 
 import type { Metadata } from 'next'
 
@@ -8,6 +9,8 @@ export const metadata: Metadata = {
   description: '성경무오성, 개혁신학 등 마스터스개혁파총회의 5대 선언문입니다.',
   openGraph: { title: '선언문', description: '성경무오성, 개혁신학 등 마스터스개혁파총회의 5대 선언문입니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/vision/declaration` },
 }
+
+const BREADCRUMBS = [{ label: '비전과사명', href: '/vision' }, { label: '선언문' }]
 
 const DECLARATIONS = [
   {
@@ -40,6 +43,10 @@ const DECLARATIONS = [
 export default function AboutDeclarationPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(BREADCRUMBS)) }}
+      />
       {/* 헤더 섹션 */}
       <section className="bg-[#1C2E50] py-16 sm:py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -1,5 +1,6 @@
 ﻿import Image from 'next/image'
 import { PageHeader } from '@/components/shared/PageHeader'
+import { breadcrumbJsonLd } from '@/lib/json-ld'
 
 import type { Metadata } from 'next'
 
@@ -9,6 +10,8 @@ export const metadata: Metadata = {
   openGraph: { title: '임원', description: '마스터스개혁파총회 임원진 및 주요 직책자를 소개합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/officers` },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/about/officers` },
 }
+
+const BREADCRUMBS = [{ label: '총회소개', href: '/about' }, { label: '임원' }]
 
 type Member = { name: string; title: string; note?: string; image?: string }
 type OfficerGroup = { role: string; members: Member[]; vacant?: boolean }
@@ -127,9 +130,13 @@ function OfficerCard({ name, title, note, image }: { name: string; title: string
 export default function AboutOfficersPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(BREADCRUMBS)) }}
+      />
       <PageHeader
         title="임원"
-        breadcrumbs={[{ label: '총회소개', href: '/about' }, { label: '임원' }]}
+        breadcrumbs={BREADCRUMBS}
         backgroundImage="/images/breadcrumb/john_calvin.jpg"
         bgColor="bg-slate-800"
       />

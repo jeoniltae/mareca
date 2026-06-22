@@ -1,4 +1,5 @@
 ﻿import { PageHeader } from '@/components/shared/PageHeader'
+import { breadcrumbJsonLd } from '@/lib/json-ld'
 import Image from 'next/image'
 
 import type { Metadata } from 'next'
@@ -8,6 +9,8 @@ export const metadata: Metadata = {
   description: '마스터스개혁파총회를 설립하게 된 이유와 신학적 배경을 설명합니다.',
   openGraph: { title: '왜 마스터스개혁파총회를 시작하는가?', description: '마스터스개혁파총회를 설립하게 된 이유와 신학적 배경을 설명합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/reason` },
 }
+
+const BREADCRUMBS = [{ label: '총회소개', href: '/about' }, { label: '왜 마스터스개혁파총회를 시작하는가?' }]
 
 const REASONS = [
   {
@@ -49,9 +52,13 @@ const REASONS = [
 export default function AboutReasonPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(BREADCRUMBS)) }}
+      />
       <PageHeader
         title="왜 마스터스개혁파총회를 시작하는가?"
-        breadcrumbs={[{ label: '총회소개', href: '/about' }, { label: '왜 마스터스개혁파총회를 시작하는가?' }]}
+        breadcrumbs={BREADCRUMBS}
         backgroundImage="/images/breadcrumb/john_calvin.jpg"
         bgColor="bg-slate-800"
       />

@@ -271,6 +271,7 @@ export default async function OpenLectureDetailPage({ params }: Props) {
                 datePublished: post.created_at ?? undefined,
                 dateModified: post.updated_at ?? undefined,
                 imageUrl: videoId ? getYoutubeThumbnail(videoId) : undefined,
+                authorName: (post.profiles as { nickname: string | null } | null)?.nickname ?? undefined,
               })
             ),
           }}
