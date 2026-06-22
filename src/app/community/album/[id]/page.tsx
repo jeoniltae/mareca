@@ -132,6 +132,7 @@ export default async function GalleryDetailPage({ params }: Props) {
                 url: `${process.env.NEXT_PUBLIC_SITE_URL}/community/album/${id}`,
                 datePublished: post.created_at ?? undefined,
                 imageUrl: imageUrls[0],
+                authorName: (post.profiles as { nickname: string | null } | null)?.nickname ?? undefined,
               })
             ),
           }}

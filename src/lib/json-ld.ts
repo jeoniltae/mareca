@@ -12,6 +12,31 @@ export function organizationJsonLd() {
   }
 }
 
+export function websiteJsonLd() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: '마스터스개혁파총회',
+    alternateName: 'MRA',
+    url: BASE_URL,
+    inLanguage: 'ko-KR',
+  }
+}
+
+export function breadcrumbJsonLd(items: { label: string; href?: string }[]) {
+  const allItems = [{ label: '홈', href: '/' }, ...items]
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: allItems.map((item, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: item.label,
+      ...(item.href ? { item: BASE_URL + item.href } : {}),
+    })),
+  }
+}
+
 export function confessionPageJsonLd() {
   return [
     {
@@ -79,6 +104,7 @@ export function articleJsonLd({
   datePublished,
   dateModified,
   imageUrl,
+  authorName,
 }: {
   title: string
   description: string
@@ -86,6 +112,7 @@ export function articleJsonLd({
   datePublished?: string
   dateModified?: string
   imageUrl?: string
+  authorName?: string
 }) {
   return {
     '@context': 'https://schema.org',
@@ -96,6 +123,9 @@ export function articleJsonLd({
     datePublished,
     dateModified: dateModified ?? datePublished,
     image: imageUrl ?? `${BASE_URL}/images/logo.png`,
+    author: authorName
+      ? { '@type': 'Person', name: authorName }
+      : { '@type': 'Organization', name: '마스터스개혁파총회' },
     publisher: {
       '@type': 'Organization',
       name: '마스터스개혁파총회',

@@ -147,6 +147,7 @@ export default async function PostDetailPage({ params }: Props) {
                 url: `${process.env.NEXT_PUBLIC_SITE_URL}/community/free/${id}`,
                 datePublished: post.created_at ?? undefined,
                 dateModified: post.updated_at ?? undefined,
+                authorName: (post.profiles as { nickname: string | null } | null)?.nickname ?? undefined,
               })
             ),
           }}

@@ -1,5 +1,6 @@
 ﻿import Image from 'next/image'
 import { PageHeader } from '@/components/shared/PageHeader'
+import { breadcrumbJsonLd } from '@/lib/json-ld'
 
 import type { Metadata } from 'next'
 
@@ -8,6 +9,8 @@ export const metadata: Metadata = {
   description: '마스터스개혁파총회가 추구하는 10가지 사명과 비전을 소개합니다.',
   openGraph: { title: '10 Missions', description: '마스터스개혁파총회가 추구하는 10가지 사명과 비전을 소개합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/vision` },
 }
+
+const BREADCRUMBS = [{ label: '비전과사명', href: '/vision' }, { label: '10 Missions' }]
 
 const MISSIONS = [
   {
@@ -75,9 +78,13 @@ const MISSIONS = [
 export default function TenMissionsPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(BREADCRUMBS)) }}
+      />
       <PageHeader
         title="10 Missions"
-        breadcrumbs={[{ label: '비전과사명', href: '/vision' }, { label: '10 Missions' }]}
+        breadcrumbs={BREADCRUMBS}
         backgroundImage="/images/breadcrumb/theodorus_beza.jpeg"
         bgColor="bg-slate-800"
         imagePosition="center 40%"

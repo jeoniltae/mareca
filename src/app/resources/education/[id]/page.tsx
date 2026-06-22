@@ -141,6 +141,7 @@ export default async function EducationPostDetailPage({ params }: Props) {
                 url: `${process.env.NEXT_PUBLIC_SITE_URL}${BOARD_PATH}/${id}`,
                 datePublished: post.created_at ?? undefined,
                 dateModified: post.updated_at ?? undefined,
+                authorName: (post.profiles as { nickname: string | null } | null)?.nickname ?? undefined,
               })
             ),
           }}

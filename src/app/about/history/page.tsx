@@ -1,4 +1,5 @@
 ﻿import { PageHeader } from '@/components/shared/PageHeader'
+import { breadcrumbJsonLd } from '@/lib/json-ld'
 
 import type { Metadata } from 'next'
 
@@ -8,6 +9,8 @@ export const metadata: Metadata = {
   openGraph: { title: '연혁 및 주요 행사', description: '2023년 창립부터 현재까지 마스터스개혁파총회의 주요 연혁과 행사를 소개합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/history` },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/about/history` },
 }
+
+const BREADCRUMBS = [{ label: '총회소개', href: '/about' }, { label: '연혁 및 주요 행사' }]
 
 const HISTORY: { year: number; events: { date: string; title: string; desc?: string }[] }[] = [
   {
@@ -81,9 +84,13 @@ const HISTORY: { year: number; events: { date: string; title: string; desc?: str
 export default function AboutHistoryPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(BREADCRUMBS)) }}
+      />
       <PageHeader
         title="연혁 및 주요 행사"
-        breadcrumbs={[{ label: '총회소개', href: '/about' }, { label: '연혁 및 주요 행사' }]}
+        breadcrumbs={BREADCRUMBS}
         backgroundImage="/images/breadcrumb/john_calvin.jpg"
         bgColor="bg-slate-800"
       />

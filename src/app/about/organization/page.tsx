@@ -1,5 +1,6 @@
 ﻿import { PageHeader } from '@/components/shared/PageHeader'
 import { CheckCircle2, Users } from 'lucide-react'
+import { breadcrumbJsonLd } from '@/lib/json-ld'
 
 import type { Metadata } from 'next'
 
@@ -8,6 +9,8 @@ export const metadata: Metadata = {
   description: '마스터스개혁파총회의 조직 구조와 사역 원칙을 안내합니다.',
   openGraph: { title: '총회조직 및 사역원칙', description: '마스터스개혁파총회의 조직 구조와 사역 원칙을 안내합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/organization` },
 }
+
+const BREADCRUMBS = [{ label: '총회소개', href: '/about' }, { label: '총회조직 및 사역원칙' }]
 
 const AFFILIATED_CHURCHES = [
   { region: '서울', churches: '바로선개혁교회, 청교도개혁교회' },
@@ -90,9 +93,13 @@ function SectionTitle({ en, ko }: { en: string; ko: string }) {
 export default function AboutOrganizationPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(BREADCRUMBS)) }}
+      />
       <PageHeader
         title="총회조직 및 사역원칙"
-        breadcrumbs={[{ label: '총회소개', href: '/about' }, { label: '총회조직 및 사역원칙' }]}
+        breadcrumbs={BREADCRUMBS}
         backgroundImage="/images/breadcrumb/john_calvin.jpg"
         bgColor="bg-slate-800"
       />

@@ -1,6 +1,7 @@
 ﻿import { MapPin, Phone, Mail } from 'lucide-react'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { KakaoMap } from '@/components/shared/KakaoMap'
+import { breadcrumbJsonLd } from '@/lib/json-ld'
 
 import type { Metadata } from 'next'
 
@@ -9,6 +10,8 @@ export const metadata: Metadata = {
   description: '마스터스개혁파총회 사무처의 위치와 연락처, 오시는 방법을 안내합니다.',
   openGraph: { title: '오시는 길', description: '마스터스개혁파총회 사무처의 위치와 연락처, 오시는 방법을 안내합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/directions` },
 }
+
+const BREADCRUMBS = [{ label: '총회소개', href: '/about' }, { label: '오시는 길' }]
 
 const LOCATIONS = [
   {
@@ -28,9 +31,13 @@ const LOCATIONS = [
 export default function AboutDirectionsPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(BREADCRUMBS)) }}
+      />
       <PageHeader
         title="오시는 길"
-        breadcrumbs={[{ label: '총회소개', href: '/about' }, { label: '오시는 길' }]}
+        breadcrumbs={BREADCRUMBS}
         backgroundImage="/images/breadcrumb/john_calvin.jpg"
         bgColor="bg-slate-800"
       />

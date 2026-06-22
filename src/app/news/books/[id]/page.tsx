@@ -99,6 +99,7 @@ export default async function BookDetailPage({ params }: Props) {
               datePublished: post.created_at ?? undefined,
               dateModified: post.updated_at ?? undefined,
               imageUrl: post.thumbnail_url ?? undefined,
+              authorName: sections.book_info?.author ?? undefined,
             })
           ),
         }}
