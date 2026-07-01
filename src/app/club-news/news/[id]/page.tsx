@@ -9,6 +9,8 @@ import { PostActions } from '@/features/posts/PostActions'
 import { getIsAdmin } from '@/lib/admin'
 import { PostImageGallery } from '@/features/posts/PostImageGallery'
 import { PostFileDownloadList } from '@/features/posts/PostFileDownloadList'
+import { VideoPlayer } from '@/features/posts/VideoPlayer'
+import { getPostVideo } from '@/features/posts/video-actions'
 import { Eye, Calendar, Tag, User } from 'lucide-react'
 import { ShareButtons } from '@/components/shared/ShareButtons'
 import { BackToListLink } from '@/components/shared/BackToListLink'
@@ -48,12 +50,13 @@ export default async function ClubNewsDetailPage({ params }: Props) {
   const { id } = await params
   const supabase = await createClient()
 
-  const [{ data: post }, { data: { user } }, { data: postImages }, { data: postAttachments }, isAdmin] = await Promise.all([
+  const [{ data: post }, { data: { user } }, { data: postImages }, { data: postAttachments }, isAdmin, postVideo] = await Promise.all([
     supabase.from('posts').select('*, profiles(nickname)').eq('id', id).single(),
     supabase.auth.getUser(),
     supabase.from('post_images').select('id, url').eq('post_id', id).order('display_order'),
     supabase.from('post_attachments').select('id, file_name, file_url, file_size').eq('post_id', id),
     getIsAdmin(),
+    getPostVideo(id),
   ])
 
   if (!post) return notFound()
@@ -109,6 +112,15 @@ export default async function ClubNewsDetailPage({ params }: Props) {
 
         <PostImageGallery images={postImages ?? []} />
         <PostFileDownloadList attachments={postAttachments ?? []} />
+
+        {/* Mux 동영상 */}
+        {postVideo && (
+          <div className="mt-8">
+            <p className="mb-2 text-sm font-medium text-slate-700">첨부 동영상</p>
+            <VideoPlayer playbackId={postVideo.mux_playback_id} status={postVideo.status} />
+          </div>
+        )}
+
         <ViewTracker id={id} boardPath="/club-news/news" />
 
         {post.youtube_url && (

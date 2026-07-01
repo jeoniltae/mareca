@@ -109,6 +109,47 @@ export type Database = {
           },
         ]
       }
+      post_videos: {
+        Row: {
+          created_at: string | null
+          duration: number | null
+          id: string
+          mux_asset_id: string | null
+          mux_playback_id: string | null
+          mux_upload_id: string
+          post_id: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string | null
+          duration?: number | null
+          id?: string
+          mux_asset_id?: string | null
+          mux_playback_id?: string | null
+          mux_upload_id: string
+          post_id?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string | null
+          duration?: number | null
+          id?: string
+          mux_asset_id?: string | null
+          mux_playback_id?: string | null
+          mux_upload_id?: string
+          post_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_videos_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           article_url: string | null

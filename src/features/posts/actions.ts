@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase-server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { compressImage, isImageFile } from '@/lib/compress-image'
+import { deleteMuxVideo } from './video-actions'
 
 // ─── 게시글 생성 ────────────────────────────────────────────────────────────────
 export async function createPost(formData: FormData): Promise<string> {
@@ -134,6 +135,14 @@ export async function deletePost(id: string, boardPath = '/community/free') {
       .map((url) => decodeURIComponent(url.slice(bucketPrefix.length)))
     if (paths.length > 0) await supabase.storage.from('post-attachments').remove(paths)
   }
+
+  // Mux 영상 삭제
+  const { data: video } = await supabase
+    .from('post_videos')
+    .select('id')
+    .eq('post_id', id)
+    .maybeSingle()
+  if (video) await deleteMuxVideo(video.id)
 
   const deleteQuery = supabase.from('posts').delete().eq('id', id)
   const { error } = isAdmin ? await deleteQuery : await deleteQuery.eq('user_id', user.id)

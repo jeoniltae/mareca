@@ -3,6 +3,7 @@ import { redirect, notFound } from 'next/navigation'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { PostForm } from '@/features/posts/PostForm'
 import { getIsAdmin, getCanPin } from '@/lib/admin'
+import { getPostVideo } from '@/features/posts/video-actions'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -28,9 +29,10 @@ export default async function EditClubNewsPage({ params }: Props) {
 
   if (!post || (!isAdmin && post.user_id !== user.id)) return notFound()
 
-  const [{ data: postImages }, { data: postAttachments }] = await Promise.all([
+  const [{ data: postImages }, { data: postAttachments }, postVideo] = await Promise.all([
     supabase.from('post_images').select('id, url').eq('post_id', id).order('display_order'),
     supabase.from('post_attachments').select('id, file_name, file_url, file_size').eq('post_id', id),
+    getPostVideo(id),
   ])
 
   return (
@@ -54,6 +56,7 @@ export default async function EditClubNewsPage({ params }: Props) {
           boardPath="/club-news/news"
           pinOnly
           isAdmin={canPin}
+          allowVideo
           initialValues={{
             title: post.title,
             category: post.category,
@@ -63,6 +66,7 @@ export default async function EditClubNewsPage({ params }: Props) {
           cancelHref={`/club-news/news/${id}`}
           initialImages={postImages ?? []}
           initialAttachments={postAttachments ?? []}
+          initialVideo={postVideo}
         />
       </div>
     </>
