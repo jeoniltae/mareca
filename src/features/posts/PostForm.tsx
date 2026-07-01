@@ -13,6 +13,9 @@ import {
   insertPostAttachments,
   deleteEditorImages,
 } from './actions'
+import { linkVideoToPost, deleteMuxVideo } from './video-actions'
+import { VideoUpload } from './VideoUpload'
+import type { PostVideo } from './video-actions'
 import { createClient } from '@/lib/supabase'
 import { compressImageClient } from '@/lib/compress-image-client'
 import { cn } from '@/lib/utils'
@@ -79,6 +82,7 @@ interface PostFormProps {
   categories?: readonly string[]
   pinOnly?: boolean
   isAdmin?: boolean
+  allowVideo?: boolean
   initialValues?: {
     title: string
     category: string
@@ -87,10 +91,11 @@ interface PostFormProps {
   }
   initialImages?: ExistingImage[]
   initialAttachments?: ExistingAttachment[]
+  initialVideo?: Pick<PostVideo, 'id' | 'status'> | null
   cancelHref: string
 }
 
-export function PostForm({ mode, postId, board = 'free', boardPath = '/community/free', categories = DEFAULT_CATEGORIES, pinOnly = false, isAdmin = false, initialValues, initialImages, initialAttachments, cancelHref }: PostFormProps) {
+export function PostForm({ mode, postId, board = 'free', boardPath = '/community/free', categories = DEFAULT_CATEGORIES, pinOnly = false, isAdmin = false, allowVideo = false, initialValues, initialImages, initialAttachments, initialVideo, cancelHref }: PostFormProps) {
   const router = useRouter()
   const [content, setContent] = useState(initialValues?.content ?? '')
   const [imageFiles, setImageFiles] = useState<File[]>([])
@@ -103,6 +108,7 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
   const [editorImageUrls, setEditorImageUrls] = useState<string[]>([])
   const [isPin, setIsPin] = useState(initialValues?.category === '공지')
+  const [videoId, setVideoId] = useState<string | null>(initialVideo?.id ?? null)
 
   function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -146,6 +152,7 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
         await Promise.all([
           insertPostImages(targetId, imageUrls),
           insertPostAttachments(targetId, attachmentMetas),
+          videoId ? linkVideoToPost(videoId, targetId) : Promise.resolve(),
         ])
 
         router.replace(`${boardPath}/${targetId}`)
@@ -241,6 +248,18 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
         initialAttachments={initialAttachments}
       />
 
+      {/* 동영상 업로드 */}
+      {allowVideo && (
+        <div>
+          <label className="text-sm font-medium text-slate-700 block mb-2">동영상</label>
+          <VideoUpload
+            existingVideo={initialVideo ?? undefined}
+            onVideoReady={(id) => setVideoId(id)}
+            onVideoRemove={() => setVideoId(null)}
+          />
+        </div>
+      )}
+
       {/* 에러 */}
       {error && <p className="text-sm text-red-500">{error}</p>}
 
@@ -292,7 +311,11 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
         onConfirm={() => {
           setShowCancelConfirm(false)
           startCancelTransition(async () => {
-            await deleteEditorImages(editorImageUrls)
+            await Promise.all([
+              deleteEditorImages(editorImageUrls),
+              // 새로 업로드한 영상이 있고 기존 영상과 다를 때만 삭제
+              videoId && videoId !== initialVideo?.id ? deleteMuxVideo(videoId) : Promise.resolve(),
+            ])
             router.replace(cancelHref)
           })
         }}

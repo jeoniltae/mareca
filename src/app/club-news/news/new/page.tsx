@@ -35,6 +35,7 @@ export default async function NewClubNewsPage() {
           boardPath="/club-news/news"
           pinOnly
           isAdmin={isAdmin}
+          allowVideo
           cancelHref="/club-news/news"
         />
       </div>

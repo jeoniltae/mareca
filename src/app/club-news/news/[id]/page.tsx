@@ -9,6 +9,9 @@ import { PostActions } from '@/features/posts/PostActions'
 import { getIsAdmin } from '@/lib/admin'
 import { PostImageGallery } from '@/features/posts/PostImageGallery'
 import { PostFileDownloadList } from '@/features/posts/PostFileDownloadList'
+import { VideoPlayer } from '@/features/posts/VideoPlayer'
+import { getPostVideo } from '@/features/posts/video-actions'
+import { videoObjectJsonLd } from '@/lib/json-ld'
 import { Eye, Calendar, Tag, User } from 'lucide-react'
 import { ShareButtons } from '@/components/shared/ShareButtons'
 import { BackToListLink } from '@/components/shared/BackToListLink'
@@ -20,11 +23,17 @@ interface Props {
 export async function generateMetadata({ params }: Props) {
   const { id } = await params
   const supabase = await createClient()
-  const { data } = await supabase.from('posts').select('title, content').eq('id', id).single()
+  const [{ data }, video] = await Promise.all([
+    supabase.from('posts').select('title, content').eq('id', id).single(),
+    getPostVideo(id),
+  ])
   const rawText = data?.content?.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim() ?? ''
   const description = rawText.slice(0, 120) || '마스터스개혁파총회 게시글입니다.'
-  const imageMatch = data?.content?.match(/<img[^>]+src="([^"]+)"/)
-  const imageUrl = imageMatch?.[1] ?? '/images/logo.png'
+  const contentImage = data?.content?.match(/<img[^>]+src="([^"]+)"/)
+  const muxThumbnail = video?.status === 'ready' && video.mux_playback_id
+    ? `https://image.mux.com/${video.mux_playback_id}/thumbnail.jpg`
+    : null
+  const imageUrl = contentImage?.[1] ?? muxThumbnail ?? '/images/logo.png'
   return {
     title: data?.title ?? '게시글',
     description,
@@ -35,7 +44,7 @@ export async function generateMetadata({ params }: Props) {
       type: 'article',
     },
     twitter: {
-      card: 'summary',
+      card: muxThumbnail ? 'summary_large_image' : 'summary',
       title: data?.title ?? '게시글',
       description,
       images: [imageUrl],
@@ -48,12 +57,13 @@ export default async function ClubNewsDetailPage({ params }: Props) {
   const { id } = await params
   const supabase = await createClient()
 
-  const [{ data: post }, { data: { user } }, { data: postImages }, { data: postAttachments }, isAdmin] = await Promise.all([
+  const [{ data: post }, { data: { user } }, { data: postImages }, { data: postAttachments }, isAdmin, postVideo] = await Promise.all([
     supabase.from('posts').select('*, profiles(nickname)').eq('id', id).single(),
     supabase.auth.getUser(),
     supabase.from('post_images').select('id, url').eq('post_id', id).order('display_order'),
     supabase.from('post_attachments').select('id, file_name, file_url, file_size').eq('post_id', id),
     getIsAdmin(),
+    getPostVideo(id),
   ])
 
   if (!post) return notFound()
@@ -109,6 +119,15 @@ export default async function ClubNewsDetailPage({ params }: Props) {
 
         <PostImageGallery images={postImages ?? []} />
         <PostFileDownloadList attachments={postAttachments ?? []} />
+
+        {/* Mux 동영상 */}
+        {postVideo && (
+          <div className="mt-8">
+            <p className="mb-2 text-sm font-medium text-slate-700">첨부 동영상</p>
+            <VideoPlayer playbackId={postVideo.mux_playback_id} status={postVideo.status} />
+          </div>
+        )}
+
         <ViewTracker id={id} boardPath="/club-news/news" />
 
         {post.youtube_url && (
@@ -144,6 +163,21 @@ export default async function ClubNewsDetailPage({ params }: Props) {
             ),
           }}
         />
+        {postVideo?.status === 'ready' && postVideo.mux_playback_id && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(
+                videoObjectJsonLd({
+                  title: post.title,
+                  description: post.content?.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 120) ?? '',
+                  playbackId: postVideo.mux_playback_id,
+                  uploadDate: postVideo.created_at ?? undefined,
+                })
+              ),
+            }}
+          />
+        )}
         <div className="mt-4">
           <BackToListLink
             fallbackHref="/club-news/news"
