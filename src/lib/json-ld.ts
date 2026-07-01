@@ -97,6 +97,29 @@ export function confessionPageJsonLd() {
   ]
 }
 
+export function videoObjectJsonLd({
+  title,
+  description,
+  playbackId,
+  uploadDate,
+}: {
+  title: string
+  description: string
+  playbackId: string
+  uploadDate?: string
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    name: title,
+    description,
+    thumbnailUrl: `https://image.mux.com/${playbackId}/thumbnail.jpg`,
+    uploadDate,
+    contentUrl: `https://stream.mux.com/${playbackId}.m3u8`,
+    embedUrl: `https://stream.mux.com/${playbackId}.m3u8`,
+  }
+}
+
 export function articleJsonLd({
   title,
   description,

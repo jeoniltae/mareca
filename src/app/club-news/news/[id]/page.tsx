@@ -11,6 +11,7 @@ import { PostImageGallery } from '@/features/posts/PostImageGallery'
 import { PostFileDownloadList } from '@/features/posts/PostFileDownloadList'
 import { VideoPlayer } from '@/features/posts/VideoPlayer'
 import { getPostVideo } from '@/features/posts/video-actions'
+import { videoObjectJsonLd } from '@/lib/json-ld'
 import { Eye, Calendar, Tag, User } from 'lucide-react'
 import { ShareButtons } from '@/components/shared/ShareButtons'
 import { BackToListLink } from '@/components/shared/BackToListLink'
@@ -22,11 +23,17 @@ interface Props {
 export async function generateMetadata({ params }: Props) {
   const { id } = await params
   const supabase = await createClient()
-  const { data } = await supabase.from('posts').select('title, content').eq('id', id).single()
+  const [{ data }, video] = await Promise.all([
+    supabase.from('posts').select('title, content').eq('id', id).single(),
+    getPostVideo(id),
+  ])
   const rawText = data?.content?.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim() ?? ''
   const description = rawText.slice(0, 120) || '마스터스개혁파총회 게시글입니다.'
-  const imageMatch = data?.content?.match(/<img[^>]+src="([^"]+)"/)
-  const imageUrl = imageMatch?.[1] ?? '/images/logo.png'
+  const contentImage = data?.content?.match(/<img[^>]+src="([^"]+)"/)
+  const muxThumbnail = video?.status === 'ready' && video.mux_playback_id
+    ? `https://image.mux.com/${video.mux_playback_id}/thumbnail.jpg`
+    : null
+  const imageUrl = contentImage?.[1] ?? muxThumbnail ?? '/images/logo.png'
   return {
     title: data?.title ?? '게시글',
     description,
@@ -37,7 +44,7 @@ export async function generateMetadata({ params }: Props) {
       type: 'article',
     },
     twitter: {
-      card: 'summary',
+      card: muxThumbnail ? 'summary_large_image' : 'summary',
       title: data?.title ?? '게시글',
       description,
       images: [imageUrl],
@@ -156,6 +163,21 @@ export default async function ClubNewsDetailPage({ params }: Props) {
             ),
           }}
         />
+        {postVideo?.status === 'ready' && postVideo.mux_playback_id && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(
+                videoObjectJsonLd({
+                  title: post.title,
+                  description: post.content?.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 120) ?? '',
+                  playbackId: postVideo.mux_playback_id,
+                  uploadDate: postVideo.created_at ?? undefined,
+                })
+              ),
+            }}
+          />
+        )}
         <div className="mt-4">
           <BackToListLink
             fallbackHref="/club-news/news"
