@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: '왜 마스터스개혁파총회를 시작하는가?',
   description: '마스터스개혁파총회를 설립하게 된 이유와 신학적 배경을 설명합니다.',
   openGraph: { title: '왜 마스터스개혁파총회를 시작하는가?', description: '마스터스개혁파총회를 설립하게 된 이유와 신학적 배경을 설명합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/reason` },
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/about/reason` },
 }
 
 const BREADCRUMBS = [{ label: '총회소개', href: '/about' }, { label: '왜 마스터스개혁파총회를 시작하는가?' }]
@@ -83,7 +84,7 @@ export default function AboutReasonPage() {
               className={`flex flex-col gap-10 md:grid md:grid-cols-2 md:gap-14 md:items-center${item.reverse ? ' md:[&>*:first-child]:order-2' : ''}`}
             >
               {/* 이미지 */}
-              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg">
+              <div className="relative aspect-4/3 rounded-2xl overflow-hidden shadow-lg">
                 <Image
                   src={item.image}
                   alt={item.imageAlt}
