@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: '10 Missions',
   description: '마스터스개혁파총회가 추구하는 10가지 사명과 비전을 소개합니다.',
   openGraph: { title: '10 Missions', description: '마스터스개혁파총회가 추구하는 10가지 사명과 비전을 소개합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/vision` },
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/vision` },
 }
 
 const BREADCRUMBS = [{ label: '비전과사명', href: '/vision' }, { label: '10 Missions' }]

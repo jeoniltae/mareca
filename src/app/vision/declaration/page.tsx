@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: '선언문',
   description: '성경무오성, 개혁신학 등 마스터스개혁파총회의 5대 선언문입니다.',
   openGraph: { title: '선언문', description: '성경무오성, 개혁신학 등 마스터스개혁파총회의 5대 선언문입니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/vision/declaration` },
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/vision/declaration` },
 }
 
 const BREADCRUMBS = [{ label: '비전과사명', href: '/vision' }, { label: '선언문' }]

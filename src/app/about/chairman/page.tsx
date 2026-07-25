@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: '이사장',
   description: '마스터스개혁파총회 이사장 최더함 목사의 인사말입니다.',
   openGraph: { title: '이사장', description: '마스터스개혁파총회 이사장 최더함 목사의 인사말입니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/chairman` },
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/about/chairman` },
 }
 
 const BREADCRUMBS = [{ label: '총회소개', href: '/about' }, { label: '이사장' }]

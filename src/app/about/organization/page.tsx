@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: '총회조직 및 사역원칙',
   description: '마스터스개혁파총회의 조직 구조와 사역 원칙을 안내합니다.',
   openGraph: { title: '총회조직 및 사역원칙', description: '마스터스개혁파총회의 조직 구조와 사역 원칙을 안내합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/organization` },
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/about/organization` },
 }
 
 const BREADCRUMBS = [{ label: '총회소개', href: '/about' }, { label: '총회조직 및 사역원칙' }]

@@ -35,9 +35,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title,
       description,
-      url: `/news/press/${id}`,
+      url: `${process.env.NEXT_PUBLIC_SITE_URL}/news/press/${id}`,
       images: data.og_image ? [{ url: data.og_image }] : [],
     },
+    alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/news/press/${id}` },
   }
 }
 
@@ -65,7 +66,7 @@ export default async function PressArticleDetailPage({ params }: Props) {
   const jsonLd = articleJsonLd({
     title: article.og_title ?? '관련기사',
     description: article.og_description ?? '마스터스개혁파총회 관련 언론 기사입니다.',
-    url: `/news/press/${article.id}`,
+    url: `${process.env.NEXT_PUBLIC_SITE_URL}/news/press/${article.id}`,
     imageUrl: article.og_image ?? undefined,
   })
 
