@@ -2,12 +2,18 @@
 
 import { useState } from 'react'
 import { Link2, Check } from 'lucide-react'
+import { truncateAtSentence } from '@/lib/text'
 
 interface ShareButtonsProps {
   title: string
   description?: string
   imageUrl?: string
 }
+
+// 카카오 공유는 모바일에서 패킷 10K 제한이 있고, SDK가 값을 URL 인코딩해 전송하므로
+// 한글은 글자당 최대 9바이트까지 늘어난다. 피드 템플릿이 실제로 노출하는 길이에 맞춰 자른다.
+const KAKAO_TITLE_MAX = 100
+const KAKAO_DESC_MAX = 200
 
 export function ShareButtons({ title, description, imageUrl }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false)
@@ -25,8 +31,8 @@ export function ShareButtons({ title, description, imageUrl }: ShareButtonsProps
     window.Kakao.Share.sendDefault({
       objectType: 'feed',
       content: {
-        title,
-        description: description ?? '마스터스개혁파총회',
+        title: truncateAtSentence(title, KAKAO_TITLE_MAX),
+        description: truncateAtSentence(description ?? '마스터스개혁파총회', KAKAO_DESC_MAX),
         imageUrl: imageUrl ?? document.querySelector('meta[property="og:image"]')?.getAttribute('content') ?? `${window.location.origin}/images/logo.png`,
         link: {
           mobileWebUrl: window.location.href,

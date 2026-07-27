@@ -8,6 +8,12 @@ import { ExternalLink, CalendarDays, Newspaper, ChevronLeft } from 'lucide-react
 import { formatYMD } from '@/lib/date'
 import { BackToListLink } from '@/components/shared/BackToListLink'
 import { articleJsonLd } from '@/lib/json-ld'
+import { truncateAtSentence } from '@/lib/text'
+
+// 저작권상 원문 전재를 피하고 요약만 노출한다 (RSS가 본문 전체를 보내오는 매체가 있음)
+const SUMMARY_MAX = 300
+// 검색결과 스니펫은 160자 내외에서 잘리므로 메타태그는 더 짧게 유지한다
+const META_MAX = 160
 
 import type { Metadata } from 'next'
 
@@ -27,7 +33,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!data) return {}
 
   const title = data.og_title ?? '관련기사'
-  const description = data.og_description ?? '마스터스개혁파총회 관련 언론 기사입니다.'
+  const description = truncateAtSentence(
+    data.og_description ?? '마스터스개혁파총회 관련 언론 기사입니다.',
+    META_MAX
+  )
 
   return {
     title,
@@ -65,7 +74,10 @@ export default async function PressArticleDetailPage({ params }: Props) {
 
   const jsonLd = articleJsonLd({
     title: article.og_title ?? '관련기사',
-    description: article.og_description ?? '마스터스개혁파총회 관련 언론 기사입니다.',
+    description: truncateAtSentence(
+      article.og_description ?? '마스터스개혁파총회 관련 언론 기사입니다.',
+      META_MAX
+    ),
     url: `${process.env.NEXT_PUBLIC_SITE_URL}/news/press/${article.id}`,
     imageUrl: article.og_image ?? undefined,
   })
@@ -140,7 +152,7 @@ export default async function PressArticleDetailPage({ params }: Props) {
                 기사 요약
               </p>
               <p className="text-base text-slate-700 leading-relaxed">
-                {article.og_description}
+                {truncateAtSentence(article.og_description, SUMMARY_MAX)}
               </p>
             </div>
           </div>

@@ -5,6 +5,7 @@ import { BoardSearch } from '@/components/shared/BoardSearch'
 import Image from 'next/image'
 import { Link } from 'next-view-transitions'
 import { cn } from '@/lib/utils'
+import { truncateAtSentence } from '@/lib/text'
 
 import type { Metadata } from 'next'
 
@@ -16,6 +17,10 @@ export const metadata: Metadata = {
 }
 
 const PAGE_SIZE = 12
+
+// 카드에는 line-clamp-2로 두 줄만 보이지만, 자르지 않으면 원문 전체가 HTML에 그대로 실린다.
+// 저작권상 원문 전재를 피하기 위해 서버에서 미리 잘라 내보낸다.
+const CARD_SUMMARY_MAX = 150
 
 const SOURCES = ['전체', '크리스천투데이', '기독일보'] as const
 type Source = (typeof SOURCES)[number]
@@ -194,7 +199,7 @@ function ArticleCard({ article }: { article: Article }) {
 
         {article.og_description && (
           <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
-            {article.og_description}
+            {truncateAtSentence(article.og_description, CARD_SUMMARY_MAX)}
           </p>
         )}
 
