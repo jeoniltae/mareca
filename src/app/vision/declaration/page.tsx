@@ -3,11 +3,12 @@ import { ChevronRight } from 'lucide-react'
 import { breadcrumbJsonLd } from '@/lib/json-ld'
 
 import type { Metadata } from 'next'
+import { OG_IMAGE } from '@/lib/constants'
 
 export const metadata: Metadata = {
   title: '선언문',
   description: '성경무오성, 개혁신학 등 마스터스개혁파총회의 5대 선언문입니다.',
-  openGraph: { title: '선언문', description: '성경무오성, 개혁신학 등 마스터스개혁파총회의 5대 선언문입니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/vision/declaration` },
+  openGraph: { title: '선언문', description: '성경무오성, 개혁신학 등 마스터스개혁파총회의 5대 선언문입니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/vision/declaration`, images: [OG_IMAGE] },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/vision/declaration` },
 }
 

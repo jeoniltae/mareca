@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase-server'
 import { formatMonthDay, isNewPost } from '@/lib/date'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Pagination } from '@/components/shared/Pagination'
-import { YEAR_CATEGORIES } from '@/lib/constants'
+import { YEAR_CATEGORIES, OG_IMAGE } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { BoardSearch } from '@/components/shared/BoardSearch'
 import { PenSquare, Eye } from 'lucide-react'
@@ -14,7 +14,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: '교육자료실',
   description: '신앙 교육과 성경 공부를 위한 자료를 제공합니다.',
-  openGraph: { title: '교육자료실', description: '신앙 교육과 성경 공부를 위한 자료를 제공합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/resources/education` },
+  openGraph: { title: '교육자료실', description: '신앙 교육과 성경 공부를 위한 자료를 제공합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/resources/education`, images: [OG_IMAGE] },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/resources/education` },
 }
 

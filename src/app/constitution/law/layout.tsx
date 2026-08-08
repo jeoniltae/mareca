@@ -1,4 +1,5 @@
 ﻿import type { Metadata } from 'next'
+import { OG_IMAGE } from '@/lib/constants'
 
 const TITLE = '총회헌법 — 정치·권징조례·예배모범 전문'
 const DESCRIPTION =
@@ -7,7 +8,7 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
-  openGraph: { title: TITLE, description: DESCRIPTION, url: `${process.env.NEXT_PUBLIC_SITE_URL}/constitution/law` },
+  openGraph: { title: TITLE, description: DESCRIPTION, url: `${process.env.NEXT_PUBLIC_SITE_URL}/constitution/law`, images: [OG_IMAGE] },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/constitution/law` },
 }
 

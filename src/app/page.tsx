@@ -9,6 +9,7 @@ export const metadata: Metadata = {
     title: '마스터스개혁파총회',
     description: '마스터스개혁파총회(MRA)는 개혁주의 신앙과 성경의 진리 위에 세워진 한국 개혁파 교회 총회입니다. 총회 소식, 신앙 자료, 교회 공동체 정보를 제공합니다.',
     url: `${process.env.NEXT_PUBLIC_SITE_URL}/`,
+    images: [OG_IMAGE],
   },
 }
 import { formatMonthDay, formatYMD } from '@/lib/date'
@@ -32,6 +33,7 @@ import { HeroSlider } from '@/components/shared/HeroSlider'
 import { ComingSoonButton } from '@/components/shared/ComingSoonButton'
 import { createClient } from '@/lib/supabase-server'
 import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtube-utils'
+import { OG_IMAGE } from '@/lib/constants'
 
 // ─── 총회소식 + 일정 + 바로가기 ────────────────────────────────────────────────
 async function QuickInfoSection() {

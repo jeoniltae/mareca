@@ -9,6 +9,7 @@ import { PenSquare, Eye, Pin } from 'lucide-react'
 import { Link } from 'next-view-transitions'
 
 import type { Metadata } from 'next'
+import { OG_IMAGE } from '@/lib/constants'
 
 const TITLE = '공지사항 — 총회 안내와 알림'
 const DESCRIPTION =
@@ -17,7 +18,7 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
-  openGraph: { title: TITLE, description: DESCRIPTION, url: `${process.env.NEXT_PUBLIC_SITE_URL}/news/notice` },
+  openGraph: { title: TITLE, description: DESCRIPTION, url: `${process.env.NEXT_PUBLIC_SITE_URL}/news/notice`, images: [OG_IMAGE] },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/news/notice` },
 }
 

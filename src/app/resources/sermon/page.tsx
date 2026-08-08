@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase-server'
 import { formatMonthDay, isNewPost } from '@/lib/date'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Pagination } from '@/components/shared/Pagination'
-import { YEAR_CATEGORIES } from '@/lib/constants'
+import { YEAR_CATEGORIES, OG_IMAGE } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { BoardSearch } from '@/components/shared/BoardSearch'
 import { PenSquare, Eye } from 'lucide-react'
@@ -14,7 +14,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: '설교자료실',
   description: '개혁파 신앙에 기반한 설교 원고 및 자료를 제공합니다.',
-  openGraph: { title: '설교자료실', description: '개혁파 신앙에 기반한 설교 원고 및 자료를 제공합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/resources/sermon` },
+  openGraph: { title: '설교자료실', description: '개혁파 신앙에 기반한 설교 원고 및 자료를 제공합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/resources/sermon`, images: [OG_IMAGE] },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/resources/sermon` },
 }
 

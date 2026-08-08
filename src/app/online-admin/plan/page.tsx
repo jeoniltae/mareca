@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase-server'
 import { formatMonthDay, isNewPost } from '@/lib/date'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Pagination } from '@/components/shared/Pagination'
-import { YEAR_CATEGORIES } from '@/lib/constants'
+import { YEAR_CATEGORIES, OG_IMAGE } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { BoardSearch } from '@/components/shared/BoardSearch'
 import { PenSquare, Eye } from 'lucide-react'
@@ -14,7 +14,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: '교회계획',
   description: '마스터스개혁파총회 행정 계획 및 일정 관리 자료입니다.',
-  openGraph: { title: '교회계획', description: '마스터스개혁파총회 행정 계획 및 일정 관리 자료입니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/online-admin/plan` },
+  openGraph: { title: '교회계획', description: '마스터스개혁파총회 행정 계획 및 일정 관리 자료입니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/online-admin/plan`, images: [OG_IMAGE] },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/online-admin/plan` },
 }
 

@@ -3,6 +3,7 @@ import { breadcrumbJsonLd } from '@/lib/json-ld'
 import Image from 'next/image'
 
 import type { Metadata } from 'next'
+import { OG_IMAGE } from '@/lib/constants'
 
 // 제목 자체에 브랜드명이 들어 있어, 루트 layout의 '%s | 마스터스개혁파총회' 템플릿을
 // 그대로 두면 브랜드가 두 번 나오고 한글 검색결과 절삭선(약 30자)을 넘긴다. absolute로 템플릿을 건너뛴다.
@@ -13,7 +14,7 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
-  openGraph: { title: { absolute: TITLE }, description: DESCRIPTION, url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/reason` },
+  openGraph: { title: { absolute: TITLE }, description: DESCRIPTION, url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/reason`, images: [OG_IMAGE] },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/about/reason` },
 }
 

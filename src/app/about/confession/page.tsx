@@ -3,6 +3,7 @@ import { Crown, BookOpen, Building2 } from 'lucide-react'
 import { confessionPageJsonLd } from '@/lib/json-ld'
 
 import type { Metadata } from 'next'
+import { OG_IMAGE } from '@/lib/constants'
 
 const DESCRIPTION = '마스터스개혁파총회(MRA)가 고백하는 성경적 신앙고백을 소개합니다. 웨스트민스터 신앙고백서, 하이델베르그·벨직·도르트 신조, 성경의 무오성, 오직 예수 그리스도를 통한 구원을 믿습니다.'
 
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
     title: '신앙고백 — 웨스트민스터 신앙고백서와 개혁파 신조',
     description: DESCRIPTION,
     url: 'https://www.mareca.org/about/confession',
+    images: [OG_IMAGE],
   },
 }
 

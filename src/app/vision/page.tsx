@@ -3,6 +3,7 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { breadcrumbJsonLd } from '@/lib/json-ld'
 
 import type { Metadata } from 'next'
+import { OG_IMAGE } from '@/lib/constants'
 
 const TITLE = '비전과 사명 — 10 Missions'
 const DESCRIPTION =
@@ -11,7 +12,7 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
-  openGraph: { title: TITLE, description: DESCRIPTION, url: `${process.env.NEXT_PUBLIC_SITE_URL}/vision` },
+  openGraph: { title: TITLE, description: DESCRIPTION, url: `${process.env.NEXT_PUBLIC_SITE_URL}/vision`, images: [OG_IMAGE] },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/vision` },
 }
 

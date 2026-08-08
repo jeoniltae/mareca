@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase-server'
 import { formatMonthDay, isNewPost } from '@/lib/date'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Pagination } from '@/components/shared/Pagination'
-import { YEAR_CATEGORIES } from '@/lib/constants'
+import { YEAR_CATEGORIES, OG_IMAGE } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { BoardSearch } from '@/components/shared/BoardSearch'
 import { PenSquare, Eye } from 'lucide-react'
@@ -14,7 +14,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: '예배자료실',
   description: '예배 순서지, 악보, 예배 관련 자료를 제공합니다.',
-  openGraph: { title: '예배자료실', description: '예배 순서지, 악보, 예배 관련 자료를 제공합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/resources/worship` },
+  openGraph: { title: '예배자료실', description: '예배 순서지, 악보, 예배 관련 자료를 제공합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/resources/worship`, images: [OG_IMAGE] },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/resources/worship` },
 }
 
