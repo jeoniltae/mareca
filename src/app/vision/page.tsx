@@ -4,10 +4,14 @@ import { breadcrumbJsonLd } from '@/lib/json-ld'
 
 import type { Metadata } from 'next'
 
+const TITLE = '비전과 사명 — 10 Missions'
+const DESCRIPTION =
+  '마스터스개혁파총회가 추구하는 10가지 사명. 국제 총회 구성, 개혁교회 설립, 개혁주의 신학회와 신학 교육, 동남아시아 선교, 복지와 사회참여, 미디어·정책연구 사역까지 각 영역의 방향을 소개합니다.'
+
 export const metadata: Metadata = {
-  title: '10 Missions',
-  description: '마스터스개혁파총회가 추구하는 10가지 사명과 비전을 소개합니다.',
-  openGraph: { title: '10 Missions', description: '마스터스개혁파총회가 추구하는 10가지 사명과 비전을 소개합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/vision` },
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: { title: TITLE, description: DESCRIPTION, url: `${process.env.NEXT_PUBLIC_SITE_URL}/vision` },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/vision` },
 }
 

@@ -4,10 +4,14 @@ import Image from 'next/image'
 
 import type { Metadata } from 'next'
 
+const TITLE = '설립 취지 — 왜 마스터스개혁파총회를 시작하는가'
+const DESCRIPTION =
+  '마스터스개혁파총회가 새로 출발한 이유. 함께 길을 걷는 동역, 교회를 향한 책임, 무너진 신학과 목회 현장의 재정비라는 세 가지 문제의식과 그 개혁주의 신학적 배경을 밝힙니다.'
+
 export const metadata: Metadata = {
-  title: '왜 마스터스개혁파총회를 시작하는가?',
-  description: '마스터스개혁파총회를 설립하게 된 이유와 신학적 배경을 설명합니다.',
-  openGraph: { title: '왜 마스터스개혁파총회를 시작하는가?', description: '마스터스개혁파총회를 설립하게 된 이유와 신학적 배경을 설명합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/reason` },
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: { title: TITLE, description: DESCRIPTION, url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/reason` },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/about/reason` },
 }
 

@@ -10,10 +10,14 @@ import { Link } from 'next-view-transitions'
 
 import type { Metadata } from 'next'
 
+const TITLE = '총회소식 — 총회 활동과 행사 소식'
+const DESCRIPTION =
+  '마스터스개혁파총회 소식. 총회와 노회 활동, 세미나와 오픈강좌, 임직식과 각종 행사 등 총회 안팎에서 진행된 일들을 최신순으로 전합니다.'
+
 export const metadata: Metadata = {
-  title: '소식',
-  description: '마스터스개혁파총회의 최신 소식과 행사 정보를 전합니다.',
-  openGraph: { title: '소식', description: '마스터스개혁파총회의 최신 소식과 행사 정보를 전합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/news/all` },
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: { title: TITLE, description: DESCRIPTION, url: `${process.env.NEXT_PUBLIC_SITE_URL}/news/all` },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/news/all` },
 }
 
