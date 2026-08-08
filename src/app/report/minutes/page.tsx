@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase-server'
 import { formatMonthDay, isNewPost } from '@/lib/date'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Pagination } from '@/components/shared/Pagination'
-import { YEAR_CATEGORIES } from '@/lib/constants'
+import { YEAR_CATEGORIES, OG_IMAGE } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { BoardSearch } from '@/components/shared/BoardSearch'
 import { PenSquare, Eye } from 'lucide-react'
@@ -14,7 +14,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: '총회의사록',
   description: '마스터스개혁파총회 총회 및 각종 회의 공식 회의록입니다.',
-  openGraph: { title: '총회의사록', description: '마스터스개혁파총회 총회 및 각종 회의 공식 회의록입니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/report/minutes` },
+  openGraph: { title: '총회의사록', description: '마스터스개혁파총회 총회 및 각종 회의 공식 회의록입니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/report/minutes`, images: [OG_IMAGE] },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/report/minutes` },
 }
 

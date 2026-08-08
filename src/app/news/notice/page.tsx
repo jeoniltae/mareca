@@ -9,11 +9,16 @@ import { PenSquare, Eye, Pin } from 'lucide-react'
 import { Link } from 'next-view-transitions'
 
 import type { Metadata } from 'next'
+import { OG_IMAGE } from '@/lib/constants'
+
+const TITLE = '공지사항 — 총회 안내와 알림'
+const DESCRIPTION =
+  '마스터스개혁파총회 공지사항. 총회와 노회 일정, 회의 안내, 각 사역팀 공지와 회원 대상 알림 사항을 최신순으로 확인할 수 있습니다.'
 
 export const metadata: Metadata = {
-  title: '공지사항',
-  description: '마스터스개혁파총회의 최신 공지사항을 확인하세요.',
-  openGraph: { title: '공지사항', description: '마스터스개혁파총회의 최신 공지사항을 확인하세요.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/news/notice` },
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: { title: TITLE, description: DESCRIPTION, url: `${process.env.NEXT_PUBLIC_SITE_URL}/news/notice`, images: [OG_IMAGE] },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/news/notice` },
 }
 

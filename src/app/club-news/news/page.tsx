@@ -7,11 +7,12 @@ import { BoardSearch } from '@/components/shared/BoardSearch'
 import { cn } from '@/lib/utils'
 import { PenSquare, Eye, Pin } from 'lucide-react'
 import { Link } from 'next-view-transitions'
+import { OG_IMAGE } from '@/lib/constants'
 
 export const metadata = {
   title: '소식 — 클럽소식',
   description: '마스터스개혁파총회 소속 교회들의 소식과 공지를 전합니다.',
-  openGraph: { title: '소식 — 클럽소식', description: '마스터스개혁파총회 소속 교회들의 소식과 공지를 전합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/club-news/news` },
+  openGraph: { title: '소식 — 클럽소식', description: '마스터스개혁파총회 소속 교회들의 소식과 공지를 전합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/club-news/news`, images: [OG_IMAGE] },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/club-news/news` },
 }
 

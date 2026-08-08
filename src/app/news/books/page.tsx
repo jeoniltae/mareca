@@ -8,6 +8,7 @@ import { Link } from 'next-view-transitions'
 import { PenSquare } from 'lucide-react'
 import { getIsAdmin } from '@/lib/admin'
 import type { Metadata } from 'next'
+import { OG_IMAGE } from '@/lib/constants'
 
 export const metadata: Metadata = {
   title: '리폼드북스',
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
     title: '리폼드북스',
     description: '마스터스개혁파총회가 소개하는 리폼드북스 도서 목록입니다.',
     url: `${process.env.NEXT_PUBLIC_SITE_URL}/news/books`,
+    images: [OG_IMAGE],
   },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/news/books` },
 }

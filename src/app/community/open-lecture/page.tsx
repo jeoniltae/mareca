@@ -8,6 +8,7 @@ import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtub
 import { PenSquare, Play, MapPin, Calendar, Eye, Pin } from 'lucide-react'
 import { Link } from 'next-view-transitions'
 import type { Metadata } from 'next'
+import { OG_IMAGE } from '@/lib/constants'
 
 export const metadata: Metadata = {
   title: '마스터스 오픈강좌',
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
     title: '마스터스 오픈강좌',
     description: '마스터스개혁파총회가 주관하는 오픈강좌 영상과 일정을 확인하세요.',
     url: `${process.env.NEXT_PUBLIC_SITE_URL}/community/open-lecture`,
+    images: [OG_IMAGE],
   },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/community/open-lecture` },
 }

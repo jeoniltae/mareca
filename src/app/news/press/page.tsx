@@ -8,11 +8,12 @@ import { cn } from '@/lib/utils'
 import { truncateAtSentence } from '@/lib/text'
 
 import type { Metadata } from 'next'
+import { OG_IMAGE } from '@/lib/constants'
 
 export const metadata: Metadata = {
   title: '관련기사',
   description: '마스터스개혁파총회와 관련된 언론 기사를 모아볼 수 있습니다.',
-  openGraph: { title: '관련기사', description: '마스터스개혁파총회와 관련된 언론 기사를 모아볼 수 있습니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/news/press` },
+  openGraph: { title: '관련기사', description: '마스터스개혁파총회와 관련된 언론 기사를 모아볼 수 있습니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/news/press`, images: [OG_IMAGE] },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/news/press` },
 }
 

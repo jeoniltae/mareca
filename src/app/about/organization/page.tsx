@@ -3,11 +3,12 @@ import { CheckCircle2, Users } from 'lucide-react'
 import { breadcrumbJsonLd } from '@/lib/json-ld'
 
 import type { Metadata } from 'next'
+import { OG_IMAGE } from '@/lib/constants'
 
 export const metadata: Metadata = {
   title: '총회조직 및 사역원칙',
   description: '마스터스개혁파총회의 조직 구조와 사역 원칙을 안내합니다.',
-  openGraph: { title: '총회조직 및 사역원칙', description: '마스터스개혁파총회의 조직 구조와 사역 원칙을 안내합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/organization` },
+  openGraph: { title: '총회조직 및 사역원칙', description: '마스터스개혁파총회의 조직 구조와 사역 원칙을 안내합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/organization`, images: [OG_IMAGE] },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/about/organization` },
 }
 

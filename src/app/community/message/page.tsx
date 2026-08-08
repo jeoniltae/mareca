@@ -10,11 +10,12 @@ import { PenSquare, Eye } from "lucide-react";
 import { Link } from 'next-view-transitions'
 
 import type { Metadata } from 'next'
+import { OG_IMAGE } from '@/lib/constants'
 
 export const metadata: Metadata = {
   title: '마스터스 메시지',
   description: '총회를 향한 격려와 응원의 글을 나누는 공간입니다.',
-  openGraph: { title: '마스터스 메시지', description: '총회를 향한 격려와 응원의 글을 나누는 공간입니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/community/message` },
+  openGraph: { title: '마스터스 메시지', description: '총회를 향한 격려와 응원의 글을 나누는 공간입니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/community/message`, images: [OG_IMAGE] },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/community/message` },
 }
 

@@ -3,11 +3,18 @@ import { breadcrumbJsonLd } from '@/lib/json-ld'
 import Image from 'next/image'
 
 import type { Metadata } from 'next'
+import { OG_IMAGE } from '@/lib/constants'
+
+// 제목 자체에 브랜드명이 들어 있어, 루트 layout의 '%s | 마스터스개혁파총회' 템플릿을
+// 그대로 두면 브랜드가 두 번 나오고 한글 검색결과 절삭선(약 30자)을 넘긴다. absolute로 템플릿을 건너뛴다.
+const TITLE = '왜 마스터스개혁파총회를 시작하는가 — 설립 취지'
+const DESCRIPTION =
+  '마스터스개혁파총회가 새로 출발한 이유. 함께 길을 걷는 동역, 교회를 향한 책임, 무너진 신학과 목회 현장의 재정비라는 세 가지 문제의식과 그 개혁주의 신학적 배경을 밝힙니다.'
 
 export const metadata: Metadata = {
-  title: '왜 마스터스개혁파총회를 시작하는가?',
-  description: '마스터스개혁파총회를 설립하게 된 이유와 신학적 배경을 설명합니다.',
-  openGraph: { title: '왜 마스터스개혁파총회를 시작하는가?', description: '마스터스개혁파총회를 설립하게 된 이유와 신학적 배경을 설명합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/reason` },
+  title: { absolute: TITLE },
+  description: DESCRIPTION,
+  openGraph: { title: { absolute: TITLE }, description: DESCRIPTION, url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/reason`, images: [OG_IMAGE] },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/about/reason` },
 }
 

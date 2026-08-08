@@ -6,22 +6,22 @@
 - [총회소개](https://www.mareca.org/about): 마스터스개혁파총회 개요
 - [신앙고백](https://www.mareca.org/about/confession): 웨스트민스터 신앙고백서와 개혁파 신조, 5대 신앙고백 항목
 - [이사장](https://www.mareca.org/about/chairman): 총회 이사장 인사말
-- [임원](https://www.mareca.org/about/officers): 총회 임원진 및 주요 직책자
+- [임원](https://www.mareca.org/about/officers): 고문·의장·대변인·총무와 선교·복지·교육·미디어·재정 각 팀장, 마스터스세미너리·마스터스클럽 담당자 명단
 - [조직](https://www.mareca.org/about/organization): 총회 조직 구성 및 사역 원칙
 - [연혁](https://www.mareca.org/about/history): 총회 연혁 및 주요 행사
-- [설립 취지](https://www.mareca.org/about/reason): 총회 설립 배경과 취지
+- [설립 취지](https://www.mareca.org/about/reason): 총회를 새로 시작한 이유 — 함께 걷는 동역, 교회를 향한 책임, 무너진 신학과 목회 현장의 재정비
 
 ## 비전과 사명
-- [비전과 사명](https://www.mareca.org/vision): 10 Missions — 총회가 추구하는 10가지 핵심 사역
+- [비전과 사명](https://www.mareca.org/vision): 10 Missions — 국제 총회 구성, 개혁교회 설립, 개혁주의 신학회와 신학 교육, 동남아시아 선교, 복지·사회참여, 미디어·정책연구 사역
 - [정체성](https://www.mareca.org/vision/identity): 총회의 신학적 정체성
 - [선언문](https://www.mareca.org/vision/declaration): 총회 공식 선언문
 
 ## 총회 헌법
-- [총회헌법](https://www.mareca.org/constitution/law): 마스터스개혁파총회 헌법 전문
+- [총회헌법](https://www.mareca.org/constitution/law): 헌법 전문 — 장로교 정치 원리와 치리 구조를 다룬 정치, 교회 권징 절차를 규정한 권징조례, 공예배 원칙을 담은 예배모범
 
 ## 소식
-- [총회소식](https://www.mareca.org/news/all): 총회 공식 소식 게시판
-- [공지사항](https://www.mareca.org/news/notice): 공지사항 게시판
+- [총회소식](https://www.mareca.org/news/all): 총회·노회 활동, 세미나와 오픈강좌, 임직식 등 총회 안팎의 행사 소식
+- [공지사항](https://www.mareca.org/news/notice): 총회·노회 일정, 회의 안내, 각 사역팀 공지와 회원 대상 알림
 - [관련기사](https://www.mareca.org/news/press): 외부 언론(기독일보, 크리스천투데이) 보도 기사
 - [리폼드북스](https://www.mareca.org/news/books): 개혁주의 도서 소개
 

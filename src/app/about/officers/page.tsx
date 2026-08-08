@@ -3,11 +3,16 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { breadcrumbJsonLd } from '@/lib/json-ld'
 
 import type { Metadata } from 'next'
+import { OG_IMAGE } from '@/lib/constants'
+
+const TITLE = '임원 소개 — 총회 조직과 직책자'
+const DESCRIPTION =
+  '마스터스개혁파총회 임원 명단. 고문, 의장, 대변인, 총무를 비롯해 선교·복지·교육·미디어·재정 등 각 팀장과 마스터스세미너리, 마스터스클럽 담당자를 직책별로 확인할 수 있습니다.'
 
 export const metadata: Metadata = {
-  title: '임원',
-  description: '마스터스개혁파총회 임원진 및 주요 직책자를 소개합니다.',
-  openGraph: { title: '임원', description: '마스터스개혁파총회 임원진 및 주요 직책자를 소개합니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/officers` },
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: { title: TITLE, description: DESCRIPTION, url: `${process.env.NEXT_PUBLIC_SITE_URL}/about/officers`, images: [OG_IMAGE] },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/about/officers` },
 }
 

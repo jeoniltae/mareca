@@ -6,14 +6,14 @@ import { Link } from 'next-view-transitions'
 import { PenSquare, Images, Eye } from "lucide-react";
 import { AuthorIcon } from "@/components/shared/AuthorIcon";
 import { GalleryImage } from "@/features/gallery/GalleryImage";
-import { YEAR_CATEGORIES } from '@/lib/constants'
+import { YEAR_CATEGORIES, OG_IMAGE } from '@/lib/constants'
 
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: '행사앨범',
   description: '마스터스개혁파총회 행사 및 모임의 사진 앨범입니다.',
-  openGraph: { title: '행사앨범', description: '마스터스개혁파총회 행사 및 모임의 사진 앨범입니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/community/album` },
+  openGraph: { title: '행사앨범', description: '마스터스개혁파총회 행사 및 모임의 사진 앨범입니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/community/album`, images: [OG_IMAGE] },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/community/album` },
 }
 

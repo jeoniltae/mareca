@@ -9,11 +9,12 @@ import { PenSquare, Eye, Pin } from "lucide-react";
 import { Link } from 'next-view-transitions'
 
 import type { Metadata } from 'next'
+import { OG_IMAGE } from '@/lib/constants'
 
 export const metadata: Metadata = {
   title: '자유게시판',
   description: '마스터스개혁파총회 회원들의 자유로운 소통 공간입니다.',
-  openGraph: { title: '자유게시판', description: '마스터스개혁파총회 회원들의 자유로운 소통 공간입니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/community/free` },
+  openGraph: { title: '자유게시판', description: '마스터스개혁파총회 회원들의 자유로운 소통 공간입니다.', url: `${process.env.NEXT_PUBLIC_SITE_URL}/community/free`, images: [OG_IMAGE] },
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/community/free` },
 }
 

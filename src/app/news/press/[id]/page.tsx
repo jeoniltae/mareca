@@ -9,6 +9,7 @@ import { formatYMD } from '@/lib/date'
 import { BackToListLink } from '@/components/shared/BackToListLink'
 import { articleJsonLd } from '@/lib/json-ld'
 import { truncateAtSentence } from '@/lib/text'
+import { OG_IMAGE } from '@/lib/constants'
 
 // 저작권상 원문 전재를 피하고 요약만 노출한다 (RSS가 본문 전체를 보내오는 매체가 있음)
 const SUMMARY_MAX = 300
@@ -45,7 +46,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       url: `${process.env.NEXT_PUBLIC_SITE_URL}/news/press/${id}`,
-      images: data.og_image ? [{ url: data.og_image }] : [],
+      // 빈 배열이면 og:image가 아예 안 나가 카카오 공유 썸네일이 비므로 로고로 대체한다
+      images: data.og_image ? [{ url: data.og_image }] : [OG_IMAGE],
     },
     alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/news/press/${id}` },
   }
