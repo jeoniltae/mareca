@@ -5,14 +5,110 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 import { useBodyScrollLock } from '@/hooks/use-body-scroll-lock'
 
-type PolicyType = 'privacy' | 'nospam' | null
+type PolicyType = 'terms' | 'privacy' | 'nospam' | null
 
 const POLICIES = {
+  terms: {
+    title: '이용약관',
+    content: (
+      <div className="space-y-5 text-sm text-slate-600 leading-relaxed">
+        <p>본 약관은 마스터스개혁파총회(이하 &quot;총회&quot;)가 운영하는 웹사이트(이하 &quot;서비스&quot;)의 이용 조건과 절차, 총회와 회원의 권리·의무 및 책임 사항을 정하는 것을 목적으로 합니다.</p>
+
+        <section>
+          <h3 className="font-semibold text-slate-800 mb-2">제1조 (약관의 효력 및 변경)</h3>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>본 약관은 서비스 화면에 게시함으로써 효력이 발생합니다.</li>
+            <li>총회는 필요한 경우 관계 법령을 위반하지 않는 범위에서 약관을 변경할 수 있으며, 변경 시 시행일을 명시하여 게시합니다.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3 className="font-semibold text-slate-800 mb-2">제2조 (회원가입 및 계정)</h3>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>서비스는 이메일 인증 링크 또는 비밀번호를 통한 로그인 방식을 제공하며, 별도의 회원가입 절차 없이 최초 로그인 시 회원으로 등록됩니다.</li>
+            <li>회원은 본인의 계정을 제3자에게 양도하거나 대여할 수 없습니다.</li>
+            <li>계정 관리 소홀로 발생한 문제에 대한 책임은 회원 본인에게 있습니다.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3 className="font-semibold text-slate-800 mb-2">제3조 (회원의 의무)</h3>
+          <p>회원은 다음 각 호의 행위를 하여서는 안 됩니다.</p>
+          <ul className="list-disc pl-5 mt-1 space-y-1">
+            <li>타인을 비방하거나 명예를 훼손하는 내용의 게시</li>
+            <li>욕설, 음란물, 혐오 표현 등 미풍양속에 반하는 내용의 게시</li>
+            <li>타인의 저작권, 초상권 등 권리를 침해하는 내용의 게시</li>
+            <li>서비스의 취지와 무관한 광고, 홍보, 상업적 목적의 게시</li>
+            <li>허위 사실의 유포 및 타인의 개인정보 무단 게시</li>
+            <li>서비스의 정상적인 운영을 방해하는 일체의 행위</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3 className="font-semibold text-slate-800 mb-2">제4조 (게시물의 관리)</h3>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>회원은 본인이 작성한 게시물을 직접 수정하거나 삭제할 수 있습니다.</li>
+            <li>총회는 게시물이 제3조 각 호에 해당하거나 관계 법령을 위반한다고 판단되는 경우, 사전 통지 없이 해당 게시물을 삭제하거나 노출을 제한할 수 있습니다.</li>
+            <li>총회는 서비스 운영상 필요한 경우 게시판의 분류를 변경하거나 게시물을 이동할 수 있습니다.</li>
+            <li>게시물 삭제에 이의가 있는 회원은 제8조의 연락처를 통해 사유를 문의할 수 있습니다.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3 className="font-semibold text-slate-800 mb-2">제5조 (게시물의 저작권)</h3>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>회원이 작성한 게시물의 저작권은 해당 회원에게 있습니다.</li>
+            <li>회원은 게시물을 등록함으로써 총회가 서비스 내에서 해당 게시물을 노출·보관·복제하는 것에 동의한 것으로 봅니다.</li>
+            <li>총회가 게시물을 서비스 외부(소식지, 홍보 자료 등)에 이용하고자 할 경우에는 사전에 회원의 동의를 받습니다.</li>
+            <li>회원이 게시한 내용으로 인해 제3자와 분쟁이 발생한 경우, 그 책임은 게시한 회원에게 있습니다.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3 className="font-semibold text-slate-800 mb-2">제6조 (서비스의 제공 및 변경)</h3>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>서비스는 무료로 제공되며, 연중무휴 이용을 원칙으로 합니다.</li>
+            <li>총회는 시스템 점검, 설비 교체, 통신 장애 등의 사유가 있는 경우 서비스 제공을 일시적으로 중단할 수 있습니다.</li>
+            <li>총회는 서비스의 내용이나 게시판 구성을 변경할 수 있으며, 중요한 변경 사항은 사전에 공지합니다.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3 className="font-semibold text-slate-800 mb-2">제7조 (이용 제한 및 회원 탈퇴)</h3>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>회원은 언제든지 탈퇴를 요청할 수 있으며, 총회는 지체 없이 이를 처리합니다.</li>
+            <li>총회는 회원이 제3조의 의무를 반복적으로 위반하는 경우 서비스 이용을 제한할 수 있습니다.</li>
+            <li>탈퇴 후에도 이미 게시된 게시물은 삭제되지 않을 수 있으며, 삭제를 원하는 경우 탈퇴 전에 직접 삭제하여야 합니다.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3 className="font-semibold text-slate-800 mb-2">제8조 (면책 및 문의)</h3>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>총회는 천재지변, 정전, 서비스 제공 업체의 장애 등 불가항력으로 인한 서비스 중단에 대해 책임을 지지 않습니다.</li>
+            <li>총회는 회원 간 또는 회원과 제3자 간에 발생한 분쟁에 개입하지 않으며, 그로 인한 손해를 배상할 책임을 지지 않습니다.</li>
+            <li>서비스 이용과 관련한 문의는 아래 연락처로 접수할 수 있습니다.</li>
+          </ul>
+          <ul className="mt-2 space-y-1">
+            <li>이메일: saemvithee@naver.com</li>
+            <li>전화: 010-8466-7247</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3 className="font-semibold text-slate-800 mb-2">제9조 (준거법 및 관할)</h3>
+          <p>본 약관은 대한민국 법령에 따라 해석되며, 서비스 이용과 관련하여 분쟁이 발생한 경우 민사소송법에 따른 관할 법원에 제기합니다.</p>
+        </section>
+
+        <p className="text-xs text-slate-400 pt-2">본 약관은 2026년 4월 14일부터 시행됩니다.</p>
+      </div>
+    ),
+  },
   privacy: {
     title: '개인정보처리방침',
     content: (
       <div className="space-y-5 text-sm text-slate-600 leading-relaxed">
-        <p>마스터스개혁파총회(이하 "총회")는 개인정보 보호법 제30조에 따라 정보주체의 개인정보를 보호하고 이와 관련한 고충을 신속하고 원활하게 처리할 수 있도록 다음과 같이 개인정보처리방침을 수립·공개합니다.</p>
+        <p>마스터스개혁파총회(이하 &quot;총회&quot;)는 개인정보 보호법 제30조에 따라 정보주체의 개인정보를 보호하고 이와 관련한 고충을 신속하고 원활하게 처리할 수 있도록 다음과 같이 개인정보처리방침을 수립·공개합니다.</p>
 
         <section>
           <h3 className="font-semibold text-slate-800 mb-2">1. 수집하는 개인정보 항목</h3>
@@ -118,6 +214,14 @@ export function PolicyModals() {
   return (
     <>
       <div className="text-sm text-slate-400 flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => setOpen('terms')}
+          className="hover:text-white transition-colors"
+        >
+          이용약관
+        </button>
+        <span>|</span>
         <button
           type="button"
           onClick={() => setOpen('privacy')}
