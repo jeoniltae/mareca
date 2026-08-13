@@ -141,11 +141,22 @@ async function syncFeed({ url, source_name }) {
 
 async function main() {
   let total = 0;
+  const failed = [];
+
   for (const feed of RSS_FEEDS) {
-    const { count } = await syncFeed(feed);
+    const { success, count } = await syncFeed(feed);
+    if (!success) failed.push(feed.source_name);
     total += count;
   }
+
   console.log(`\n전체 완료: ${total}건 처리됨`);
+
+  // syncFeed가 예외를 잡아 정상 반환하므로, 여기서 종료 코드를 올리지 않으면
+  // 언론사 RSS가 죽어도 Actions가 초록불로 표시되어 장애를 놓친다.
+  if (failed.length > 0) {
+    console.error(`처리 실패한 피드: ${failed.join(', ')}`);
+    process.exit(1);
+  }
 }
 
 main().catch((err) => {
