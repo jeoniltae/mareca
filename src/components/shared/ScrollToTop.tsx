@@ -4,11 +4,13 @@ import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronUp } from 'lucide-react'
+import { useModalStore } from '@/hooks/use-modal-store'
 
 export function ScrollToTop() {
   const [visible, setVisible] = useState(false)
   const pathname = usePathname()
   const hiddenOnMobile = pathname === '/constitution/law'
+  const modalOpen = useModalStore((s) => s.modalOpen)
 
   useEffect(() => {
     const handleScroll = () => setVisible(window.scrollY > 200)
@@ -20,7 +22,7 @@ export function ScrollToTop() {
 
   return (
     <AnimatePresence>
-      {visible && (
+      {visible && !modalOpen && (
         <motion.button
           key="scroll-to-top"
           onClick={scrollToTop}
