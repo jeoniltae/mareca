@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 import { useBodyScrollLock } from '@/hooks/use-body-scroll-lock'
+import { useModalStore } from '@/hooks/use-modal-store'
 
 type PolicyType = 'terms' | 'privacy' | 'nospam' | null
 
@@ -208,12 +209,18 @@ const POLICIES = {
 export function PolicyModals() {
   const [open, setOpen] = useState<PolicyType>(null)
   const policy = open ? POLICIES[open] : null
+  const setModalOpen = useModalStore((s) => s.setModalOpen)
 
   useBodyScrollLock(open !== null)
 
+  useEffect(() => {
+    setModalOpen(open !== null)
+    return () => setModalOpen(false)
+  }, [open, setModalOpen])
+
   return (
     <>
-      <div className="text-sm text-slate-400 flex items-center gap-3">
+      <div className="text-sm text-slate-400 flex items-center gap-2 sm:gap-3">
         <button
           type="button"
           onClick={() => setOpen('terms')}
