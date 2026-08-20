@@ -87,6 +87,17 @@ export default function RootLayout({
     <ViewTransitions>
       <html lang="ko" className={`${notoSansKR.variable} h-full antialiased`}>
         <body className="min-h-full flex flex-col">
+          {/*
+            beforeinstallprompt는 페이지 로드당 한 번만 발생한다. React 하이드레이션을
+            기다리면 이미 지나간 뒤라 놓칠 수 있으므로, HTML 파싱 시점에 먼저 붙잡아
+            둔다. 실제 배너 렌더는 AddToHomeScreen이 이 값을 구독해서 처리한다.
+          */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html:
+                "window.__installPrompt=null;addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__installPrompt=e;dispatchEvent(new Event('installpromptready'))});",
+            }}
+          />
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />
