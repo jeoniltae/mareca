@@ -5,7 +5,8 @@ export default function manifest(): MetadataRoute.Manifest {
     name: '마스터스개혁파총회',
     short_name: '마스터스개혁파총회',
     description: '성경의 진리 위에 세워진 개혁파 신앙 공동체 — 마스터스개혁파총회(MRA)입니다.',
-    start_url: '/',
+    // 홈 화면 아이콘으로 실행한 방문을 일반 웹 방문과 구분하기 위한 표식
+    start_url: '/?utm_source=pwa',
     display: 'standalone',
     background_color: '#ffffff',
     theme_color: '#1C2E50',
