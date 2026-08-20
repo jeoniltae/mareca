@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Keyboard, Zoom } from 'swiper/modules'
+import { Keyboard, Zoom, Pagination } from 'swiper/modules'
 import type { Swiper as SwiperType } from 'swiper'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, ChevronLeft, ChevronRight, ImageOff } from 'lucide-react'
@@ -10,6 +10,7 @@ import { GalleryImage } from './GalleryImage'
 
 import 'swiper/css'
 import 'swiper/css/zoom'
+import 'swiper/css/pagination'
 
 interface GalleryImageViewerProps {
   images: string[]
@@ -31,7 +32,10 @@ function LightboxImage({ src, alt }: { src: string; alt: string }) {
     <img
       src={src}
       alt={alt}
-      className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
+      // 지정하지 않으면 페인트 직전 메인 스레드에서 동기 디코딩이 일어나 스와이프가 끊긴다.
+      decoding="async"
+      loading="lazy"
+      className="max-w-full max-h-[80vh] object-contain rounded-lg"
       onError={() => setBroken(true)}
     />
   )
@@ -39,13 +43,11 @@ function LightboxImage({ src, alt }: { src: string; alt: string }) {
 
 export function GalleryImageViewer({ images }: GalleryImageViewerProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
-  const [activeIndex, setActiveIndex] = useState(0)
   const swiperRef = useRef<SwiperType | null>(null)
 
   const isOpen = lightboxIndex !== null
 
   function openAt(i: number) {
-    setActiveIndex(i)
     setLightboxIndex(i)
   }
 
@@ -134,14 +136,16 @@ export function GalleryImageViewer({ images }: GalleryImageViewerProps) {
               >
                 <Swiper
                   key={lightboxIndex}
-                  modules={[Keyboard, Zoom]}
+                  modules={[Keyboard, Zoom, Pagination]}
                   initialSlide={lightboxIndex}
                   keyboard={{ enabled: true }}
                   zoom={{ maxRatio: 4, minRatio: 1 }}
                   loop={images.length > 1}
+                  // 현재 슬라이드와 앞뒤 1장만 로드한다. 앨범 장수와 무관하게 동시 디코딩을 3장으로 고정.
+                  lazyPreloadPrevNext={1}
+                  pagination={{ clickable: true, dynamicBullets: true }}
                   onSwiper={(swiper) => { swiperRef.current = swiper }}
-                  onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
-                  className="w-full"
+                  className="w-full lightbox-swiper"
                 >
                   {images.map((url, i) => (
                     <SwiperSlide key={url}>
@@ -176,25 +180,6 @@ export function GalleryImageViewer({ images }: GalleryImageViewerProps) {
                   <ChevronRight size={22} />
                 </button>
               </>
-            )}
-
-            {/* 페이징 점 — 모바일·데스크탑 모두 표시 */}
-            {images.length > 1 && (
-              <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2">
-                {images.map((_, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => swiperRef.current?.slideTo(i)}
-                    className={`rounded-full transition-all duration-200 ${
-                      i === activeIndex
-                        ? 'w-2.5 h-2.5 bg-white'
-                        : 'w-2 h-2 bg-white/40 hover:bg-white/70'
-                    }`}
-                    aria-label={`이미지 ${i + 1}`}
-                  />
-                ))}
-              </div>
             )}
           </>
         )}
