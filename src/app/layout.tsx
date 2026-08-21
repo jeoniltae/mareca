@@ -1,5 +1,4 @@
 ﻿import type { Metadata } from 'next'
-import Script from 'next/script'
 import { Noto_Sans_KR } from 'next/font/google'
 import './globals.css'
 import { organizationJsonLd, websiteJsonLd } from '@/lib/json-ld'
@@ -94,9 +93,18 @@ export default function RootLayout({
             기다리면 이미 지나간 뒤라 놓칠 수 있으므로, HTML 파싱 시점에 먼저 붙잡아
             둔다. 실제 배너 렌더는 AddToHomeScreen이 이 값을 구독해서 처리한다.
           */}
-          <Script id="install-prompt-capture" strategy="beforeInteractive">
-            {"window.__installPrompt=null;addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__installPrompt=e;dispatchEvent(new Event('installpromptready'))});"}
-          </Script>
+          {/*
+            next/script의 beforeInteractive는 쓰지 않는다. App Router에서 인라인 children은
+            HTML 파싱 중에 실행되지 않고 self.__next_s에 쌓였다가 main-app.js 부팅 시 실행되는데,
+            beforeinstallprompt는 한 번만 발생하고 재전송되지 않아 그 사이에 놓칠 수 있다.
+            React가 콘솔 경고를 내지만 서버 컴포넌트라 실제로는 정상 실행된다.
+          */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html:
+                "window.__installPrompt=null;addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__installPrompt=e;dispatchEvent(new Event('installpromptready'))});",
+            }}
+          />
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />

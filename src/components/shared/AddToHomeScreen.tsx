@@ -173,11 +173,13 @@ export function AddToHomeScreen() {
               transition: { type: 'spring', stiffness: 260, damping: 26 },
             }}
             exit={{ y: 80, opacity: 0, transition: { duration: 0.2, ease: 'easeIn' } }}
-            className="fixed inset-x-0 bottom-0 z-40 sm:inset-x-auto sm:bottom-5 sm:left-4"
+            // z-30 — Header 모바일 메뉴와 헌법 목차 시트 백드롭이 z-40이다.
+            // 배너를 z-40에 두면 DOM 순서상 더 뒤라 열린 메뉴 위에 그려져 탭을 가로챈다.
+            className="fixed inset-x-0 bottom-0 z-30 sm:inset-x-auto sm:bottom-5 sm:left-4"
           >
-            {/* 모바일 총 높이 = h-14 + safe-area = globals.css의 --a2hs-banner-height.
-                「맨 위로」 버튼 위치와 문서 하단 여백이 이 값을 참조하므로 함께 바꿔야 한다. */}
-            <div className="border-t border-slate-700 bg-slate-900/95 pb-[env(safe-area-inset-bottom)] shadow-lg backdrop-blur-sm sm:rounded-xl sm:border sm:pb-0">
+            {/* 모바일 높이 h-14 = globals.css의 --a2hs-banner-height.
+                「맨 위로」 버튼, 헌법 목차 FAB, 문서 하단 여백이 이 값을 참조하므로 함께 바꿔야 한다. */}
+            <div className="border-t border-slate-700 bg-slate-900/95 shadow-lg backdrop-blur-sm sm:rounded-xl sm:border">
               <div className="flex h-14 items-center gap-2.5 px-4 sm:h-auto sm:gap-1.5 sm:py-1.5 sm:pl-2 sm:pr-1.5">
               <Image
                 src="/images/icons/icon-192.png"

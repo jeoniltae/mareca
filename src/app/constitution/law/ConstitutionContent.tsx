@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useModalStore } from '@/hooks/use-modal-store'
 import { ConstitutionSection } from './law-data'
 import { ConstitutionArticle } from './ConstitutionArticle'
 
@@ -11,6 +12,9 @@ interface ConstitutionContentProps {
 export function ConstitutionContent({ section }: ConstitutionContentProps) {
   const [activeChapter, setActiveChapter] = useState(section.chapters[0].number)
   const [isSheetOpen, setIsSheetOpen] = useState(false)
+  // 이 페이지는 ScrollToTop이 모바일에서 숨겨져 FAB가 유일한 하단 컨트롤이다.
+  // 홈 화면 추가 배너가 뜨면 그 위로 올리고, 닫히면 원래 자리로 돌아온다.
+  const bannerOpen = useModalStore((s) => s.bannerOpen)
   const isScrollingRef = useRef(false)
   const navRef = useRef<HTMLElement>(null)
   const sheetNavRef = useRef<HTMLDivElement>(null)
@@ -151,7 +155,7 @@ export function ConstitutionContent({ section }: ConstitutionContentProps) {
       {/* FAB — 모바일만 표시 */}
       <button
         onClick={() => setIsSheetOpen(true)}
-        className="lg:hidden fixed bottom-6 right-6 z-30 flex items-center gap-2 bg-slate-800 text-white text-xs font-semibold px-4 py-3 rounded-full shadow-lg active:scale-95 transition-transform"
+        className={`lg:hidden fixed ${bannerOpen ? 'bottom-[calc(var(--a2hs-banner-height)+0.75rem)]' : 'bottom-6'} right-6 z-30 flex items-center gap-2 bg-slate-800 text-white text-xs font-semibold px-4 py-3 rounded-full shadow-lg active:scale-95 transition-transform`}
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h10" />
