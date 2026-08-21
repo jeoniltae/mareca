@@ -5,6 +5,7 @@ import { organizationJsonLd, websiteJsonLd } from '@/lib/json-ld'
 import { Header } from '@/components/shared/Header'
 import { Footer } from '@/components/shared/Footer'
 import { ScrollToTop } from '@/components/shared/ScrollToTop'
+import { AddToHomeScreen } from '@/components/shared/AddToHomeScreen'
 import { KakaoScript } from '@/components/shared/KakaoScript'
 import { NavigationProgress } from '@/components/shared/NavigationProgress'
 import { NavigationTracker } from '@/components/shared/NavigationTracker'
@@ -87,10 +88,30 @@ export default function RootLayout({
     <ViewTransitions>
       <html lang="ko" className={`${notoSansKR.variable} h-full antialiased`}>
         <body className="min-h-full flex flex-col">
+          {/*
+            beforeinstallprompt는 페이지 로드당 한 번만 발생한다. React 하이드레이션을
+            기다리면 이미 지나간 뒤라 놓칠 수 있으므로, HTML 파싱 시점에 먼저 붙잡아
+            둔다. 실제 배너 렌더는 AddToHomeScreen이 이 값을 구독해서 처리한다.
+          */}
+          {/*
+            next/script의 beforeInteractive는 쓰지 않는다. App Router에서 인라인 children은
+            HTML 파싱 중에 실행되지 않고 self.__next_s에 쌓였다가 main-app.js 부팅 시 실행되는데,
+            beforeinstallprompt는 한 번만 발생하고 재전송되지 않아 그 사이에 놓칠 수 있다.
+            React가 콘솔 경고를 내지만 서버 컴포넌트라 실제로는 정상 실행된다.
+          */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html:
+                "window.__installPrompt=null;addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__installPrompt=e;dispatchEvent(new Event('installpromptready'))});",
+            }}
+          />
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />
           <ScrollToTop />
+          {/* 인라인 스크립트가 모든 경로에서 프롬프트를 선점하므로, 배너도 모든 경로에 둔다.
+              홈을 거치지 않는 유입(공유 링크 등)에서 설치 경로가 사라지는 것을 막는다. */}
+          <AddToHomeScreen />
           <KakaoScript />
           <NavigationProgress />
           <Suspense fallback={null}><NavigationTracker /></Suspense>
