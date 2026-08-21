@@ -19,6 +19,18 @@ const DISMISS_KEY = 'a2hs-dismissed'
 /** 닫기 후 다시 노출하기까지의 기간(일). 영구 차단을 피해 재유입 기회를 남긴다. */
 const DISMISS_DAYS = 7
 
+// 「닫음」과 「설치함」은 다른 사실이라 키와 기간을 나눈다.
+// isStandalone()은 「설치했는가」가 아니라 「지금 앱으로 실행 중인가」를 보는 값이라,
+// 설치 후 Chrome 브라우저 탭으로 들어오면 false다. 설치 사실은 따로 기록해야 한다.
+const INSTALLED_KEY = 'a2hs-installed'
+/**
+ * 설치 후 다시 노출하기까지의 기간(일).
+ * 영구로 두면 앱을 삭제한 뒤에도 재설치 진입점이 영원히 사라진다.
+ * 반대로 숨기지 않으면 이미 설치한 사용자에게 반응 없는 「설치」 버튼을 계속 보여주게 된다
+ * (설치 후에는 beforeinstallprompt가 오지 않아 window.__installPrompt가 null이다).
+ */
+const INSTALLED_DAYS = 90
+
 // 이미 홈 화면에서 실행 중이면(standalone) 배너를 띄울 이유가 없다.
 function isStandalone() {
   return (
@@ -62,6 +74,28 @@ function storeDismissed() {
   }
 }
 
+function isInstalledStored() {
+  try {
+    const raw = localStorage.getItem(INSTALLED_KEY)
+    if (!raw) return false
+
+    const installedAt = Number(raw)
+    if (!Number.isFinite(installedAt)) return false
+
+    return Date.now() - installedAt < INSTALLED_DAYS * 24 * 60 * 60 * 1000
+  } catch {
+    return false
+  }
+}
+
+function storeInstalled() {
+  try {
+    localStorage.setItem(INSTALLED_KEY, String(Date.now()))
+  } catch {
+    // 무시. 다음 방문에 배너가 한 번 더 뜰 뿐이다.
+  }
+}
+
 type Env = 'blocked' | 'ios' | 'installable'
 
 // 값이 바뀌지 않으므로 구독하지 않는다. 참조 안정성을 위해 모듈 스코프에 둔다.
@@ -70,6 +104,7 @@ const getEnvServerSnapshot = (): Env => 'blocked'
 
 function getEnvSnapshot(): Env {
   if (isStandalone()) return 'blocked'
+  if (isInstalledStored()) return 'blocked'
   if (isDismissedStored()) return 'blocked'
   return isIOS() ? 'ios' : 'installable'
 }
@@ -125,6 +160,23 @@ export function AddToHomeScreen() {
     return () => setBannerOpen(false)
   }, [visible, setBannerOpen])
 
+  // 우리 버튼이 아니라 Chrome 메뉴(⋮ → 앱 설치)로 설치한 경우도 잡는다.
+  useEffect(() => {
+    const handleInstalled = () => {
+      storeInstalled()
+      setDismissed(true)
+    }
+    window.addEventListener('appinstalled', handleInstalled)
+    return () => window.removeEventListener('appinstalled', handleInstalled)
+  }, [])
+
+  // iOS Safari는 appinstalled를 발생시키지 않아 설치 시점을 알 수 없다.
+  // 대신 홈 화면 앱으로 실행된 순간(standalone)을 설치 완료로 간주해 기록한다.
+  // 이후 Safari 탭으로 들어와도 배너가 다시 뜨지 않는다.
+  useEffect(() => {
+    if (isStandalone()) storeInstalled()
+  }, [])
+
   // 하단 고정 배너가 푸터 카피라이트를 가리므로, 문서 끝에 배너 높이만큼 여백을 만든다.
   useEffect(() => {
     document.body.classList.toggle('has-a2hs-banner', visible)
@@ -145,7 +197,10 @@ export function AddToHomeScreen() {
     // 한 번 사용한 이벤트는 재사용할 수 없다. 비워서 배너를 내린다.
     window.__installPrompt = null
     window.dispatchEvent(new Event('installpromptready'))
-    if (outcome === 'accepted') setDismissed(true)
+    if (outcome === 'accepted') {
+      storeInstalled()
+      setDismissed(true)
+    }
   }
 
   const handleDismiss = () => {
