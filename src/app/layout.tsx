@@ -1,10 +1,12 @@
 ﻿import type { Metadata } from 'next'
+import Script from 'next/script'
 import { Noto_Sans_KR } from 'next/font/google'
 import './globals.css'
 import { organizationJsonLd, websiteJsonLd } from '@/lib/json-ld'
 import { Header } from '@/components/shared/Header'
 import { Footer } from '@/components/shared/Footer'
 import { ScrollToTop } from '@/components/shared/ScrollToTop'
+import { AddToHomeScreen } from '@/components/shared/AddToHomeScreen'
 import { KakaoScript } from '@/components/shared/KakaoScript'
 import { NavigationProgress } from '@/components/shared/NavigationProgress'
 import { NavigationTracker } from '@/components/shared/NavigationTracker'
@@ -92,16 +94,16 @@ export default function RootLayout({
             기다리면 이미 지나간 뒤라 놓칠 수 있으므로, HTML 파싱 시점에 먼저 붙잡아
             둔다. 실제 배너 렌더는 AddToHomeScreen이 이 값을 구독해서 처리한다.
           */}
-          <script
-            dangerouslySetInnerHTML={{
-              __html:
-                "window.__installPrompt=null;addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__installPrompt=e;dispatchEvent(new Event('installpromptready'))});",
-            }}
-          />
+          <Script id="install-prompt-capture" strategy="beforeInteractive">
+            {"window.__installPrompt=null;addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__installPrompt=e;dispatchEvent(new Event('installpromptready'))});"}
+          </Script>
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />
           <ScrollToTop />
+          {/* 인라인 스크립트가 모든 경로에서 프롬프트를 선점하므로, 배너도 모든 경로에 둔다.
+              홈을 거치지 않는 유입(공유 링크 등)에서 설치 경로가 사라지는 것을 막는다. */}
+          <AddToHomeScreen />
           <KakaoScript />
           <NavigationProgress />
           <Suspense fallback={null}><NavigationTracker /></Suspense>

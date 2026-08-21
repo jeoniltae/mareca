@@ -3,7 +3,9 @@
 // 홈 화면에 앱 아이콘 추가를 유도하는 배너 (Android는 설치 프롬프트, iOS는 수동 안내 모달)
 
 import { useEffect, useState, useSyncExternalStore } from 'react'
-import { Share, Plus, Smartphone, X } from 'lucide-react'
+import Image from 'next/image'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Share, Plus, Download, X } from 'lucide-react'
 import { useBodyScrollLock } from '@/hooks/use-body-scroll-lock'
 import { useModalStore } from '@/hooks/use-modal-store'
 
@@ -14,6 +16,8 @@ type BeforeInstallPromptEvent = Event & {
 }
 
 const DISMISS_KEY = 'a2hs-dismissed'
+/** 닫기 후 다시 노출하기까지의 기간(일). 영구 차단을 피해 재유입 기회를 남긴다. */
+const DISMISS_DAYS = 7
 
 // 이미 홈 화면에서 실행 중이면(standalone) 배너를 띄울 이유가 없다.
 function isStandalone() {
@@ -32,6 +36,32 @@ function isIOS() {
   )
 }
 
+// iOS Safari의 '모든 쿠키 차단' 설정에서는 localStorage에 접근하는 것만으로
+// SecurityError가 던져진다. getEnvSnapshot은 렌더 단계에서 실행되므로 예외가
+// 그대로 에러 바운더리까지 올라가 페이지 전체가 대체된다. 반드시 감싼다.
+function isDismissedStored() {
+  try {
+    const raw = localStorage.getItem(DISMISS_KEY)
+    if (!raw) return false
+
+    const dismissedAt = Number(raw)
+    // 숫자가 아니면 손상된 값이므로 만료된 것으로 보고 다시 노출한다.
+    if (!Number.isFinite(dismissedAt)) return false
+
+    return Date.now() - dismissedAt < DISMISS_DAYS * 24 * 60 * 60 * 1000
+  } catch {
+    return false
+  }
+}
+
+function storeDismissed() {
+  try {
+    localStorage.setItem(DISMISS_KEY, String(Date.now()))
+  } catch {
+    // 프라이빗 모드 등에서 쓰기가 막혀도 현재 세션 동안의 숨김은 state로 유지된다.
+  }
+}
+
 type Env = 'blocked' | 'ios' | 'installable'
 
 // 값이 바뀌지 않으므로 구독하지 않는다. 참조 안정성을 위해 모듈 스코프에 둔다.
@@ -40,7 +70,7 @@ const getEnvServerSnapshot = (): Env => 'blocked'
 
 function getEnvSnapshot(): Env {
   if (isStandalone()) return 'blocked'
-  if (localStorage.getItem(DISMISS_KEY)) return 'blocked'
+  if (isDismissedStored()) return 'blocked'
   return isIOS() ? 'ios' : 'installable'
 }
 
@@ -76,6 +106,11 @@ export function AddToHomeScreen() {
   const [dismissed, setDismissed] = useState(false)
   const [guideOpen, setGuideOpen] = useState(false)
   const setModalOpen = useModalStore((s) => s.setModalOpen)
+  const setBannerOpen = useModalStore((s) => s.setBannerOpen)
+
+  // 노출 조건을 따로 두지 않는다. 거슬리면 사용자가 X로 직접 닫을 수 있고,
+  // 한 번 닫으면 localStorage에 기록돼 다시 뜨지 않는다.
+  const visible = !dismissed && (env === 'ios' || (env === 'installable' && promptReady))
 
   useBodyScrollLock(guideOpen)
 
@@ -83,6 +118,18 @@ export function AddToHomeScreen() {
     setModalOpen(guideOpen)
     return () => setModalOpen(false)
   }, [guideOpen, setModalOpen])
+
+  // 모바일에서는 하단 전체 폭이라 「맨 위로」 버튼과 겹친다.
+  useEffect(() => {
+    setBannerOpen(visible)
+    return () => setBannerOpen(false)
+  }, [visible, setBannerOpen])
+
+  // 하단 고정 배너가 푸터 카피라이트를 가리므로, 문서 끝에 배너 높이만큼 여백을 만든다.
+  useEffect(() => {
+    document.body.classList.toggle('has-a2hs-banner', visible)
+    return () => document.body.classList.remove('has-a2hs-banner')
+  }, [visible])
 
   const handleInstall = async () => {
     if (env === 'ios') {
@@ -102,48 +149,75 @@ export function AddToHomeScreen() {
   }
 
   const handleDismiss = () => {
-    localStorage.setItem(DISMISS_KEY, '1')
+    // state를 먼저 갱신한다. 저장이 실패해도 배너는 즉시 닫혀야 한다.
     setDismissed(true)
+    storeDismissed()
   }
-
-  const visible = !dismissed && (env === 'ios' || (env === 'installable' && promptReady))
-  if (!visible) return null
 
   return (
     <>
-      <section className="bg-sky-50 border-y border-sky-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center gap-3">
-            <span className="hidden sm:flex shrink-0 items-center justify-center w-10 h-10 rounded-full bg-white text-sky-600 border border-sky-100">
-              <Smartphone size={18} />
-            </span>
+      {/*
+        문서 흐름에 끼어들면 하이드레이션 직후 이하 콘텐츠가 밀려 CLS가 발생하므로
+        고정 오버레이로 둔다.
+        모바일: 하단 전체 폭 바 — 360px 폭에 5개 요소를 한 줄에 넣으면 잘린다.
+        데스크톱(sm~): 좌측 하단 pill — 우측 하단은 「맨 위로」 버튼 자리다.
+      */}
+      <AnimatePresence>
+        {visible && (
+          <motion.div
+            key="a2hs-banner"
+            initial={{ y: 80, opacity: 0 }}
+            animate={{
+              y: 0,
+              opacity: 1,
+              transition: { type: 'spring', stiffness: 260, damping: 26 },
+            }}
+            exit={{ y: 80, opacity: 0, transition: { duration: 0.2, ease: 'easeIn' } }}
+            className="fixed inset-x-0 bottom-0 z-40 sm:inset-x-auto sm:bottom-5 sm:left-4"
+          >
+            {/* 모바일 총 높이 = h-14 + safe-area = globals.css의 --a2hs-banner-height.
+                「맨 위로」 버튼 위치와 문서 하단 여백이 이 값을 참조하므로 함께 바꿔야 한다. */}
+            <div className="border-t border-slate-700 bg-slate-900/95 pb-[env(safe-area-inset-bottom)] shadow-lg backdrop-blur-sm sm:rounded-xl sm:border sm:pb-0">
+              <div className="flex h-14 items-center gap-2.5 px-4 sm:h-auto sm:gap-1.5 sm:py-1.5 sm:pl-2 sm:pr-1.5">
+              <Image
+                src="/images/icons/icon-192.png"
+                alt=""
+                width={24}
+                height={24}
+                className="shrink-0 rounded-md sm:h-5 sm:w-5"
+              />
 
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-slate-800">홈 화면에 추가하기</p>
-              <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                앱처럼 바로 열 수 있습니다. 총회 소식을 더 빠르게 확인하세요.
-              </p>
+              {/* 모바일에서는 사이트 이름 대신 '무엇을 하는지'만 보여준다.
+                  이미 이 사이트를 보고 있는 사람에게 사이트 이름은 정보가 아니다. */}
+              <span className="min-w-0 flex-1 truncate text-sm font-medium text-white sm:flex-none sm:text-xs">
+                <span className="sm:hidden">홈 화면에 추가</span>
+                <span className="hidden sm:inline">마스터스개혁파총회</span>
+              </span>
+
+              <button
+                type="button"
+                onClick={handleInstall}
+                className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-sky-600 px-3.5 py-2 text-sm font-semibold text-white transition-colors hover:bg-sky-500 sm:gap-0.5 sm:px-2.5 sm:py-1 sm:text-xs"
+              >
+                <Download size={14} strokeWidth={2.5} className="sm:h-3 sm:w-3" />
+                설치
+              </button>
+
+              <span className="hidden h-4 w-px shrink-0 bg-slate-700 sm:block" aria-hidden="true" />
+
+              <button
+                type="button"
+                onClick={handleDismiss}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:text-white sm:h-6 sm:w-6"
+                aria-label="설치 안내 닫기"
+              >
+                <X size={18} className="sm:h-3.5 sm:w-3.5" />
+                </button>
+              </div>
             </div>
-
-            <button
-              type="button"
-              onClick={handleInstall}
-              className="shrink-0 px-4 py-2 rounded-lg bg-sky-600 text-white text-sm font-medium hover:bg-sky-700 transition-colors"
-            >
-              추가
-            </button>
-
-            <button
-              type="button"
-              onClick={handleDismiss}
-              className="shrink-0 p-1 text-slate-400 hover:text-slate-600 transition-colors"
-              aria-label="배너 닫기"
-            >
-              <X size={16} />
-            </button>
-          </div>
-        </div>
-      </section>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {guideOpen && (
         <div

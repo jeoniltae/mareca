@@ -5,9 +5,14 @@ import { create } from 'zustand'
 type ModalStore = {
   modalOpen: boolean
   setModalOpen: (open: boolean) => void
+  /** 홈 화면 추가 배너 노출 여부. 모바일에서는 하단 전체 폭이라 「맨 위로」 버튼과 겹친다. */
+  bannerOpen: boolean
+  setBannerOpen: (open: boolean) => void
 }
 
 export const useModalStore = create<ModalStore>((set) => ({
   modalOpen: false,
   setModalOpen: (open) => set({ modalOpen: open }),
+  bannerOpen: false,
+  setBannerOpen: (open) => set({ bannerOpen: open }),
 }))

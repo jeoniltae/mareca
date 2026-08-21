@@ -30,7 +30,6 @@ import {
   Mail,
 } from 'lucide-react'
 import { HeroSlider } from '@/components/shared/HeroSlider'
-import { AddToHomeScreen } from '@/components/shared/AddToHomeScreen'
 import { ComingSoonButton } from '@/components/shared/ComingSoonButton'
 import { createClient } from '@/lib/supabase-server'
 import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtube-utils'
@@ -438,7 +437,6 @@ export default function HomePage() {
   return (
     <>
       <HeroSlider />
-      <AddToHomeScreen />
       <QuickInfoSection />
       <ServicesSection />
       <QuickMenuSection />
