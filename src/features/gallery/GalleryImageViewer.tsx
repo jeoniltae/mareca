@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Keyboard, Zoom, Pagination } from 'swiper/modules'
+import { Keyboard, Zoom, Pagination, A11y } from 'swiper/modules'
 import type { Swiper as SwiperType } from 'swiper'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, ChevronLeft, ChevronRight, ImageOff } from 'lucide-react'
@@ -136,7 +136,14 @@ export function GalleryImageViewer({ images }: GalleryImageViewerProps) {
               >
                 <Swiper
                   key={lightboxIndex}
-                  modules={[Keyboard, Zoom, Pagination]}
+                  // A11y 없이는 페이지네이션 불릿이 role·aria-label 없는 span으로만 생성돼
+                  // 키보드·스크린리더에서 이미지별 이동 수단이 사라진다.
+                  modules={[Keyboard, Zoom, Pagination, A11y]}
+                  a11y={{
+                    paginationBulletMessage: '{{index}}번 이미지로 이동',
+                    prevSlideMessage: '이전 이미지',
+                    nextSlideMessage: '다음 이미지',
+                  }}
                   initialSlide={lightboxIndex}
                   keyboard={{ enabled: true }}
                   zoom={{ maxRatio: 4, minRatio: 1 }}
