@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { Menu, X, LogIn, LogOut, User, CheckCircle2, ChevronDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase'
+import { useModalStore } from '@/hooks/use-modal-store'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 
 type SubItem = {
@@ -116,6 +117,7 @@ export function Header() {
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [openAccordion, setOpenAccordion] = useState<string | null>(null)
   const [user, setUser] = useState<SupabaseUser | null>(null)
+  const setModalOpen = useModalStore((s) => s.setModalOpen)
 
   const isMasters = user?.email === MASTERS_EMAIL || user?.email === ADMIN_EMAIL
   const MASTERS_ONLY_HREFS = ['/resources', '/online-admin', '/report']
@@ -160,14 +162,21 @@ export function Header() {
     isMenuOpenRef.current = isMenuOpen
   }, [isMenuOpen])
 
+  // 모바일 GNB가 열리면 body 스크롤을 잠근다. 이때 「맨 위로」 버튼은 잠긴 body에
+  // scrollTo를 걸어 아무 동작도 하지 않으므로, 전역 플래그를 켜서 ScrollToTop이 스스로 숨게 한다.
+  // z-index로 가리는 방식은 버튼이 탭 순서에 남아 보이지 않는 요소에 포커스가 걸린다.
   useEffect(() => {
+    setModalOpen(isMobileOpen)
     if (isMobileOpen) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = ''
     }
-    return () => { document.body.style.overflow = '' }
-  }, [isMobileOpen])
+    return () => {
+      document.body.style.overflow = ''
+      setModalOpen(false)
+    }
+  }, [isMobileOpen, setModalOpen])
 
   // useLayoutEffect: 페인트 전에 실행 → Next.js 스크롤 복원(useEffect)보다 먼저 가드 설정
   // useEffect는 자식→부모 순서라 page의 스크롤 복원 effect가 Header effect보다 먼저 실행됨
