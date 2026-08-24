@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { createClient } from '@/lib/supabase-server'
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mareca.org'
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.mareca.org'
 
 const BOARD_PATH_MAP: Record<string, string> = {
   'news': '/news/all',
