@@ -155,8 +155,9 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
     - [x] 파일 하단에 `formatHtml` 로컬 함수 추가 — 블록 닫는 태그 뒤에만 개행
     - [x] `npm run build` 통과 확인
   - 4단계 — 자동 검증
-    - [ ] `npm test` (테스트 파일 0개지만 coding-guidelines §8 방침상 실행)
-    - [ ] `npm run build` 타입 에러 없음
+    - [x] `npm test` 실행 — **exit 1이지만 기존 상태**. 저장소에 추적 중인 테스트 파일이 0개이고 `jsdom` 미설치(`vitest.config.ts`만 존재). 이번 변경과 무관
+    - [x] `npm run build` 타입 에러 없음
+    - [x] `npx eslint`로 수정한 3개 파일만 검사 — 깨끗함. (`npm run lint` 전체는 기존 에러/경고 다수 — `set-state-in-effect`, `no-img-element`, `public/sw.js` 빌드 산출물)
   - 5단계 — 수동 검증 (`npm run dev`)
     - [ ] 관리자 계정 `/community/free/new`에 `</>` 버튼 노출
     - [ ] 토글 시 HTML이 블록 단위로 개행되어 보임
