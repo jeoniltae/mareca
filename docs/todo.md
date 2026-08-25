@@ -121,7 +121,7 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
   - Plus Voice: `board='voice'`, 경로 `/community/voice` — 기존 `src/app/community/voice/page.tsx` ComingSoon → 게시판으로 교체
   - 카테고리: `공지`, `일반` (단순)
 
-- **[미착수] 게시판 에디터 HTML 소스 편집기 추가**
+- **[완료] 게시판 에디터 HTML 소스 편집기 추가**
   - 배경: 본문은 현재 `PostEditor.tsx`(Tiptap v3) 툴바로만 작성 가능. 관리자가 외부 마크업을 붙여넣거나 툴바로 표현이 어려운 구조(중첩 테이블, 세밀한 정렬)를 손보려면 소스 단계 편집이 필요함
   - 목표: 관리자에게만 툴바에 `</>` 토글을 노출해 본문 HTML을 직접 편집
   - 확정 사항:
@@ -159,24 +159,36 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
     - [x] `npm run build` 타입 에러 없음
     - [x] `npx eslint`로 수정한 3개 파일만 검사 — 깨끗함. (`npm run lint` 전체는 기존 에러/경고 다수 — `set-state-in-effect`, `no-img-element`, `public/sw.js` 빌드 산출물)
   - 5단계 — 수동 검증 (`npm run dev`)
-    - [ ] 관리자 계정 `/community/free/new`에 `</>` 버튼 노출
-    - [ ] 토글 시 HTML이 블록 단위로 개행되어 보임
-    - [ ] 소스에 `<p style="text-align:center">` 추가 → 토글 해제 시 WYSIWYG 반영
-    - [ ] **소스 모드인 채로 바로 [등록]** → 정규화된 내용 저장 (이번 설계의 핵심 케이스 — blur가 click보다 먼저 발생하는지 확인)
-    - [ ] `<script>alert(1)</script>` 입력 → 토글 해제 시 Tiptap이 제거
-    - [ ] `<img src='...'>`(작은따옴표) 저장 → 1단계 정규식이 잡는지
-    - [ ] 비관리자 계정에서 `</>` 버튼 안 보임
-    - [ ] 기존 게시글 수정 시 소스 모드를 한 번도 안 열면 서식 그대로 (회귀 확인)
-    - [ ] `/community/open-lecture/new` 카테고리 `공지`에서도 정상 동작 (PostEditor 공유)
+    - [x] 관리자 계정 `/community/free/new`에 `</>` 버튼 노출
+    - [x] 토글 시 HTML이 블록 단위로 개행되어 보임
+    - [x] 소스에 `<p style="text-align:center">` 추가 → 토글 해제 시 WYSIWYG 반영
+    - [x] **소스 모드인 채로 바로 [등록]** → 정규화된 내용 저장 (이번 설계의 핵심 케이스 — blur가 click보다 먼저 발생함을 확인)
+    - [x] `<script>alert(1)</script>` 입력 → 토글 해제 시 Tiptap이 제거
+    - [x] `<img src='...'>`(작은따옴표) 저장 → 1단계 정규식이 잡는지
+    - [x] 비관리자 계정에서 `</>` 버튼 안 보임
+    - [x] 기존 게시글 수정 시 소스 모드를 한 번도 안 열면 서식 그대로 (회귀 확인)
+    - [x] `/community/open-lecture/new` 카테고리 `공지`에서도 정상 동작 (PostEditor 공유)
+    - 2026-08-25 사용자 수동 검증 완료 — 전 항목 이상 없음
   - 6단계 — 문서 기록
-    - [ ] `docs/context-notes.md`에 결정 기록 — 관리자 한정 이유, Tiptap 정규화로 sanitize 없이 현행 수준 유지한 근거, sanitize 분리 배경
-    - [ ] 이 항목 `[완료]` 표기 + 아래 sanitize 후속 항목 등록
+    - [x] `docs/context-notes.md` `## 2026-08-25` 섹션에 결정 기록 — 관리자 한정 이유, Tiptap 정규화로 sanitize 없이 현행 수준 유지한 근거, sanitize 분리 배경, blur 설계, 들여쓰기 유지 결정, 검증 한계
+    - [x] 이 항목 `[완료]` 표기 + 후속 항목 2건 등록(서버 sanitize, 고아 파일 이탈 경로)
 
 - **[미착수] 게시글 본문 서버 sanitize 도입 (선행 취약점)**
   - 배경: `createPost` / `updatePost`가 `content`를 검증 없이 저장하고 13개 상세 페이지가 `dangerouslySetInnerHTML`로 렌더 → 조작된 요청으로 저장된 XSS를 막을 수단이 없다. **HTML 소스 편집기와 무관하게 이미 존재하는 문제**이며, 소스 편집 결과가 항상 Tiptap을 통과하므로 그 기능이 새로 만드는 위험은 아니다
   - 방향: `sanitize-html` 도입 후 `createPost` / `updatePost`의 `content`에 화이트리스트 적용
   - 주의: Tiptap이 생성하는 `style="text-align:…"`(TextAlign), `<span style="color:…">`(Color), `<mark>`(Highlight), `colspan`/`rowspan`/`colwidth`(Table), `class`(Image·Link)를 모두 허용해야 한다. 하나라도 빠지면 기존 글 재저장 시 서식이 파괴된다
   - 주의: 오픈강좌는 `category !== '공지'`일 때 본문이 평문이라 sanitize하면 `<`가 escape된다 — 조건부 적용 필요
+
+- **[미착수] 에디터 이미지 고아 파일 — 탭 닫기·뒤로가기 경로 정리**
+  - 배경: 현재 에디터 업로드 이미지 정리는 [취소] 버튼을 눌러 확인 모달에서 확정할 때만 동작한다.
+    `PostForm.tsx`의 `onImageUploaded` → `editorImageUrls` 누적 → 취소 확정 시 `deleteEditorImages(editorImageUrls)` 흐름
+  - **브라우저 탭을 닫거나 뒤로가기·GNB 클릭으로 이탈하면 이 핸들러가 실행되지 않아** 업로드된 파일이 `post-images` 버킷에 그대로 남는다
+  - HTML 소스 편집기와 무관한 선행 문제다. 정리 로직이 본문 HTML이 아니라 업로드 시점(`onImageUploaded`)을 추적하므로 소스 편집 여부에 영향받지 않는다 (2026-08-25 확인)
+  - 해결 방향 두 가지 — 택일 또는 병행
+    1. **`beforeunload` 경고** — 작성 중 이탈 시 브라우저 기본 확인창. 구현이 가볍지만 탭 닫기만 막고 Next.js 클라이언트 라우팅 이탈은 못 잡는다. 라우팅 이탈까지 막으려면 `next/navigation` 가드가 추가로 필요
+    2. **주기적 미참조 파일 청소** — GitHub Actions cron으로 `post-images` 버킷 목록과 `posts.content` / `post_images`를 대조해 어디서도 참조되지 않는 파일 삭제. 이탈 경로와 무관하게 확실하지만, **작성 중인 글의 이미지를 지우지 않도록 업로드 후 N시간 유예를 반드시 둘 것**
+  - 권장: 2번(청소 배치)이 근본 해결. 1번만으로는 경로가 남는다
+  - 관련 파일: `src/features/posts/PostForm.tsx`, `src/features/posts/actions.ts`(`deleteEditorImages`), `.github/workflows/`
 
 - **[보류] 404/500 페이지에서 "이전 페이지" 버튼(BackButton) 클릭 후 GNB 애니메이션·인터랙션 불작동**
   - 증상: 404/500 같은 하드 네비게이션 페이지에서 `router.back()` 또는 `history.back()` 사용 시 이전 페이지로 돌아왔을 때 Header의 Framer Motion 애니메이션 및 hover 인터랙션이 동작하지 않음
