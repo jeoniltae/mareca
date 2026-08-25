@@ -121,6 +121,59 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
   - Plus Voice: `board='voice'`, 경로 `/community/voice` — 기존 `src/app/community/voice/page.tsx` ComingSoon → 게시판으로 교체
   - 카테고리: `공지`, `일반` (단순)
 
+- **[미착수] 게시판 에디터 HTML 소스 편집기 추가**
+  - 배경: 본문은 현재 `PostEditor.tsx`(Tiptap v3) 툴바로만 작성 가능. 관리자가 외부 마크업을 붙여넣거나 툴바로 표현이 어려운 구조(중첩 테이블, 세밀한 정렬)를 손보려면 소스 단계 편집이 필요함
+  - 목표: 관리자에게만 툴바에 `</>` 토글을 노출해 본문 HTML을 직접 편집
+  - 확정 사항:
+    - 권한은 `getIsAdmin`(`profiles.is_admin = true`)만 사용 — `masters@mareca.kr`는 제외
+    - 소스 편집 결과는 **반드시 `editor.commands.setContent()`를 거쳐** Tiptap 스키마로 정규화된 뒤에만 폼 상태로 전달. 정규화되지 않은 원본 HTML이 저장될 경로를 만들지 않는다
+    - 서버 sanitize는 이번 범위 밖 — 선행 취약점이므로 아래 별도 항목으로 분리
+    - `PostForm`을 쓰는 24개 페이지에 `isAdmin` prop을 넘기지 않고, `PostEditor`가 Server Action으로 직접 조회
+    - `OpenLectureForm.tsx`, `open-lecture/actions.ts`는 손대지 않음 (PostEditor 내부 변경만으로 충족)
+    - 신규 의존성 없음 / 신규 소스 파일 없음
+  - 1단계 — 이미지 URL 정규식 보강 (독립 커밋)
+    - [ ] `PostForm.tsx:74` → `/<img[^>]+src=["']([^"']+)["']/g`
+    - [ ] `posts/actions.ts:162`(`extractStorageImagePaths`) → 동일 패턴
+    - [ ] `npm run build` 통과 확인 후 커밋
+    - 상세 페이지 13곳의 OG 이미지 추출 정규식은 건드리지 않음(범위 밖)
+  - 2단계 — 관리자 조회 Server Action
+    - [ ] `posts/actions.ts`에 `import { getIsAdmin } from '@/lib/admin'` 추가
+    - [ ] `export async function isEditorAdmin(): Promise<boolean> { return getIsAdmin() }` 추가
+    - UI 노출 제어일 뿐, 실질적 안전장치는 3단계의 Tiptap 정규화다
+  - 3단계 — `PostEditor.tsx` 소스 편집 모드 (파일 위→아래 순서로 적용)
+    - [ ] import 보강 — `Code2`(lucide-react), `isEditorAdmin`, `useEffect`
+    - [ ] state 3개 추가 — `isAdmin` / `showSource` / `sourceHtml`
+    - [ ] `useEffect`로 마운트 시 `isEditorAdmin()` 호출 — **`if (!editor) return null`(L100)보다 반드시 위**
+    - [ ] `applySource` 추가 — `setContent(sourceHtml)` 후 `onChange(editor.getHTML())` 명시 호출 (v3 `setContent`는 `onUpdate` 미발화)
+    - [ ] `toggleSource` 추가 — 켤 때 `formatHtml(getHTML())` 세팅 + 팝오버 3개 닫기, 끌 때 `applySource()`
+    - [ ] 툴바에 `isAdmin && <Btn onClick={toggleSource} active={showSource} title="HTML 소스 편집">` 추가 (undo/redo 뒤)
+    - [ ] 소스 모드에서 나머지 툴바 숨김 — 숨겨진 에디터를 조작해도 `applySource()`가 덮어써 조용히 사라지므로
+    - [ ] textarea + 안내 문구(`에디터가 지원하지 않는 태그·속성은 적용 시 제거됩니다.`) 렌더, `onBlur={applySource}`
+    - [ ] `EditorContent`는 언마운트하지 말고 `cn('bg-white', showSource && 'hidden')`으로 감춤 (인스턴스·undo 히스토리 보존)
+    - [ ] 파일 하단에 `formatHtml` 로컬 함수 추가 — 블록 닫는 태그 뒤에만 개행
+  - 4단계 — 자동 검증
+    - [ ] `npm test` (테스트 파일 0개지만 coding-guidelines §8 방침상 실행)
+    - [ ] `npm run build` 타입 에러 없음
+  - 5단계 — 수동 검증 (`npm run dev`)
+    - [ ] 관리자 계정 `/community/free/new`에 `</>` 버튼 노출
+    - [ ] 토글 시 HTML이 블록 단위로 개행되어 보임
+    - [ ] 소스에 `<p style="text-align:center">` 추가 → 토글 해제 시 WYSIWYG 반영
+    - [ ] **소스 모드인 채로 바로 [등록]** → 정규화된 내용 저장 (이번 설계의 핵심 케이스 — blur가 click보다 먼저 발생하는지 확인)
+    - [ ] `<script>alert(1)</script>` 입력 → 토글 해제 시 Tiptap이 제거
+    - [ ] `<img src='...'>`(작은따옴표) 저장 → 1단계 정규식이 잡는지
+    - [ ] 비관리자 계정에서 `</>` 버튼 안 보임
+    - [ ] 기존 게시글 수정 시 소스 모드를 한 번도 안 열면 서식 그대로 (회귀 확인)
+    - [ ] `/community/open-lecture/new` 카테고리 `공지`에서도 정상 동작 (PostEditor 공유)
+  - 6단계 — 문서 기록
+    - [ ] `docs/context-notes.md`에 결정 기록 — 관리자 한정 이유, Tiptap 정규화로 sanitize 없이 현행 수준 유지한 근거, sanitize 분리 배경
+    - [ ] 이 항목 `[완료]` 표기 + 아래 sanitize 후속 항목 등록
+
+- **[미착수] 게시글 본문 서버 sanitize 도입 (선행 취약점)**
+  - 배경: `createPost` / `updatePost`가 `content`를 검증 없이 저장하고 13개 상세 페이지가 `dangerouslySetInnerHTML`로 렌더 → 조작된 요청으로 저장된 XSS를 막을 수단이 없다. **HTML 소스 편집기와 무관하게 이미 존재하는 문제**이며, 소스 편집 결과가 항상 Tiptap을 통과하므로 그 기능이 새로 만드는 위험은 아니다
+  - 방향: `sanitize-html` 도입 후 `createPost` / `updatePost`의 `content`에 화이트리스트 적용
+  - 주의: Tiptap이 생성하는 `style="text-align:…"`(TextAlign), `<span style="color:…">`(Color), `<mark>`(Highlight), `colspan`/`rowspan`/`colwidth`(Table), `class`(Image·Link)를 모두 허용해야 한다. 하나라도 빠지면 기존 글 재저장 시 서식이 파괴된다
+  - 주의: 오픈강좌는 `category !== '공지'`일 때 본문이 평문이라 sanitize하면 `<`가 escape된다 — 조건부 적용 필요
+
 - **[보류] 404/500 페이지에서 "이전 페이지" 버튼(BackButton) 클릭 후 GNB 애니메이션·인터랙션 불작동**
   - 증상: 404/500 같은 하드 네비게이션 페이지에서 `router.back()` 또는 `history.back()` 사용 시 이전 페이지로 돌아왔을 때 Header의 Framer Motion 애니메이션 및 hover 인터랙션이 동작하지 않음
   - "홈으로 가기"(`Link href="/"`) 클릭 시에는 정상 동작
