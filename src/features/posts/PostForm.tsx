@@ -71,7 +71,8 @@ async function uploadAttachmentClient(file: File): Promise<{
 }
 
 function extractEditorImageUrls(html: string): string[] {
-  return [...html.matchAll(/<img[^>]+src="([^"]+)"/g)].map((m) => m[1])
+  // src는 큰따옴표·작은따옴표 양쪽 모두 허용 — HTML 소스 편집으로 작은따옴표가 들어올 수 있다
+  return [...html.matchAll(/<img[^>]+src=["']([^"']+)["']/g)].map((m) => m[1])
 }
 
 interface PostFormProps {

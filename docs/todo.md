@@ -132,9 +132,9 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
     - `OpenLectureForm.tsx`, `open-lecture/actions.ts`는 손대지 않음 (PostEditor 내부 변경만으로 충족)
     - 신규 의존성 없음 / 신규 소스 파일 없음
   - 1단계 — 이미지 URL 정규식 보강 (독립 커밋)
-    - [ ] `PostForm.tsx:74` → `/<img[^>]+src=["']([^"']+)["']/g`
-    - [ ] `posts/actions.ts:162`(`extractStorageImagePaths`) → 동일 패턴
-    - [ ] `npm run build` 통과 확인 후 커밋
+    - [x] `PostForm.tsx:74` → `/<img[^>]+src=["']([^"']+)["']/g`
+    - [x] `posts/actions.ts:162`(`extractStorageImagePaths`) → 동일 패턴
+    - [x] `npm run build` 통과 확인
     - 상세 페이지 13곳의 OG 이미지 추출 정규식은 건드리지 않음(범위 밖)
   - 2단계 — 관리자 조회 Server Action
     - [ ] `posts/actions.ts`에 `import { getIsAdmin } from '@/lib/admin'` 추가

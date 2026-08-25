@@ -159,7 +159,8 @@ function extractStorageImagePaths(content: string): string[] {
   if (!supabaseUrl) return []
 
   const bucketPrefix = `${supabaseUrl}/storage/v1/object/public/post-images/`
-  const imgRegex = /<img[^>]+src="([^"]+)"/g
+  // src는 큰따옴표·작은따옴표 양쪽 모두 허용 — HTML 소스 편집으로 작은따옴표가 들어올 수 있다
+  const imgRegex = /<img[^>]+src=["']([^"']+)["']/g
   const paths: string[] = []
   let match
 
