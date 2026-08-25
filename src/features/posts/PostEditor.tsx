@@ -46,8 +46,14 @@ import { uploadImage, isEditorAdmin } from './actions'
 import { useState, useRef, useEffect, useImperativeHandle } from 'react'
 
 export interface PostEditorHandle {
-  /** 소스 모드의 미반영 내용을 본문에 확정하고 최종 HTML을 돌려준다. 폼 제출 직전에 호출한다 */
-  flush: () => string
+  /**
+   * 폼 제출 직전에 호출한다.
+   * 소스 모드에서 고친 내용이 있으면 본문에 확정하고 정규화된 HTML을 돌려주고,
+   * 손댄 게 없으면 `null`을 돌려준다 — 호출부가 기존 값을 그대로 쓰게 하기 위함이다.
+   * (무조건 getHTML()을 돌려주면 에디터를 건드리지 않은 수정에서도 본문이 정규화돼
+   *  이관된 글의 <div align>·<font> 같은 스키마 밖 마크업이 사라진다)
+   */
+  flush: () => string | null
 }
 
 interface PostEditorProps {
@@ -135,8 +141,10 @@ export function PostEditor({ initialContent = '', onChange, onImageUploaded, ref
   // onChange로 넘긴 값은 부모가 같은 이벤트 안에서 읽을 수 없으므로 최종 HTML을 반환한다.
   useImperativeHandle(ref, () => ({
     flush: () => {
+      if (!editor) return null
+      if (sourceHtml === appliedSourceRef.current) return null
       applySource()
-      return editor?.getHTML() ?? ''
+      return editor.getHTML()
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [editor, sourceHtml])

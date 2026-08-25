@@ -157,7 +157,7 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
     - [x] 파일 하단에 `formatHtml` 로컬 함수 추가 — 블록 닫는 태그 뒤에만 개행
     - [x] `npm run build` 통과 확인
   - 4단계 — 자동 검증
-    - [x] `npm test` 실행 — **exit 1이지만 기존 상태**. 저장소에 추적 중인 테스트 파일이 0개이고 `jsdom` 미설치(`vitest.config.ts`만 존재). 이번 변경과 무관
+    - [x] `npm test` — **9개 통과.** `image-urls.test.ts` 추가로 이 저장소에서 처음으로 실제 검증이 돌아간다. `vitest.config.ts`의 `environment`를 `jsdom`(미설치라 실행 불가) → `node`로 변경
     - [x] `npm run build` 타입 에러 없음
     - [x] `npx eslint`로 수정한 3개 파일만 검사 — 깨끗함. (`npm run lint` 전체는 기존 에러/경고 다수 — `set-state-in-effect`, `no-img-element`, `public/sw.js` 빌드 산출물)
   - 5단계 — 수동 검증 (`npm run dev`)

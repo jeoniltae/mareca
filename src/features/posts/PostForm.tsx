@@ -3,6 +3,7 @@
 import { useState, useTransition, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { PostEditor, type PostEditorHandle } from './PostEditor'
+import { extractImageUrls } from './image-urls'
 import { AttachmentSection } from './AttachmentSection'
 import { ExistingImage } from './ImageAttachmentPreview'
 import { ExistingAttachment } from './FileAttachmentList'
@@ -68,16 +69,6 @@ async function uploadAttachmentClient(file: File): Promise<{
     .getPublicUrl(path)
 
   return { file_name: file.name, file_url: publicUrl, file_size: file.size, mime_type: contentType }
-}
-
-// <img>의 src 값. 큰따옴표·작은따옴표 모두 받되 여는 따옴표를 역참조해 짝을 맞춘다.
-// `[^>]*?`를 게으르게 두고 src 앞에 공백을 요구하는 이유 — 탐욕적으로 두면 태그 안의
-// 마지막 src=를 잡아서 title="src='x.png'" 같은 속성값에 낚인다.
-// 에디터를 거친 본문은 항상 큰따옴표지만 기존·외부 유입 콘텐츠는 그렇지 않다.
-const IMG_SRC_REGEX = /<img[^>]*?\ssrc=(["'])(.*?)\1/g
-
-function extractEditorImageUrls(html: string): string[] {
-  return [...html.matchAll(IMG_SRC_REGEX)].map((m) => m[2])
 }
 
 interface PostFormProps {
@@ -151,11 +142,13 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
           ? (await updatePost(postId, formData, boardPath), postId)
           : await createPost(formData)
 
-        // 에디터에서 제거된 이미지 스토리지 정리
-        const finalImageUrls = new Set(extractEditorImageUrls(content))
+        // 에디터에서 제거된 이미지 스토리지 정리.
+        // content state가 아니라 실제 저장된 값을 본다 — 소스 모드로 고친 경우 둘이 다를 수 있다
+        const savedContent = (formData.get('content') as string) ?? ''
+        const finalImageUrls = new Set(extractImageUrls(savedContent))
         const urlsToDelete = [...new Set([
           ...editorImageUrls.filter((url) => !finalImageUrls.has(url)),
-          ...extractEditorImageUrls(initialValues?.content ?? '').filter((url) => !finalImageUrls.has(url)),
+          ...extractImageUrls(initialValues?.content ?? '').filter((url) => !finalImageUrls.has(url)),
         ])]
         if (urlsToDelete.length > 0) await deleteEditorImages(urlsToDelete)
 
@@ -168,7 +161,6 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
         router.replace(`${boardPath}/${targetId}`)
       } catch (error) {
         if ((error as { digest?: string }).digest?.startsWith('NEXT_REDIRECT')) throw error
-        console.error('[진단용 — 확인 후 제거] 저장 실패:', error)
         setError('저장 중 오류가 발생했습니다. 다시 시도해주세요.')
       }
     })

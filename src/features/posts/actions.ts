@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { compressImage, isImageFile } from '@/lib/compress-image'
 import { getIsAdmin } from '@/lib/admin'
+import { extractImageUrls } from './image-urls'
 import { deleteMuxVideo } from './video-actions'
 
 // ─── 게시글 생성 ────────────────────────────────────────────────────────────────
@@ -160,22 +161,10 @@ function extractStorageImagePaths(content: string): string[] {
   if (!supabaseUrl) return []
 
   const bucketPrefix = `${supabaseUrl}/storage/v1/object/public/post-images/`
-  // 큰따옴표·작은따옴표 모두 받되 여는 따옴표를 역참조해 짝을 맞춘다.
-  // `[^>]*?`를 게으르게 두고 src 앞에 공백을 요구하는 이유 — 탐욕적으로 두면 태그 안의
-  // 마지막 src=를 잡아서 title="src='x.png'" 같은 속성값에 낚인다.
-  // exec 루프가 lastIndex를 쓰므로 모듈 레벨로 올리지 말 것
-  const imgRegex = /<img[^>]*?\ssrc=(["'])(.*?)\1/g
-  const paths: string[] = []
-  let match
 
-  while ((match = imgRegex.exec(content)) !== null) {
-    const src = match[2]
-    if (src.startsWith(bucketPrefix)) {
-      paths.push(decodeURIComponent(src.slice(bucketPrefix.length)))
-    }
-  }
-
-  return paths
+  return extractImageUrls(content)
+    .filter((src) => src.startsWith(bucketPrefix))
+    .map((src) => decodeURIComponent(src.slice(bucketPrefix.length)))
 }
 
 // ─── 첨부 이미지 단건 업로드 (FormData 방식) ────────────────────────────────────
