@@ -144,7 +144,9 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
     - [x] import 보강 — `Code2`(lucide-react), `isEditorAdmin`, `useEffect`
     - [x] state 3개 추가 — `isAdmin` / `showSource` / `sourceHtml`
     - [x] `useEffect`로 마운트 시 `isEditorAdmin()` 호출 — **`if (!editor) return null`보다 반드시 위**
-    - [x] `applySource` 추가 — `setContent(sourceHtml)` 후 `onChange(editor.getHTML())` 명시 호출 (v3 `setContent`는 `onUpdate` 미발화)
+    - [x] `applySource` 추가 — `setContent(sourceHtml)`. **`setContent`는 `emitUpdate` 기본값이 `true`라 `onUpdate` → `onChange`가 알아서 발화한다**(처음엔 반대로 알고 `onChange`를 명시 호출했으나 중복이라 제거 — 코드리뷰에서 정정)
+    - [x] 실제로 고쳤을 때만 반영하도록 `appliedSourceRef` 가드 추가 — 구경만 하고 닫아도 본문이 정규화되던 문제, 실행취소 스택에 중복 쌓이던 문제 동시 해결
+    - [x] `flush()` 통로 추가 (`PostEditorHandle`) — macOS Safari·Firefox는 버튼 클릭 시 blur가 안 나서 소스 본문이 저장되지 않던 문제. `PostForm`·`OpenLectureForm`이 제출 직전 호출
     - [x] `toggleSource` 추가 — 켤 때 `formatHtml(getHTML())` 세팅 + 팝오버 3개 닫기, 끌 때 `applySource()`
     - [x] 툴바에 `isAdmin && <Btn onClick={toggleSource} active={showSource} title="HTML 소스 편집">` 추가 (undo/redo 뒤)
     - [x] 소스 모드에서 나머지 툴바 숨김 — 숨겨진 에디터를 조작해도 `applySource()`가 덮어써 조용히 사라지므로

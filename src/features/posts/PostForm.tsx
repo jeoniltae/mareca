@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { PostEditor } from './PostEditor'
+import { PostEditor, type PostEditorHandle } from './PostEditor'
 import { AttachmentSection } from './AttachmentSection'
 import { ExistingImage } from './ImageAttachmentPreview'
 import { ExistingAttachment } from './FileAttachmentList'
@@ -70,11 +70,14 @@ async function uploadAttachmentClient(file: File): Promise<{
   return { file_name: file.name, file_url: publicUrl, file_size: file.size, mime_type: contentType }
 }
 
+// <img>의 src 값. 큰따옴표·작은따옴표 모두 받되 여는 따옴표를 역참조해 짝을 맞춘다.
+// `[^>]*?`를 게으르게 두고 src 앞에 공백을 요구하는 이유 — 탐욕적으로 두면 태그 안의
+// 마지막 src=를 잡아서 title="src='x.png'" 같은 속성값에 낚인다.
+// 에디터를 거친 본문은 항상 큰따옴표지만 기존·외부 유입 콘텐츠는 그렇지 않다.
+const IMG_SRC_REGEX = /<img[^>]*?\ssrc=(["'])(.*?)\1/g
+
 function extractEditorImageUrls(html: string): string[] {
-  // src는 큰따옴표·작은따옴표 양쪽 허용. 여는 따옴표를 역참조해 짝을 맞춘다
-  // (짝을 안 맞추면 URL 안에 반대쪽 따옴표가 있을 때 잘려서, 아직 참조 중인 파일을 지울 수 있다)
-  // 에디터를 거친 본문은 항상 큰따옴표지만 기존·외부 유입 콘텐츠는 그렇지 않다
-  return [...html.matchAll(/<img[^>]+src=(["'])(.*?)\1/g)].map((m) => m[2])
+  return [...html.matchAll(IMG_SRC_REGEX)].map((m) => m[2])
 }
 
 interface PostFormProps {
@@ -112,6 +115,7 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
   const [editorImageUrls, setEditorImageUrls] = useState<string[]>([])
   const [isPin, setIsPin] = useState(initialValues?.category === '공지')
   const [videoId, setVideoId] = useState<string | null>(initialVideo?.id ?? null)
+  const editorRef = useRef<PostEditorHandle>(null)
 
   function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -120,12 +124,15 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
       setError('분류를 선택해주세요.')
       return
     }
-    if (!content.trim() || content === '<p></p>') {
+    // 소스 모드의 미반영 내용을 여기서 확정한다 — 버튼 클릭으로 blur가 안 나는 브라우저가 있다.
+    // flush()가 부모 state도 갱신하지만 그건 다음 렌더에나 보이므로 반환값을 쓴다
+    const latestContent = editorRef.current?.flush() ?? content
+    if (!latestContent.trim() || latestContent === '<p></p>') {
       setError('내용을 입력해주세요.')
       return
     }
     setError(null)
-    formData.set('content', content)
+    formData.set('content', latestContent)
     setPendingFormData(formData)
     setShowSubmitConfirm(true)
   }
@@ -161,6 +168,7 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
         router.replace(`${boardPath}/${targetId}`)
       } catch (error) {
         if ((error as { digest?: string }).digest?.startsWith('NEXT_REDIRECT')) throw error
+        console.error('[진단용 — 확인 후 제거] 저장 실패:', error)
         setError('저장 중 오류가 발생했습니다. 다시 시도해주세요.')
       }
     })
@@ -223,6 +231,7 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
       <div>
         <label className="text-sm font-medium text-slate-700 block mb-2">내용</label>
         <PostEditor
+          ref={editorRef}
           initialContent={initialValues?.content}
           onChange={setContent}
           onImageUploaded={(url) => setEditorImageUrls((prev) => [...prev, url])}

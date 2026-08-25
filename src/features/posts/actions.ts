@@ -160,10 +160,11 @@ function extractStorageImagePaths(content: string): string[] {
   if (!supabaseUrl) return []
 
   const bucketPrefix = `${supabaseUrl}/storage/v1/object/public/post-images/`
-  // src는 큰따옴표·작은따옴표 양쪽 허용. 여는 따옴표를 역참조해 짝을 맞춘다
-  // (짝을 안 맞추면 URL 안에 반대쪽 따옴표가 있을 때 잘린다)
-  // 에디터를 거친 본문은 항상 큰따옴표지만 기존·외부 유입 콘텐츠는 그렇지 않다
-  const imgRegex = /<img[^>]+src=(["'])(.*?)\1/g
+  // 큰따옴표·작은따옴표 모두 받되 여는 따옴표를 역참조해 짝을 맞춘다.
+  // `[^>]*?`를 게으르게 두고 src 앞에 공백을 요구하는 이유 — 탐욕적으로 두면 태그 안의
+  // 마지막 src=를 잡아서 title="src='x.png'" 같은 속성값에 낚인다.
+  // exec 루프가 lastIndex를 쓰므로 모듈 레벨로 올리지 말 것
+  const imgRegex = /<img[^>]*?\ssrc=(["'])(.*?)\1/g
   const paths: string[] = []
   let match
 

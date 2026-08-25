@@ -43,12 +43,18 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { uploadImage, isEditorAdmin } from './actions'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useImperativeHandle } from 'react'
+
+export interface PostEditorHandle {
+  /** 소스 모드의 미반영 내용을 본문에 확정하고 최종 HTML을 돌려준다. 폼 제출 직전에 호출한다 */
+  flush: () => string
+}
 
 interface PostEditorProps {
   initialContent?: string
   onChange: (html: string) => void
   onImageUploaded?: (url: string) => void
+  ref?: React.Ref<PostEditorHandle>
 }
 
 const TEXT_COLORS = [
@@ -64,7 +70,7 @@ const TEXT_COLORS = [
 
 const MAX_IMAGE_SIZE_MB = 4
 
-export function PostEditor({ initialContent = '', onChange, onImageUploaded }: PostEditorProps) {
+export function PostEditor({ initialContent = '', onChange, onImageUploaded, ref }: PostEditorProps) {
   const [uploading, setUploading] = useState(false)
   const [imageError, setImageError] = useState<string | null>(null)
   const [showColorPicker, setShowColorPicker] = useState(false)
@@ -112,17 +118,30 @@ export function PostEditor({ initialContent = '', onChange, onImageUploaded }: P
       .catch(() => setIsAdmin(false))
   }, [])
 
-  if (!editor) return null
-
   // 소스를 실제로 고쳤을 때만 본문에 반영한다.
   // 무조건 실행하면 (a) 열었다 닫기만 해도 본문이 정규화돼 스키마 밖 마크업이 사라지고,
   // (b) </> 버튼으로 나갈 때 blur와 토글이 각각 호출해 실행취소 스택에 같은 작업이 두 번 쌓인다.
   // setContent는 emitUpdate 기본값이 true라 onUpdate → onChange가 알아서 발화한다.
   const applySource = () => {
+    if (!editor) return
     if (sourceHtml === appliedSourceRef.current) return
     appliedSourceRef.current = sourceHtml
     editor.commands.setContent(sourceHtml)
   }
+
+  // 폼 제출 직전에 부모가 호출한다.
+  // macOS Safari·Firefox는 <button> 클릭 시 포커스를 옮기지 않아 textarea의 blur가 발생하지
+  // 않는다. 그래서 blur에만 의존하면 소스로 쓴 본문이 저장되지 않는다.
+  // onChange로 넘긴 값은 부모가 같은 이벤트 안에서 읽을 수 없으므로 최종 HTML을 반환한다.
+  useImperativeHandle(ref, () => ({
+    flush: () => {
+      applySource()
+      return editor?.getHTML() ?? ''
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [editor, sourceHtml])
+
+  if (!editor) return null
 
   const toggleSource = () => {
     if (showSource) {

@@ -1,14 +1,14 @@
 'use client'
 // 마스터스 오픈강좌 게시글 작성/수정 폼 컴포넌트
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useRef } from 'react'
 import { Link2, Newspaper, ImageIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { ConfirmModal } from '@/components/shared/ConfirmModal'
 import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtube-utils'
 import { isRedirectError } from 'next/dist/client/components/redirect-error'
-import { PostEditor } from '@/features/posts/PostEditor'
+import { PostEditor, type PostEditorHandle } from '@/features/posts/PostEditor'
 import { createOpenLecture, updateOpenLecture } from './actions'
 
 interface OpenLectureFormProps {
@@ -49,6 +49,8 @@ export function OpenLectureForm({
   const [youtubeUrl, setYoutubeUrl] = useState(initialValues?.youtube_url ?? '')
   const [articleUrl, setArticleUrl] = useState(initialValues?.article_url ?? '')
 
+  const editorRef = useRef<PostEditorHandle>(null)
+
   const videoId = extractYoutubeId(youtubeUrl)
   const thumbnailUrl = videoId ? getYoutubeThumbnail(videoId) : null
 
@@ -73,7 +75,10 @@ export function OpenLectureForm({
     }
     setError(null)
 
-    formData.set('content', content)
+    // 공지 카테고리는 PostEditor를 쓴다. 소스 모드 미반영 내용을 여기서 확정한다
+    // (버튼 클릭으로 blur가 안 나는 브라우저가 있어 blur에만 맡길 수 없다).
+    // 그 외 카테고리는 평문 textarea라 ref가 null이고 content를 그대로 쓴다
+    formData.set('content', editorRef.current?.flush() ?? content)
 
     startTransition(async () => {
       try {
@@ -218,6 +223,7 @@ export function OpenLectureForm({
         {category === '공지' ? (
           <>
             <PostEditor
+              ref={editorRef}
               initialContent={content}
               onChange={(html) => setContent(html)}
             />
