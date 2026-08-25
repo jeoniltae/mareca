@@ -141,16 +141,19 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
     - [x] `export async function isEditorAdmin(): Promise<boolean> { return getIsAdmin() }` 추가 (`uploadImage` 위 별도 섹션)
     - UI 노출 제어일 뿐, 실질적 안전장치는 3단계의 Tiptap 정규화다
   - 3단계 — `PostEditor.tsx` 소스 편집 모드 (파일 위→아래 순서로 적용)
-    - [ ] import 보강 — `Code2`(lucide-react), `isEditorAdmin`, `useEffect`
-    - [ ] state 3개 추가 — `isAdmin` / `showSource` / `sourceHtml`
-    - [ ] `useEffect`로 마운트 시 `isEditorAdmin()` 호출 — **`if (!editor) return null`(L100)보다 반드시 위**
-    - [ ] `applySource` 추가 — `setContent(sourceHtml)` 후 `onChange(editor.getHTML())` 명시 호출 (v3 `setContent`는 `onUpdate` 미발화)
-    - [ ] `toggleSource` 추가 — 켤 때 `formatHtml(getHTML())` 세팅 + 팝오버 3개 닫기, 끌 때 `applySource()`
-    - [ ] 툴바에 `isAdmin && <Btn onClick={toggleSource} active={showSource} title="HTML 소스 편집">` 추가 (undo/redo 뒤)
-    - [ ] 소스 모드에서 나머지 툴바 숨김 — 숨겨진 에디터를 조작해도 `applySource()`가 덮어써 조용히 사라지므로
-    - [ ] textarea + 안내 문구(`에디터가 지원하지 않는 태그·속성은 적용 시 제거됩니다.`) 렌더, `onBlur={applySource}`
-    - [ ] `EditorContent`는 언마운트하지 말고 `cn('bg-white', showSource && 'hidden')`으로 감춤 (인스턴스·undo 히스토리 보존)
-    - [ ] 파일 하단에 `formatHtml` 로컬 함수 추가 — 블록 닫는 태그 뒤에만 개행
+    - [x] import 보강 — `Code2`(lucide-react), `isEditorAdmin`, `useEffect`
+    - [x] state 3개 추가 — `isAdmin` / `showSource` / `sourceHtml`
+    - [x] `useEffect`로 마운트 시 `isEditorAdmin()` 호출 — **`if (!editor) return null`보다 반드시 위**
+    - [x] `applySource` 추가 — `setContent(sourceHtml)` 후 `onChange(editor.getHTML())` 명시 호출 (v3 `setContent`는 `onUpdate` 미발화)
+    - [x] `toggleSource` 추가 — 켤 때 `formatHtml(getHTML())` 세팅 + 팝오버 3개 닫기, 끌 때 `applySource()`
+    - [x] 툴바에 `isAdmin && <Btn onClick={toggleSource} active={showSource} title="HTML 소스 편집">` 추가 (undo/redo 뒤)
+    - [x] 소스 모드에서 나머지 툴바 숨김 — 숨겨진 에디터를 조작해도 `applySource()`가 덮어써 조용히 사라지므로
+      - 툴바 전체를 `{!showSource && (<> … </>)}`로 감쌌다. 감싼 구간은 **들여쓰기를 그대로 뒀다** — 240줄 재정렬 diff가 실제 변경을 가린다. 정리하려면 공백만 바꾸는 별도 커밋으로
+      - `</>` 앞 `<Divider />`는 `isAdmin` 안에 넣고 `!showSource` 조건도 걸었다 — 비관리자일 때 꼬리 구분선, 소스 모드일 때 앞머리 구분선이 남는 것을 막기 위함
+    - [x] textarea + 안내 문구(`에디터가 지원하지 않는 태그·속성은 적용 시 제거됩니다.`) 렌더, `onBlur={applySource}`
+    - [x] `EditorContent`는 언마운트하지 말고 `cn('bg-white', showSource && 'hidden')`으로 감춤 (인스턴스·undo 히스토리 보존)
+    - [x] 파일 하단에 `formatHtml` 로컬 함수 추가 — 블록 닫는 태그 뒤에만 개행
+    - [x] `npm run build` 통과 확인
   - 4단계 — 자동 검증
     - [ ] `npm test` (테스트 파일 0개지만 coding-guidelines §8 방침상 실행)
     - [ ] `npm run build` 타입 에러 없음
