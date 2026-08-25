@@ -137,8 +137,8 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
     - [x] `npm run build` 통과 확인
     - 상세 페이지 13곳의 OG 이미지 추출 정규식은 건드리지 않음(범위 밖)
   - 2단계 — 관리자 조회 Server Action
-    - [ ] `posts/actions.ts`에 `import { getIsAdmin } from '@/lib/admin'` 추가
-    - [ ] `export async function isEditorAdmin(): Promise<boolean> { return getIsAdmin() }` 추가
+    - [x] `posts/actions.ts`에 `import { getIsAdmin } from '@/lib/admin'` 추가
+    - [x] `export async function isEditorAdmin(): Promise<boolean> { return getIsAdmin() }` 추가 (`uploadImage` 위 별도 섹션)
     - UI 노출 제어일 뿐, 실질적 안전장치는 3단계의 Tiptap 정규화다
   - 3단계 — `PostEditor.tsx` 소스 편집 모드 (파일 위→아래 순서로 적용)
     - [ ] import 보강 — `Code2`(lucide-react), `isEditorAdmin`, `useEffect`

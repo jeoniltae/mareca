@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase-server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { compressImage, isImageFile } from '@/lib/compress-image'
+import { getIsAdmin } from '@/lib/admin'
 import { deleteMuxVideo } from './video-actions'
 
 // ─── 게시글 생성 ────────────────────────────────────────────────────────────────
@@ -371,6 +372,13 @@ export async function incrementViews(id: string, boardPath: string) {
   await supabase.rpc('increment_views', { post_id: id })
   revalidatePath(boardPath)
   revalidatePath(`${boardPath}/${id}`)
+}
+
+// ─── 에디터 HTML 소스 편집 버튼 노출 여부 — 관리자 전용 ─────────────────────────
+// UI 노출 제어일 뿐이다. 소스 편집 결과는 항상 Tiptap의 setContent를 거쳐 정규화되므로
+// 실질적인 안전장치는 이 게이트가 아니라 에디터 쪽 정규화다.
+export async function isEditorAdmin(): Promise<boolean> {
+  return getIsAdmin()
 }
 
 // ─── 이미지 업로드 ──────────────────────────────────────────────────────────────
