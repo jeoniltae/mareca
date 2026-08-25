@@ -71,8 +71,10 @@ async function uploadAttachmentClient(file: File): Promise<{
 }
 
 function extractEditorImageUrls(html: string): string[] {
-  // src는 큰따옴표·작은따옴표 양쪽 모두 허용 — HTML 소스 편집으로 작은따옴표가 들어올 수 있다
-  return [...html.matchAll(/<img[^>]+src=["']([^"']+)["']/g)].map((m) => m[1])
+  // src는 큰따옴표·작은따옴표 양쪽 허용. 여는 따옴표를 역참조해 짝을 맞춘다
+  // (짝을 안 맞추면 URL 안에 반대쪽 따옴표가 있을 때 잘려서, 아직 참조 중인 파일을 지울 수 있다)
+  // 에디터를 거친 본문은 항상 큰따옴표지만 기존·외부 유입 콘텐츠는 그렇지 않다
+  return [...html.matchAll(/<img[^>]+src=(["'])(.*?)\1/g)].map((m) => m[2])
 }
 
 interface PostFormProps {

@@ -160,13 +160,15 @@ function extractStorageImagePaths(content: string): string[] {
   if (!supabaseUrl) return []
 
   const bucketPrefix = `${supabaseUrl}/storage/v1/object/public/post-images/`
-  // src는 큰따옴표·작은따옴표 양쪽 모두 허용 — HTML 소스 편집으로 작은따옴표가 들어올 수 있다
-  const imgRegex = /<img[^>]+src=["']([^"']+)["']/g
+  // src는 큰따옴표·작은따옴표 양쪽 허용. 여는 따옴표를 역참조해 짝을 맞춘다
+  // (짝을 안 맞추면 URL 안에 반대쪽 따옴표가 있을 때 잘린다)
+  // 에디터를 거친 본문은 항상 큰따옴표지만 기존·외부 유입 콘텐츠는 그렇지 않다
+  const imgRegex = /<img[^>]+src=(["'])(.*?)\1/g
   const paths: string[] = []
   let match
 
   while ((match = imgRegex.exec(content)) !== null) {
-    const src = match[1]
+    const src = match[2]
     if (src.startsWith(bucketPrefix)) {
       paths.push(decodeURIComponent(src.slice(bucketPrefix.length)))
     }

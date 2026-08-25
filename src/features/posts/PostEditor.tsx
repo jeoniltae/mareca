@@ -77,6 +77,8 @@ export function PostEditor({ initialContent = '', onChange, onImageUploaded }: P
   const [isAdmin, setIsAdmin] = useState(false)
   const [showSource, setShowSource] = useState(false)
   const [sourceHtml, setSourceHtml] = useState('')
+  // 마지막으로 본문에 반영한 소스. 이것과 같으면 손대지 않은 것으로 보고 본문을 건드리지 않는다
+  const appliedSourceRef = useRef('')
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -103,17 +105,23 @@ export function PostEditor({ initialContent = '', onChange, onImageUploaded }: P
   })
 
   // 아래 early return보다 위에 있어야 한다 — 훅은 조건부 반환 이전에 호출돼야 함
+  // 실패해도 버튼만 안 보일 뿐이므로 조용히 넘긴다 (unhandled rejection 방지)
   useEffect(() => {
-    isEditorAdmin().then(setIsAdmin)
+    isEditorAdmin()
+      .then(setIsAdmin)
+      .catch(() => setIsAdmin(false))
   }, [])
 
   if (!editor) return null
 
-  // 소스 편집 결과를 Tiptap 스키마로 정규화한 뒤에만 부모로 넘긴다.
-  // setContent는 onUpdate를 발화하지 않으므로 onChange를 명시적으로 호출해야 한다
+  // 소스를 실제로 고쳤을 때만 본문에 반영한다.
+  // 무조건 실행하면 (a) 열었다 닫기만 해도 본문이 정규화돼 스키마 밖 마크업이 사라지고,
+  // (b) </> 버튼으로 나갈 때 blur와 토글이 각각 호출해 실행취소 스택에 같은 작업이 두 번 쌓인다.
+  // setContent는 emitUpdate 기본값이 true라 onUpdate → onChange가 알아서 발화한다.
   const applySource = () => {
+    if (sourceHtml === appliedSourceRef.current) return
+    appliedSourceRef.current = sourceHtml
     editor.commands.setContent(sourceHtml)
-    onChange(editor.getHTML())
   }
 
   const toggleSource = () => {
@@ -122,7 +130,9 @@ export function PostEditor({ initialContent = '', onChange, onImageUploaded }: P
       setShowSource(false)
       return
     }
-    setSourceHtml(formatHtml(editor.getHTML()))
+    const html = formatHtml(editor.getHTML())
+    appliedSourceRef.current = html
+    setSourceHtml(html)
     setShowColorPicker(false)
     setShowLinkInput(false)
     setShowTablePicker(false)
