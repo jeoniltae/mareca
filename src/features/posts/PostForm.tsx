@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { PostEditor } from './PostEditor'
+import { PostEditor, type PostEditorHandle } from './PostEditor'
+import { extractImageUrls } from './image-urls'
 import { AttachmentSection } from './AttachmentSection'
 import { ExistingImage } from './ImageAttachmentPreview'
 import { ExistingAttachment } from './FileAttachmentList'
@@ -70,10 +71,6 @@ async function uploadAttachmentClient(file: File): Promise<{
   return { file_name: file.name, file_url: publicUrl, file_size: file.size, mime_type: contentType }
 }
 
-function extractEditorImageUrls(html: string): string[] {
-  return [...html.matchAll(/<img[^>]+src="([^"]+)"/g)].map((m) => m[1])
-}
-
 interface PostFormProps {
   mode: 'create' | 'edit'
   postId?: string
@@ -109,6 +106,7 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
   const [editorImageUrls, setEditorImageUrls] = useState<string[]>([])
   const [isPin, setIsPin] = useState(initialValues?.category === '공지')
   const [videoId, setVideoId] = useState<string | null>(initialVideo?.id ?? null)
+  const editorRef = useRef<PostEditorHandle>(null)
 
   function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -117,12 +115,15 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
       setError('분류를 선택해주세요.')
       return
     }
-    if (!content.trim() || content === '<p></p>') {
+    // 소스 모드의 미반영 내용을 여기서 확정한다 — 버튼 클릭으로 blur가 안 나는 브라우저가 있다.
+    // flush()가 부모 state도 갱신하지만 그건 다음 렌더에나 보이므로 반환값을 쓴다
+    const latestContent = editorRef.current?.flush() ?? content
+    if (!latestContent.trim() || latestContent === '<p></p>') {
       setError('내용을 입력해주세요.')
       return
     }
     setError(null)
-    formData.set('content', content)
+    formData.set('content', latestContent)
     setPendingFormData(formData)
     setShowSubmitConfirm(true)
   }
@@ -141,11 +142,13 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
           ? (await updatePost(postId, formData, boardPath), postId)
           : await createPost(formData)
 
-        // 에디터에서 제거된 이미지 스토리지 정리
-        const finalImageUrls = new Set(extractEditorImageUrls(content))
+        // 에디터에서 제거된 이미지 스토리지 정리.
+        // content state가 아니라 실제 저장된 값을 본다 — 소스 모드로 고친 경우 둘이 다를 수 있다
+        const savedContent = (formData.get('content') as string) ?? ''
+        const finalImageUrls = new Set(extractImageUrls(savedContent))
         const urlsToDelete = [...new Set([
           ...editorImageUrls.filter((url) => !finalImageUrls.has(url)),
-          ...extractEditorImageUrls(initialValues?.content ?? '').filter((url) => !finalImageUrls.has(url)),
+          ...extractImageUrls(initialValues?.content ?? '').filter((url) => !finalImageUrls.has(url)),
         ])]
         if (urlsToDelete.length > 0) await deleteEditorImages(urlsToDelete)
 
@@ -220,6 +223,7 @@ export function PostForm({ mode, postId, board = 'free', boardPath = '/community
       <div>
         <label className="text-sm font-medium text-slate-700 block mb-2">내용</label>
         <PostEditor
+          ref={editorRef}
           initialContent={initialValues?.content}
           onChange={setContent}
           onImageUploaded={(url) => setEditorImageUrls((prev) => [...prev, url])}

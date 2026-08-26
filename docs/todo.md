@@ -121,6 +121,77 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
   - Plus Voice: `board='voice'`, 경로 `/community/voice` — 기존 `src/app/community/voice/page.tsx` ComingSoon → 게시판으로 교체
   - 카테고리: `공지`, `일반` (단순)
 
+- **[완료] 게시판 에디터 HTML 소스 편집기 추가**
+  - 배경: 본문은 현재 `PostEditor.tsx`(Tiptap v3) 툴바로만 작성 가능. 관리자가 외부 마크업을 붙여넣거나 툴바로 표현이 어려운 구조(중첩 테이블, 세밀한 정렬)를 손보려면 소스 단계 편집이 필요함
+  - 목표: 관리자에게만 툴바에 `</>` 토글을 노출해 본문 HTML을 직접 편집
+  - 확정 사항:
+    - 권한은 `getIsAdmin`(`profiles.is_admin = true`)만 사용 — `masters@mareca.kr`는 제외
+    - 소스 편집 결과는 **반드시 `editor.commands.setContent()`를 거쳐** Tiptap 스키마로 정규화된 뒤에만 폼 상태로 전달. 정규화되지 않은 원본 HTML이 저장될 경로를 만들지 않는다
+    - 서버 sanitize는 이번 범위 밖 — 선행 취약점이므로 아래 별도 항목으로 분리
+    - `PostForm`을 쓰는 24개 페이지에 `isAdmin` prop을 넘기지 않고, `PostEditor`가 Server Action으로 직접 조회
+    - `OpenLectureForm.tsx`, `open-lecture/actions.ts`는 손대지 않음 (PostEditor 내부 변경만으로 충족)
+    - 신규 의존성 없음 / 신규 소스 파일 없음
+  - 1단계 — 이미지 URL 정규식 보강 (독립 커밋)
+    - [x] `PostForm.tsx:74` → `/<img[^>]+src=["']([^"']+)["']/g`
+    - [x] `posts/actions.ts:162`(`extractStorageImagePaths`) → 동일 패턴
+    - [x] `npm run build` 통과 확인
+    - 상세 페이지 13곳의 OG 이미지 추출 정규식은 건드리지 않음(범위 밖)
+  - 2단계 — 관리자 조회 Server Action
+    - [x] `posts/actions.ts`에 `import { getIsAdmin } from '@/lib/admin'` 추가
+    - [x] `export async function isEditorAdmin(): Promise<boolean> { return getIsAdmin() }` 추가 (`uploadImage` 위 별도 섹션)
+    - UI 노출 제어일 뿐, 실질적 안전장치는 3단계의 Tiptap 정규화다
+  - 3단계 — `PostEditor.tsx` 소스 편집 모드 (파일 위→아래 순서로 적용)
+    - [x] import 보강 — `Code2`(lucide-react), `isEditorAdmin`, `useEffect`
+    - [x] state 3개 추가 — `isAdmin` / `showSource` / `sourceHtml`
+    - [x] `useEffect`로 마운트 시 `isEditorAdmin()` 호출 — **`if (!editor) return null`보다 반드시 위**
+    - [x] `applySource` 추가 — `setContent(sourceHtml)`. **`setContent`는 `emitUpdate` 기본값이 `true`라 `onUpdate` → `onChange`가 알아서 발화한다**(처음엔 반대로 알고 `onChange`를 명시 호출했으나 중복이라 제거 — 코드리뷰에서 정정)
+    - [x] 실제로 고쳤을 때만 반영하도록 `appliedSourceRef` 가드 추가 — 구경만 하고 닫아도 본문이 정규화되던 문제, 실행취소 스택에 중복 쌓이던 문제 동시 해결
+    - [x] `flush()` 통로 추가 (`PostEditorHandle`) — macOS Safari·Firefox는 버튼 클릭 시 blur가 안 나서 소스 본문이 저장되지 않던 문제. `PostForm`·`OpenLectureForm`이 제출 직전 호출
+    - [x] `toggleSource` 추가 — 켤 때 `formatHtml(getHTML())` 세팅 + 팝오버 3개 닫기, 끌 때 `applySource()`
+    - [x] 툴바에 `isAdmin && <Btn onClick={toggleSource} active={showSource} title="HTML 소스 편집">` 추가 (undo/redo 뒤)
+    - [x] 소스 모드에서 나머지 툴바 숨김 — 숨겨진 에디터를 조작해도 `applySource()`가 덮어써 조용히 사라지므로
+      - 툴바 전체를 `{!showSource && (<> … </>)}`로 감쌌다. 감싼 구간은 **들여쓰기를 그대로 뒀다** — 240줄 재정렬 diff가 실제 변경을 가린다. 정리하려면 공백만 바꾸는 별도 커밋으로
+      - `</>` 앞 `<Divider />`는 `isAdmin` 안에 넣고 `!showSource` 조건도 걸었다 — 비관리자일 때 꼬리 구분선, 소스 모드일 때 앞머리 구분선이 남는 것을 막기 위함
+    - [x] textarea + 안내 문구(`에디터가 지원하지 않는 태그·속성은 적용 시 제거됩니다.`) 렌더, `onBlur={applySource}`
+    - [x] `EditorContent`는 언마운트하지 말고 `cn('bg-white', showSource && 'hidden')`으로 감춤 (인스턴스·undo 히스토리 보존)
+    - [x] 파일 하단에 `formatHtml` 로컬 함수 추가 — 블록 닫는 태그 뒤에만 개행
+    - [x] `npm run build` 통과 확인
+  - 4단계 — 자동 검증
+    - [x] `npm test` — **9개 통과.** `image-urls.test.ts` 추가로 이 저장소에서 처음으로 실제 검증이 돌아간다. `vitest.config.ts`의 `environment`를 `jsdom`(미설치라 실행 불가) → `node`로 변경
+    - [x] `npm run build` 타입 에러 없음
+    - [x] `npx eslint`로 수정한 3개 파일만 검사 — 깨끗함. (`npm run lint` 전체는 기존 에러/경고 다수 — `set-state-in-effect`, `no-img-element`, `public/sw.js` 빌드 산출물)
+  - 5단계 — 수동 검증 (`npm run dev`)
+    - [x] 관리자 계정 `/community/free/new`에 `</>` 버튼 노출
+    - [x] 토글 시 HTML이 블록 단위로 개행되어 보임
+    - [x] 소스에 `<p style="text-align:center">` 추가 → 토글 해제 시 WYSIWYG 반영
+    - [x] **소스 모드인 채로 바로 [등록]** → 정규화된 내용 저장 (이번 설계의 핵심 케이스 — blur가 click보다 먼저 발생함을 확인)
+    - [x] `<script>alert(1)</script>` 입력 → 토글 해제 시 Tiptap이 제거
+    - [x] `<img src='...'>`(작은따옴표) 저장 → 1단계 정규식이 잡는지
+    - [x] 비관리자 계정에서 `</>` 버튼 안 보임
+    - [x] 기존 게시글 수정 시 소스 모드를 한 번도 안 열면 서식 그대로 (회귀 확인)
+    - [x] `/community/open-lecture/new` 카테고리 `공지`에서도 정상 동작 (PostEditor 공유)
+    - 2026-08-25 사용자 수동 검증 완료 — 전 항목 이상 없음
+  - 6단계 — 문서 기록
+    - [x] `docs/context-notes.md` `## 2026-08-25` 섹션에 결정 기록 — 관리자 한정 이유, Tiptap 정규화로 sanitize 없이 현행 수준 유지한 근거, sanitize 분리 배경, blur 설계, 들여쓰기 유지 결정, 검증 한계
+    - [x] 이 항목 `[완료]` 표기 + 후속 항목 2건 등록(서버 sanitize, 고아 파일 이탈 경로)
+
+- **[미착수] 게시글 본문 서버 sanitize 도입 (선행 취약점)**
+  - 배경: `createPost` / `updatePost`가 `content`를 검증 없이 저장하고 13개 상세 페이지가 `dangerouslySetInnerHTML`로 렌더 → 조작된 요청으로 저장된 XSS를 막을 수단이 없다. **HTML 소스 편집기와 무관하게 이미 존재하는 문제**이며, 소스 편집 결과가 항상 Tiptap을 통과하므로 그 기능이 새로 만드는 위험은 아니다
+  - 방향: `sanitize-html` 도입 후 `createPost` / `updatePost`의 `content`에 화이트리스트 적용
+  - 주의: Tiptap이 생성하는 `style="text-align:…"`(TextAlign), `<span style="color:…">`(Color), `<mark>`(Highlight), `colspan`/`rowspan`/`colwidth`(Table), `class`(Image·Link)를 모두 허용해야 한다. 하나라도 빠지면 기존 글 재저장 시 서식이 파괴된다
+  - 주의: 오픈강좌는 `category !== '공지'`일 때 본문이 평문이라 sanitize하면 `<`가 escape된다 — 조건부 적용 필요
+
+- **[미착수] 에디터 이미지 고아 파일 — 탭 닫기·뒤로가기 경로 정리**
+  - 배경: 현재 에디터 업로드 이미지 정리는 [취소] 버튼을 눌러 확인 모달에서 확정할 때만 동작한다.
+    `PostForm.tsx`의 `onImageUploaded` → `editorImageUrls` 누적 → 취소 확정 시 `deleteEditorImages(editorImageUrls)` 흐름
+  - **브라우저 탭을 닫거나 뒤로가기·GNB 클릭으로 이탈하면 이 핸들러가 실행되지 않아** 업로드된 파일이 `post-images` 버킷에 그대로 남는다
+  - HTML 소스 편집기와 무관한 선행 문제다. 정리 로직이 본문 HTML이 아니라 업로드 시점(`onImageUploaded`)을 추적하므로 소스 편집 여부에 영향받지 않는다 (2026-08-25 확인)
+  - 해결 방향 두 가지 — 택일 또는 병행
+    1. **`beforeunload` 경고** — 작성 중 이탈 시 브라우저 기본 확인창. 구현이 가볍지만 탭 닫기만 막고 Next.js 클라이언트 라우팅 이탈은 못 잡는다. 라우팅 이탈까지 막으려면 `next/navigation` 가드가 추가로 필요
+    2. **주기적 미참조 파일 청소** — GitHub Actions cron으로 `post-images` 버킷 목록과 `posts.content` / `post_images`를 대조해 어디서도 참조되지 않는 파일 삭제. 이탈 경로와 무관하게 확실하지만, **작성 중인 글의 이미지를 지우지 않도록 업로드 후 N시간 유예를 반드시 둘 것**
+  - 권장: 2번(청소 배치)이 근본 해결. 1번만으로는 경로가 남는다
+  - 관련 파일: `src/features/posts/PostForm.tsx`, `src/features/posts/actions.ts`(`deleteEditorImages`), `.github/workflows/`
+
 - **[보류] 404/500 페이지에서 "이전 페이지" 버튼(BackButton) 클릭 후 GNB 애니메이션·인터랙션 불작동**
   - 증상: 404/500 같은 하드 네비게이션 페이지에서 `router.back()` 또는 `history.back()` 사용 시 이전 페이지로 돌아왔을 때 Header의 Framer Motion 애니메이션 및 hover 인터랙션이 동작하지 않음
   - "홈으로 가기"(`Link href="/"`) 클릭 시에는 정상 동작

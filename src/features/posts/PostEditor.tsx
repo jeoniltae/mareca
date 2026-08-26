@@ -39,15 +39,28 @@ import {
   Rows3,
   Columns3,
   Trash2,
+  Code2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { uploadImage } from './actions'
-import { useState, useRef } from 'react'
+import { uploadImage, isEditorAdmin } from './actions'
+import { useState, useRef, useEffect, useImperativeHandle } from 'react'
+
+export interface PostEditorHandle {
+  /**
+   * 폼 제출 직전에 호출한다.
+   * 소스 모드에서 고친 내용이 있으면 본문에 확정하고 정규화된 HTML을 돌려주고,
+   * 손댄 게 없으면 `null`을 돌려준다 — 호출부가 기존 값을 그대로 쓰게 하기 위함이다.
+   * (무조건 getHTML()을 돌려주면 에디터를 건드리지 않은 수정에서도 본문이 정규화돼
+   *  이관된 글의 <div align>·<font> 같은 스키마 밖 마크업이 사라진다)
+   */
+  flush: () => string | null
+}
 
 interface PostEditorProps {
   initialContent?: string
   onChange: (html: string) => void
   onImageUploaded?: (url: string) => void
+  ref?: React.Ref<PostEditorHandle>
 }
 
 const TEXT_COLORS = [
@@ -63,7 +76,7 @@ const TEXT_COLORS = [
 
 const MAX_IMAGE_SIZE_MB = 4
 
-export function PostEditor({ initialContent = '', onChange, onImageUploaded }: PostEditorProps) {
+export function PostEditor({ initialContent = '', onChange, onImageUploaded, ref }: PostEditorProps) {
   const [uploading, setUploading] = useState(false)
   const [imageError, setImageError] = useState<string | null>(null)
   const [showColorPicker, setShowColorPicker] = useState(false)
@@ -72,6 +85,12 @@ export function PostEditor({ initialContent = '', onChange, onImageUploaded }: P
   const [showTablePicker, setShowTablePicker] = useState(false)
   const [tableHover, setTableHover] = useState({ rows: 0, cols: 0 })
   const linkInputRef = useRef<HTMLInputElement>(null)
+  // HTML 소스 편집 — 관리자만 사용. sourceHtml은 로컬 state에만 보관하고 부모로 넘기지 않는다
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [showSource, setShowSource] = useState(false)
+  const [sourceHtml, setSourceHtml] = useState('')
+  // 마지막으로 본문에 반영한 소스. 이것과 같으면 손대지 않은 것으로 보고 본문을 건드리지 않는다
+  const appliedSourceRef = useRef('')
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -97,7 +116,55 @@ export function PostEditor({ initialContent = '', onChange, onImageUploaded }: P
     },
   })
 
+  // 아래 early return보다 위에 있어야 한다 — 훅은 조건부 반환 이전에 호출돼야 함
+  // 실패해도 버튼만 안 보일 뿐이므로 조용히 넘긴다 (unhandled rejection 방지)
+  useEffect(() => {
+    isEditorAdmin()
+      .then(setIsAdmin)
+      .catch(() => setIsAdmin(false))
+  }, [])
+
+  // 소스를 실제로 고쳤을 때만 본문에 반영한다.
+  // 무조건 실행하면 (a) 열었다 닫기만 해도 본문이 정규화돼 스키마 밖 마크업이 사라지고,
+  // (b) </> 버튼으로 나갈 때 blur와 토글이 각각 호출해 실행취소 스택에 같은 작업이 두 번 쌓인다.
+  // setContent는 emitUpdate 기본값이 true라 onUpdate → onChange가 알아서 발화한다.
+  const applySource = () => {
+    if (!editor) return
+    if (sourceHtml === appliedSourceRef.current) return
+    appliedSourceRef.current = sourceHtml
+    editor.commands.setContent(sourceHtml)
+  }
+
+  // 폼 제출 직전에 부모가 호출한다.
+  // macOS Safari·Firefox는 <button> 클릭 시 포커스를 옮기지 않아 textarea의 blur가 발생하지
+  // 않는다. 그래서 blur에만 의존하면 소스로 쓴 본문이 저장되지 않는다.
+  // onChange로 넘긴 값은 부모가 같은 이벤트 안에서 읽을 수 없으므로 최종 HTML을 반환한다.
+  useImperativeHandle(ref, () => ({
+    flush: () => {
+      if (!editor) return null
+      if (sourceHtml === appliedSourceRef.current) return null
+      applySource()
+      return editor.getHTML()
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [editor, sourceHtml])
+
   if (!editor) return null
+
+  const toggleSource = () => {
+    if (showSource) {
+      applySource()
+      setShowSource(false)
+      return
+    }
+    const html = formatHtml(editor.getHTML())
+    appliedSourceRef.current = html
+    setSourceHtml(html)
+    setShowColorPicker(false)
+    setShowLinkInput(false)
+    setShowTablePicker(false)
+    setShowSource(true)
+  }
 
   const handleImageUpload = async () => {
     const input = document.createElement('input')
@@ -150,6 +217,9 @@ export function PostEditor({ initialContent = '', onChange, onImageUploaded }: P
     <div className="border border-slate-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-sky-300 focus-within:border-sky-300 transition-all">
       {/* 툴바 */}
       <div className="flex items-center gap-0.5 px-2 py-1.5 border-b border-slate-200 bg-slate-50 flex-wrap">
+        {/* 소스 모드에서는 서식 버튼을 감춘다 — 숨겨진 에디터를 조작해도 applySource가 덮어써 조용히 사라진다 */}
+        {!showSource && (
+          <>
         {/* 텍스트 정렬 */}
         <Btn onClick={() => editor.chain().focus().setTextAlign('left').run()} active={editor.isActive({ textAlign: 'left' })} title="왼쪽 정렬">
           <AlignLeft size={14} />
@@ -389,6 +459,18 @@ export function PostEditor({ initialContent = '', onChange, onImageUploaded }: P
         <Btn onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title="다시 실행">
           <Redo size={14} />
         </Btn>
+          </>
+        )}
+
+        {/* HTML 소스 편집 — 관리자 전용 */}
+        {isAdmin && (
+          <>
+            {!showSource && <Divider />}
+            <Btn onClick={toggleSource} active={showSource} title="HTML 소스 편집">
+              <Code2 size={14} />
+            </Btn>
+          </>
+        )}
       </div>
 
       {/* 링크 입력 바 */}
@@ -431,10 +513,26 @@ export function PostEditor({ initialContent = '', onChange, onImageUploaded }: P
         </div>
       )}
 
-      {/* 에디터 본문 */}
+      {/* HTML 소스 편집 영역 */}
+      {showSource && (
+        <>
+          <div className="px-3 py-2 text-xs text-slate-600 bg-slate-50 border-b border-slate-200">
+            에디터가 지원하지 않는 태그·속성은 적용 시 제거됩니다.
+          </div>
+          <textarea
+            value={sourceHtml}
+            onChange={e => setSourceHtml(e.target.value)}
+            onBlur={applySource}
+            spellCheck={false}
+            className="w-full min-h-80 p-4 font-mono text-xs bg-white outline-none resize-y text-slate-700"
+          />
+        </>
+      )}
+
+      {/* 에디터 본문 — 소스 모드에서도 언마운트하지 않는다 (인스턴스·실행취소 히스토리 보존) */}
       <EditorContent
         editor={editor}
-        className="bg-white"
+        className={cn('bg-white', showSource && 'hidden')}
         onClick={() => { setShowColorPicker(false); setShowTablePicker(false) }}
       />
     </div>
@@ -473,4 +571,10 @@ function Btn({
 
 function Divider() {
   return <div className="w-px h-4 bg-slate-200 mx-1 shrink-0" />
+}
+
+// getHTML()은 전체를 한 줄로 반환하므로 블록 닫는 태그 뒤에만 개행을 넣어 읽기 좋게 만든다.
+// 블록 사이 공백은 HTML 파서가 무시하므로 setContent 시 부작용이 없다.
+function formatHtml(html: string) {
+  return html.replace(/(<\/(?:p|h[1-6]|ul|ol|li|blockquote|table|thead|tbody|tr|pre|div)>)/g, '$1\n')
 }

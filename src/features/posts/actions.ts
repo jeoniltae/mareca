@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase-server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { compressImage, isImageFile } from '@/lib/compress-image'
+import { getIsAdmin } from '@/lib/admin'
+import { extractImageUrls } from './image-urls'
 import { deleteMuxVideo } from './video-actions'
 
 // ─── 게시글 생성 ────────────────────────────────────────────────────────────────
@@ -159,18 +161,10 @@ function extractStorageImagePaths(content: string): string[] {
   if (!supabaseUrl) return []
 
   const bucketPrefix = `${supabaseUrl}/storage/v1/object/public/post-images/`
-  const imgRegex = /<img[^>]+src="([^"]+)"/g
-  const paths: string[] = []
-  let match
 
-  while ((match = imgRegex.exec(content)) !== null) {
-    const src = match[1]
-    if (src.startsWith(bucketPrefix)) {
-      paths.push(decodeURIComponent(src.slice(bucketPrefix.length)))
-    }
-  }
-
-  return paths
+  return extractImageUrls(content)
+    .filter((src) => src.startsWith(bucketPrefix))
+    .map((src) => decodeURIComponent(src.slice(bucketPrefix.length)))
 }
 
 // ─── 첨부 이미지 단건 업로드 (FormData 방식) ────────────────────────────────────
@@ -370,6 +364,13 @@ export async function incrementViews(id: string, boardPath: string) {
   await supabase.rpc('increment_views', { post_id: id })
   revalidatePath(boardPath)
   revalidatePath(`${boardPath}/${id}`)
+}
+
+// ─── 에디터 HTML 소스 편집 버튼 노출 여부 — 관리자 전용 ─────────────────────────
+// UI 노출 제어일 뿐이다. 소스 편집 결과는 항상 Tiptap의 setContent를 거쳐 정규화되므로
+// 실질적인 안전장치는 이 게이트가 아니라 에디터 쪽 정규화다.
+export async function isEditorAdmin(): Promise<boolean> {
+  return getIsAdmin()
 }
 
 // ─── 이미지 업로드 ──────────────────────────────────────────────────────────────
