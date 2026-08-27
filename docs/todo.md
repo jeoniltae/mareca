@@ -197,3 +197,59 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
   - "홈으로 가기"(`Link href="/"`) 클릭 시에는 정상 동작
   - 시도한 접근: bfcache `pageshow` 감지, `useEffect` → `useLayoutEffect` 변경, `isNavigatingRef` 네비게이션 가드, `BackButton` popstate+reload — 모두 미해결
   - 관련 파일: `src/components/shared/Header.tsx`, `src/components/shared/BackButton.tsx`, `src/app/not-found.tsx`, `src/app/error.tsx`
+
+- **[완료] 게시판 추가 — 최더함의 철학시가 (1차: 목록 화면 디자인)**
+  - 개요: 최더함 목사의 '철학시가' 영상 아카이브. 시를 AI 작곡 곡조와 함께 듣는 새 장르를 소개하는 코너
+  - 경로 `/community/philosophia`, `board='philosophia'` — `posts.board`/`category`는 자유 문자열이라 **DB 마이그레이션 불필요**
+  - 1차 범위는 **목록 화면 디자인만**. DB 연동·상세·등록·수정은 디자인 확정 후 2차
+  - 디자인 방향 — **다크 포레스트 에디토리얼**
+    - ReformedTV(화이트 + sky-600 + 라운드 카드 + Noto Sans)와 정반대 축으로 잡아 차별화한다
+    - **확정 팔레트 — 딥 잉크 네이비.** 히어로 `#182B4E` / 그리드 `#14243F` / 호버 `#20365E` / 썸네일 `#101D34` / 골드 `#D9B441` / 크림 `#EDE7D6`
+    - **임의 선택이 아니라 위 「로고 기반 브랜드 컬러 시스템」 항목의 로고 추출 컬러**(네이비 `#1C2E50`)에서 가져왔다. 이 페이지가 그 미착수 항목의 선행 파일럿이 된다
+  - 색상 결정 경위 (2026-08-27, 3회 반복)
+    1. 1차 — 딥 포레스트 `#13251C`/`#101F17` + 브랜드 골드 `#C8A224`. 로고 그린에서 출발
+    2. 2차 — "어둡다"는 피드백으로 명도를 한 단계 올림. 그린 `#1E3A2C`/`#1A3226`, 골드는 밝아진 배경에서 묻히지 않게 `#D9B441`로. 크림 계열 저투명도 값도 함께 상향(헤어라인 `/10 → /15`, 메타 `/35 → /50` 등)
+    3. 3차 — **그린 → 네이비로 색상(hue) 자체를 교체.** 그린의 관습적 연상은 자연·생명·성장인데, 연작 주제가 존재·유한·자아·시간·종말이라 방향이 어긋났다. 특히 딥그린+골드는 위스키 라벨·컨트리 클럽 쪽으로 읽혀 '사유'를 전달하지 못한다. 네이비는 밤·내면의 색이라 `내가 나를 묻는 밤` 같은 제목과 같은 말을 한다
+    - 당초 "네이비는 `PageHeader`의 `slate-800`과 겹칠 위험"을 이유로 배제했으나 과한 우려였다. `slate-800`은 채도가 거의 없는 청회색이고 `#182B4E`는 채도가 살아 있어 구분된다. ReformedTV와의 차별화는 색이 아니라 **구조**(라운드 0, 헤어라인 격자, 명조+모노, 텍스처, 넘버링)가 대부분 감당한다
+    - 3안(딥 포레스트 / 딥 잉크 네이비 / 웜 블랙+크림) 비교 시트를 Artifact로 만들어 육안 선택함 — https://claude.ai/code/artifact/5ce91d8f-3161-4276-afd4-68fd7cc62f8a
+    - 골드·크림·구조·서체는 3안 내내 고정. 바뀐 건 바탕 4단계뿐이라 되돌리는 비용이 거의 없다
+    - 라운드 0. 카드 그림자 없이 1px hairline 그리드로만 구분
+    - 국문 명조(Gowun Batang) + 라틴·숫자 모노(IBM Plex Mono) — `01 02 03` 대형 넘버링, `008 ENTRIES` 제로 패딩 카운트
+    - 가로 rule(오선) 텍스처 + 도트 그리드로 질감
+    - `PageHeader`를 쓰지 않고 **전용 히어로**를 만든다 — 이게 차별화의 절반. breadcrumb은 동일하게 유지
+  - 1단계 — 목업 데이터
+    - [x] `src/features/philosophia/mock-videos.ts` — 연작 8건(존재/유한/자아/시간/로고스/섭리/언어/종말). 일반 5 · 숏츠 3
+    - [x] 실제 유튜브 URL 없이 시안형 플레이스홀더(오선 패턴 + 재생 아이콘)로 렌더 — 썸네일 유무 양쪽 레이아웃을 함께 검증하기 위함
+  - 2단계 — 폰트
+    - [x] `src/features/philosophia/fonts.ts` — 페이지 전용으로 분리. **`layout.tsx` 전역은 건드리지 않는다**(이 페이지에만 번들)
+    - [x] `display: 'swap'` 사용 — 프로젝트 관행은 `optional`이지만, 디자인을 지탱하는 디스플레이 폰트라 미적용 위험을 피한다
+  - 3단계 — 전용 히어로
+    - [x] `src/features/philosophia/PhilosophiaHero.tsx` — 모노 킥커(`철 학 시 가 · PHILOSOPHIA`) + 대형 명조 타이틀 + 골드 룰 + breadcrumb, 우측 골드 번호매김 인트로 2줄
+  - 4단계 — 목록 페이지
+    - [x] `src/app/community/philosophia/page.tsx` — 텍스트형 카테고리 탭(전체/일반/숏츠) + `NNN ENTRIES` + 골드 아웃라인 [영상 등록]
+    - [x] hairline 그리드(컨테이너 `border-t border-l` + 셀 `border-b border-r`) — 8건이라 1·2·4열 모두 행이 꽉 차 가장자리가 깨지지 않는다
+    - [x] 호버 시 좌측에서 자라나는 골드 룰 + 진입 stagger(CSS `animation-delay`, Framer Motion 미사용 — Server Component 유지)
+    - [x] `metadata` 추가 (CLAUDE.md SEO 가이드: 새 정적 페이지 필수)
+  - 5단계 — GNB 등록
+    - [x] `Header.tsx` 커뮤니티 서브메뉴 — **ReformedTV 바로 다음**에 배치
+  - 6단계 — 검증
+    - [x] `npm run build` 통과
+    - [x] `npx eslint`로 신규 4개 파일 + 수정 1개 파일(`Header.tsx`)만 검사 — 깨끗함.
+      `Header.tsx`에 뜨는 2건(`set-state-in-effect` 187행, `no-img-element` 258행)은 **기존 이슈**로 이번 한 줄 추가와 무관하다
+    - [x] 사용자 수동 검증 — 375 / 768 / 1440px 육안 확인 (2026-08-28 완료)
+  - 7단계 — 수동 검증 중 나온 수정 (2026-08-28)
+    - [x] **유틸 텍스트 크기 상향** — 킥커·breadcrumb·인트로 라벨·탭·`ENTRIES`·등록 버튼·연작 라벨·카드 메타가 10~12px이라 가독성이 떨어졌다. 13~16px로 올리고 **자간을 함께 줄였다**(킥커 `0.42 → 0.3em`, 카드 메타 `0.14 → 0.08em` 등).
+      모노 서체는 커질수록 자간이 그대로면 글자가 흩어져 오히려 읽기 나빠진다. 값은 전부 고정 px이라 모바일에도 동일 적용된다.
+      킥커만 반응형(`13px/0.3em` → sm `14px/0.36em`) — 375px에서 줄바꿈을 막기 위함이며 크기가 아니라 자간만 조절했다
+    - [x] **모바일 툴바 배치** — 모바일에서 [영상 등록]이 둘째 줄로 밀려 좌측에 고아로 남았다.
+      **풀 너비 버튼은 채택하지 않았다** — 등록은 2차에서 로그인 사용자만 보는 소수 동선인데 최대 면적을 주면 위계가 뒤집히고, 헤어라인 기반 에디토리얼 톤에서 가장 시끄러운 요소가 되어 일부러 벗어난 '표준 게시판' 인상으로 되돌아간다. ReformedTV·오픈강좌도 컴팩트 버튼이다
+      - 원인은 버튼이 아니라 `008 ENTRIES`(≈115px)가 줄을 넘긴 것. **조작 요소가 아닌 캡션인 `ENTRIES`를 내리고 탭+버튼을 한 줄에 유지**했다
+      - `order` + `w-full`로 순서만 바꿔 **버튼 마크업을 중복시키지 않았다**. `sm:hidden`/`hidden sm:flex`로 두 번 쓰면 2차에서 로그인 체크를 붙일 때 두 곳을 고쳐야 한다
+      - 버튼에 `ml-auto`가 있어 320px처럼 더 좁아져 줄이 밀려도 우측 정렬로 떨어진다 (좌측 고아 재발 방지)
+    - [x] IDE가 지적한 Tailwind 비정규 클래스 3건 정규형 교체 — `sm:order-none → sm:order-0`,
+      `[animation-duration:600ms] → animation-duration-[600ms]`, `[animation-fill-mode:backwards] → fill-mode-[backwards]`.
+      교체 후 빌드 CSS에 `@keyframes enter`·`animation-fill-mode:backwards`·stagger `animation-delay:.49s`가 그대로 남아 있는지 재확인함
+  - 2차 잔여 작업 (디자인 확정 후)
+    - Supabase 연동(`board='philosophia'`), `Pagination` 부착, 로그인 사용자만 [영상 등록] 노출
+    - `/community/philosophia/new`, `[id]`, `[id]/edit` — **현재 [영상 등록] 링크는 라우트가 없어 404다**
+    - `sitemap.ts`(`BOARD_PATH_MAP` + `STATIC_ROUTES`), `public/llms.txt` 등록, 상세 페이지 `generateMetadata` + `articleJsonLd`
