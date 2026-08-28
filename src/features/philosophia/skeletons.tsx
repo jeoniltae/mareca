@@ -1,17 +1,49 @@
-// 최더함의 철학시가 전용 로딩 스켈레톤 — 공용 skeletons.tsx는 라이트 톤이라 네이비 배경에서 흰 판이 번쩍인다. 히어로는 데이터가 필요 없어 실제 컴포넌트를 그대로 렌더해 전환 시 흔들림을 없앤다
-
-import { PhilosophiaHero } from './PhilosophiaHero'
-
-const BASE_PATH = '/community/philosophia'
-
-const BREADCRUMBS = [
-  { label: '커뮤니티', href: '/community' },
-  { label: '최더함의 철학시가', href: BASE_PATH },
-]
+// 최더함의 철학시가 전용 로딩 스켈레톤 — 공용 skeletons.tsx는 라이트 톤이라 네이비 배경에서 흰 판이 번쩍인다.
+// 폴백 트리는 실제 페이지와 컴포넌트를 하나도 공유하지 않는다(순수 마크업만). 같은 컴포넌트를 같은 위치에 두면
+// 폴백→콘텐츠 전환 때 fiber가 Suspense 경계를 가로질러 재조정되면서 React가 async info 회계 에러를 냈다.
 
 // 실제 화면과 같은 라운드 0 · 헤어라인 톤을 유지한다
 function Bar({ className }: { className: string }) {
   return <span className={`block animate-pulse bg-[#EDE7D6]/10 ${className}`} />
+}
+
+// 히어로 자리 — PhilosophiaHero를 재사용하지 않고 배경·텍스처·여백만 같은 껍데기를 직접 그린다
+function HeroShell({ compact = false }: { compact?: boolean }) {
+  return (
+    <section className="relative overflow-hidden bg-[#182B4E]" aria-hidden>
+      <div className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(to_bottom,transparent_0px,transparent_15px,rgba(237,231,214,0.07)_15px,rgba(237,231,214,0.07)_16px)]" />
+      <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-[#D9B441]/50 to-transparent" />
+
+      <div
+        className={`relative mx-auto grid max-w-7xl px-4 sm:px-6 lg:px-8 ${
+          compact ? 'py-10 sm:py-12' : 'gap-12 py-14 sm:py-20 lg:grid-cols-[1.35fr_1fr] lg:gap-0'
+        }`}
+      >
+        <div className={compact ? undefined : 'lg:pr-14'}>
+          <Bar className="h-4 w-64" />
+          <Bar className={compact ? 'mt-4 h-9 w-72 sm:h-11' : 'mt-6 h-11 w-80 sm:h-16 sm:w-104 lg:h-20 lg:w-136'} />
+          <span className={`block h-px w-20 bg-[#D9B441]/80 ${compact ? 'mt-5' : 'mt-8'}`} />
+          <Bar className={`h-4 w-56 ${compact ? 'mt-5' : 'mt-8'}`} />
+        </div>
+
+        {!compact && (
+          <div className="border-t border-[#EDE7D6]/15 pt-10 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-14">
+            <Bar className="h-4 w-40" />
+            <div className="mt-6 space-y-5">
+              <div className="space-y-2">
+                <Bar className="h-5 w-full" />
+                <Bar className="h-5 w-11/12" />
+              </div>
+              <div className="space-y-2">
+                <Bar className="h-5 w-full" />
+                <Bar className="h-5 w-4/5" />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  )
 }
 
 // 카드 8개 — 4열 기준 두 줄이라 첫 화면을 채우면서도 PAGE_SIZE(12)만큼 길게 늘어지지 않는다
@@ -20,7 +52,7 @@ const CARD_COUNT = 8
 export function PhilosophiaListSkeleton() {
   return (
     <div className="bg-[#14243F]">
-      <PhilosophiaHero breadcrumbs={[{ label: '커뮤니티', href: '/community' }, { label: '최더함의 철학시가' }]} />
+      <HeroShell />
 
       <section className="relative">
         <div
@@ -63,8 +95,7 @@ export function PhilosophiaListSkeleton() {
 export function PhilosophiaDetailSkeleton() {
   return (
     <div className="bg-[#14243F]">
-      {/* 게시글 제목은 아직 모르므로 breadcrumb 마지막 항목은 비운다 */}
-      <PhilosophiaHero variant="compact" breadcrumbs={BREADCRUMBS} />
+      <HeroShell compact />
 
       <section className="relative">
         <div
