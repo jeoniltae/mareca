@@ -2,7 +2,7 @@
 
 import type { Metadata } from 'next'
 import { Link } from 'next-view-transitions'
-import { PenSquare, Play } from 'lucide-react'
+import { Eye, PenSquare, Play } from 'lucide-react'
 import { createClient } from '@/lib/supabase-server'
 import { formatYMD } from '@/lib/date'
 import { OG_IMAGE } from '@/lib/constants'
@@ -198,7 +198,10 @@ export default async function PhilosophiaPage({ searchParams }: Props) {
                         className={`${plexMono.className} flex items-center gap-5 text-[13px] tracking-[0.08em] text-[#EDE7D6]/50`}
                       >
                         <span>{formatYMD(post.created_at)}</span>
-                        <span>{post.views}</span>
+                        <span className="flex items-center gap-1.5">
+                          <Eye size={13} />
+                          {post.views}
+                        </span>
                       </div>
                     </div>
                   </Link>
