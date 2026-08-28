@@ -81,13 +81,18 @@ export default async function PhilosophiaPage({ searchParams }: Props) {
 
   return (
     <div className="bg-[#14243F]">
-      <PhilosophiaHero />
+      <PhilosophiaHero
+        breadcrumbs={[
+          { label: '커뮤니티', href: '/community' },
+          { label: '최더함의 철학시가' },
+        ]}
+      />
 
       <section className="relative">
         {/* 도트 그리드 질감 */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(rgba(237,231,214,0.07)_1px,transparent_1px)] bg-[length:22px_22px]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(rgba(237,231,214,0.07)_1px,transparent_1px)] bg-size-[22px_22px]"
         />
 
         <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">

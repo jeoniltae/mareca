@@ -361,21 +361,44 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
     - 넘버링이 2페이지에서 `13`으로 이어지는지
     - `line-clamp-2`가 긴 제목에서 의도대로 잘리는지
 
-  ### 4단계 — 상세 페이지 (다크 — B안)
-  - [ ] `PhilosophiaHero` 일반화 — 지금은 제목·breadcrumb·인트로가 전부 하드코딩이다.
-    `title` / `breadcrumbs` prop을 받고 인트로 블록은 목록에서만 렌더하도록 분기 (상세·목록 공용)
-  - [ ] `src/app/community/philosophia/[id]/page.tsx` 신규 — `reformed-tv/[id]/page.tsx` 대응
-    - `generateMetadata` — title/description(본문 태그 제거 후 120자)/OG/Twitter/canonical.
+  ### 4단계 — 상세 페이지 (다크 — B안) — [완료] 2026-08-28
+  - [x] `PhilosophiaHero` 일반화 — `breadcrumbs` prop + `variant: 'full' | 'compact'`
+    - **계획의 `title` prop은 넣지 않았다.** 히어로 제목은 항상 코너명(`최더함의 철학시가`)이라 상수다.
+      쓰이지 않을 유연성을 추가하지 않는다(코딩 규칙 2항). 게시글 제목은 상세 본문의 `h1`이 맡는다
+    - `full` = 목록(대형 타이틀 + 우측 인트로 2줄), `compact` = 상세(타이틀 축소, 인트로 없음, 패딩 축소)
+    - **제목 태그를 분기**했다 — `full`은 `h1`, `compact`는 `p`.
+      상세에서 코너명이 `h1`이면 게시글 제목(`h1`)과 충돌하고, `h2`로 두면 `h1`보다 앞서 나와 헤딩 순서가 뒤집힌다
+    - breadcrumb 마지막 항목(게시글 제목)은 길어질 수 있어 `PageHeader`와 동일하게 **모바일에서 감춘다** + `line-clamp-1`
+    - 타입은 `@/components/shared/PageHeader`의 `BreadcrumbItem`을 재사용 (새로 정의하지 않음)
+  - [x] `src/app/community/philosophia/[id]/page.tsx` 신규 — `reformed-tv/[id]/page.tsx` 대응
+    - `generateMetadata` — title/description(태그 제거 후 120자)/OG/Twitter/canonical.
       OG 이미지는 유튜브 썸네일, 없으면 `/images/logo.png`
-    - 본문 조회 시 `.eq('board','philosophia')` 필수 (다른 게시판 글이 이 경로로 열리는 것 방지)
-    - `YoutubePlayer`는 **1단계에서 옮긴 `@/features/youtube/YoutubePlayer`를 import**한다
-    - `ViewTracker`(`boardPath="/community/philosophia"`), `ShareButtons`, `BackToListLink`, `articleJsonLd` 배치
-    - 작성자·수정 권한: `isAuthor || isAdmin`일 때만 `PhilosophiaActions` 노출
-    - **다크 적용** — 배경·본문·메타를 목록과 같은 토큰으로. 라이트 톤인 `ShareButtons`·`BackToListLink`·
-      `PhilosophiaActions` 버튼이 다크 배경에서 읽히는지 확인하고, 안 되면 이 페이지에서만 클래스를 덮어쓴다
-      (공용 컴포넌트 자체는 수정하지 않는다 — 다른 24개 게시판에 영향)
-    - `YoutubePlayer`는 `rounded-xl shadow-md`라 라운드 0 격자와 충돌한다. 상세에서 감싸는 쪽에서 조정할지 확인
-  - [ ] `src/features/philosophia/PhilosophiaActions.tsx` 신규 — 수정/삭제 버튼 + `ConfirmDialog` 2종 (`ReformedTVActions` 대응)
+    - **`generateMetadata`에도 `.eq('board', BOARD)`를 넣었다** — reformed-tv는 여기에 board 필터가 없어
+      다른 게시판 글의 제목·설명이 메타에 새어나갈 수 있다. 복제하지 않고 막았다
+    - `YoutubePlayer`는 1단계에서 옮긴 `@/features/youtube/YoutubePlayer`에서 import
+    - `ViewTracker`(`boardPath`) · `ShareButtons` · `BackToListLink` · `articleJsonLd` 배치
+    - `isAuthor || isAdmin`일 때만 `PhilosophiaActions` 노출
+    - 본문은 `whitespace-pre-wrap` 평문 렌더 — 폼이 평문 textarea라 HTML 주입 경로가 없다 (reformed-tv와 동일)
+  - [x] `src/features/philosophia/PhilosophiaActions.tsx` 신규 — 수정/삭제 + `ConfirmDialog` 2종.
+    다크 배경용으로 직접 스타일링(라운드 pill + 헤어라인). 삭제는 `#E4736B` — `red-500`은 네이비 위에서 탁하다
+  - [x] **공용 컴포넌트 다크 대응 — 전부 하위 선택자로 덮어썼고 공용 파일은 한 줄도 수정하지 않았다**
+    - `BackToListLink` — `className` prop을 받으므로 그대로 전달
+    - `ShareButtons` — **`className` prop이 없다.** 카카오 버튼(`#FEE500`)은 다크에서도 읽히지만
+      '링크 복사'는 `border-slate-200 text-slate-600`이라 묻힌다 → 래퍼에서 `[&_button:last-child]:…`로 덮었다.
+      `:last-child`가 유일한 구분자라 **ShareButtons 버튼 순서가 바뀌면 깨진다**(현재 카카오 → 링크 복사 2개)
+    - `YoutubePlayer` — `rounded-xl shadow-md`가 라운드 0 격자와 충돌 → 래퍼에서 `[&>div]:rounded-none [&>div]:shadow-none`
+  - [x] `npm run build` 통과 / `npx eslint` — 3단계의 `no-img-element` 경고 1건 외 깨끗함
+  - [x] 런타임 확인
+    - 목록 회귀 — 히어로 prop 변경 후에도 `STATUS=200`, `h1` 1개, 인트로 정상 렌더
+    - **board 격리** — reformed-tv 글 id를 philosophia 경로로 요청 시 not-found 렌더,
+      **철학시가 상세 마크업 유출 0건**. 존재하지 않는 id도 동일
+    - 다크 오버라이드 CSS(`button:last-child`, `rounded-none`, `shadow-none`) 생성 확인
+    - **참고 — not-found가 HTTP 200으로 응답한다.** reformed-tv도 동일하게 200이라 **기존 동작이며 이번 변경과 무관**하다
+      (별도 항목으로 다루지 않으면 방치되는 부분이라 기록만 남긴다)
+  - **미검증 — `board='philosophia'`에 글이 없어 확인 불가.** 8단계로 이월
+    - compact 히어로 실제 렌더, 플레이어·설명·공유 레이아웃
+    - `ShareButtons` 링크 복사 버튼의 다크 대비가 실제로 읽히는지
+    - 조회수 증가(`ViewTracker`), 수정·삭제 버튼 노출 조건
 
   ### 5단계 — 등록 · 수정 페이지 (라이트 — B안 범위 밖)
   - [ ] `src/features/philosophia/PhilosophiaForm.tsx` 신규 — `ReformedTVForm` 대응. **기존 라이트 톤 그대로**
