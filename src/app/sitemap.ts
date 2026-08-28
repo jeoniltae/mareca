@@ -12,6 +12,7 @@ const BOARD_PATH_MAP: Record<string, string> = {
   'free': '/community/free',
   'album': '/community/album',
   'reformed-tv': '/community/reformed-tv',
+  'philosophia': '/community/philosophia',
   'open-lecture': '/community/open-lecture',
   'club-news': '/club-news/news',
 }
@@ -39,6 +40,7 @@ const STATIC_ROUTES: MetadataRoute.Sitemap = [
   { url: `${BASE_URL}/community/voice`, changeFrequency: 'weekly', priority: 0.7 },
   { url: `${BASE_URL}/community/album`, changeFrequency: 'weekly', priority: 0.6 },
   { url: `${BASE_URL}/community/reformed-tv`, changeFrequency: 'weekly', priority: 0.7 },
+  { url: `${BASE_URL}/community/philosophia`, changeFrequency: 'weekly', priority: 0.7 },
   { url: `${BASE_URL}/community/open-lecture`, changeFrequency: 'weekly', priority: 0.7 },
   { url: `${BASE_URL}/club-news/news`, changeFrequency: 'weekly', priority: 0.6 },
 ]

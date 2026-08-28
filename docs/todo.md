@@ -445,12 +445,20 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
     등록·수정·상세 라우트도 회귀 없음
   - **미검증** — 전환 순간의 시각적 흔들림은 눈으로 봐야 한다. 8단계에서 네트워크 스로틀링으로 확인
 
-  ### 7단계 — SEO · 사이트 등록
-  - [ ] `src/app/sitemap.ts` — `BOARD_PATH_MAP`에 `'philosophia': '/community/philosophia'` 추가
-  - [ ] `src/app/sitemap.ts` — `STATIC_ROUTES`에 `/community/philosophia` 추가 (`weekly` / `0.7`, reformed-tv와 동일)
-  - [ ] `public/llms.txt` — `## 커뮤니티` 섹션에 한 줄 추가
+  ### 7단계 — SEO · 사이트 등록 — [완료] 2026-08-28
+  - [x] `src/app/sitemap.ts` — `BOARD_PATH_MAP`에 `'philosophia': '/community/philosophia'` 추가.
+    이걸로 **게시글 상세 URL이 자동 포함**된다(현재 글이 0건이라 아직 안 나온다. 글 등록 후 재확인 필요)
+  - [x] `src/app/sitemap.ts` — `STATIC_ROUTES`에 `/community/philosophia` 추가 (`weekly` / `0.7`, reformed-tv와 동일)
+    - 두 곳 모두 **reformed-tv 바로 다음 줄**에 배치 — GNB 메뉴 순서와 파일 내 순서를 맞춰 다음 사람이 찾기 쉽게
+  - [x] `public/llms.txt` — `## 커뮤니티` 섹션 ReformedTV 다음 줄에 추가
   - [x] `Header.tsx` GNB 메뉴 — **1차에서 이미 완료**(커뮤니티 서브메뉴, ReformedTV 다음). 2차 작업 아님
-  - [ ] 비로그인 접근 가능한 공개 게시판이므로 사이트맵·llms.txt 제외 대상이 아니다 (CLAUDE.md SEO 가이드 확인 완료)
+  - [x] **공개 게시판임을 확인** — `src/app/community/` 하위에 접근 제한 `layout.tsx`가 없다.
+    `/resources/*`·`/report/minutes`처럼 제외해야 할 대상이 아니다 (CLAUDE.md SEO 가이드 기준 충족)
+  - [x] **`/new`·`/edit`은 별도 조치 불필요** — `robots.ts`에 이미 `Disallow: /*/new$`, `Disallow: /*/edit$`
+    와일드카드가 있어 철학시가 폼 경로도 자동으로 크롤링에서 빠진다
+  - [x] `npm run build` 통과 / `npx eslint src/app/sitemap.ts` 깨끗함
+  - [x] 런타임 — `/sitemap.xml`(200)에 `/community/philosophia` 포함 확인, `/llms.txt`(200)에 해당 줄 확인
+  - **미검증** — `BOARD_PATH_MAP`을 통한 **게시글 상세 URL 자동 포함**은 글이 있어야 확인된다. 8단계로 이월
 
   ### 8단계 — 검증
   - [ ] `npm run build` 통과
