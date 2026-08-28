@@ -249,7 +249,149 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
     - [x] IDE가 지적한 Tailwind 비정규 클래스 3건 정규형 교체 — `sm:order-none → sm:order-0`,
       `[animation-duration:600ms] → animation-duration-[600ms]`, `[animation-fill-mode:backwards] → fill-mode-[backwards]`.
       교체 후 빌드 CSS에 `@keyframes enter`·`animation-fill-mode:backwards`·stagger `animation-delay:.49s`가 그대로 남아 있는지 재확인함
-  - 2차 잔여 작업 (디자인 확정 후)
-    - Supabase 연동(`board='philosophia'`), `Pagination` 부착, 로그인 사용자만 [영상 등록] 노출
-    - `/community/philosophia/new`, `[id]`, `[id]/edit` — **현재 [영상 등록] 링크는 라우트가 없어 404다**
-    - `sitemap.ts`(`BOARD_PATH_MAP` + `STATIC_ROUTES`), `public/llms.txt` 등록, 상세 페이지 `generateMetadata` + `articleJsonLd`
+  - 2차 잔여 작업 → 아래 **[미착수] 최더함의 철학시가 (2차)** 항목으로 분리했다
+
+- **[미착수] 게시판 추가 — 최더함의 철학시가 (2차: DB 연동 · 상세/등록/수정 · SEO)**
+  - 기능 명세는 **ReformedTV와 동일**하다. 아래는 `src/app/community/reformed-tv/*`, `src/features/reformed-tv/*`를 전수 확인해 1:1 대응시킨 목록이다
+  - 1차(목록 화면 디자인)는 완료. 위 항목 참조
+
+  ### 확정 사항 (2026-08-28 사용자 결정)
+
+  - **다크 톤 적용 범위 — B안.** 목록 + 상세까지 다크, 등록·수정 폼은 기존 라이트를 그대로 쓴다.
+    공개 화면(비로그인도 보는 곳)은 톤이 일관되고, 관리 동선인 폼은 기존 자산을 재사용한다
+    - 파생 작업 — 상세 페이지도 `PageHeader`를 못 쓰므로 **`PhilosophiaHero`에 `title` / `breadcrumbs` prop을 받도록 일반화**하는 선행 작업이 생긴다
+    - 파생 작업 — 상세에서 쓰는 `ShareButtons`·`BackToListLink`가 라이트 톤이라 다크 배경 위 대비를 따로 봐야 한다
+  - **연작 라벨 — 사용하지 않는다.** `posts`에 컬럼을 추가하지 않고, 카드 우측 상단 연작 라벨은 디자인에서 **제거**한다.
+    DB 마이그레이션이 전부 사라져 `npm run db:types` 재생성도 불필요하다
+  - **카테고리 — `일반` / `숏츠` 유지.** ReformedTV와 동일
+  - **`PAGE_SIZE = 12`.** ReformedTV와 동일
+  - DB는 `board='philosophia'`가 자유 문자열이라 **테이블·RLS·GRANT 변경이 전혀 없다** (1차 확인 완료)
+
+  ### 1단계 — `YoutubePlayer`를 `features/youtube/`로 이동 (선행 · 독립 커밋)
+
+  현재 `features/reformed-tv/YoutubePlayer.tsx`에 있어, 이미 오픈강좌가 교차 참조 중이다.
+  철학시가까지 붙으면 3개 기능이 남의 슬라이스를 참조하게 되므로 **철학시가 작업 전에 먼저 정리한다.**
+  다른 게시판을 건드리는 작업이라 **철학시가 커밋과 반드시 분리**한다.
+
+  - **1-A. 영향 범위 조사 (수정 전) — [완료] 2026-08-28**
+    - [x] `grep -rn "YoutubePlayer" src` — import·사용처 전수 확인
+    - [x] `grep -rn "features/reformed-tv" src` — 슬라이스 외부 참조 전수 확인
+    - [x] `grep -rn "react-lite-youtube-embed" src` — 의존성이 이 파일 밖에서도 쓰이는지 확인
+    - [x] `ls src/features/reformed-tv` — **배럴 `index.ts` 없음.** 재export를 타고 깨질 경로가 없다
+    - [x] src 밖(설정·빌드 스크립트·테스트) 참조 검사 — **코드 참조 0건.**
+      `docs/*.md` 히트는 산문 서술이라 이동과 무관하다
+    - [x] 동적 `import()` · `lazy()` 사용 여부 — **없음.** 정적 import뿐이라 grep으로 전수가 잡힌다
+    - **조사 결론 — 영향받는 파일은 아래 2개뿐이다**
+      - `src/app/community/open-lecture/[id]/page.tsx:12` (import) · `:189` (사용) ← **오픈강좌. 이미 교차 참조 중이라 이번 이동으로 오히려 해소된다**
+      - `src/app/community/reformed-tv/[id]/page.tsx:11` (import) · `:109` (사용)
+      - 두 곳 모두 `<YoutubePlayer videoId={videoId} title={post.title} />`로 **호출 형태가 동일**하다
+      - `react-lite-youtube-embed`와 그 CSS import는 `YoutubePlayer.tsx` 안에서만 쓰여 **파일과 함께 통째로 이동한다**
+      - `features/youtube/`에는 `youtube-utils.ts` 하나뿐이라 **이름 충돌 없음**
+      - props(`videoId`, `title`)·마크업은 **변경하지 않는다.** 순수 이동 + import 경로 갱신뿐이다
+  - **1-B. 이동 실행**
+    - [ ] `git mv src/features/reformed-tv/YoutubePlayer.tsx src/features/youtube/YoutubePlayer.tsx` (이력 보존)
+    - [ ] 위 2개 파일의 import 경로를 `@/features/youtube/YoutubePlayer`로 수정
+    - [ ] 파일 상단 한국어 한 줄 주석 추가 (코딩 규칙 6항 — 현재 없다)
+  - **1-C. 회귀 확인 (수정 후)**
+    - [ ] `grep -rn "features/reformed-tv/YoutubePlayer" src` — **0건이어야 한다** (잔여 참조 없음)
+    - [ ] `grep -rn "YoutubePlayer" src` — 정의 1 + import 2 + 사용 2로 이동 전과 개수가 같은지 대조
+    - [ ] `npm run build` 통과
+    - [ ] `npx eslint`로 이동한 파일 + 수정한 2개 파일 검사
+    - [ ] 수동 — **ReformedTV 상세**에서 영상 재생 정상 (`/community/reformed-tv/[id]`)
+    - [ ] 수동 — **오픈강좌 상세**에서 영상 재생 정상 (`/community/open-lecture/[id]`) ← 이번 이동의 최대 회귀 위험 지점
+    - [ ] 수동 — 두 화면 모두 `LiteYouTubeEmbed`의 CSS가 깨지지 않았는지 (썸네일·재생 버튼 위치)
+    - [ ] 이상 없으면 **여기서 독립 커밋** 후 2단계로 진행
+
+  ### 2단계 — Server Action
+  - [ ] `src/features/philosophia/actions.ts` 신규 — `reformed-tv/actions.ts`를 그대로 대응시킨다
+    - `createPhilosophiaPost` / `updatePhilosophiaPost` / `deletePhilosophiaPost`
+    - `BOARD = 'philosophia'`, `BASE_PATH = '/community/philosophia'`
+    - 비로그인 `redirect('/login')`, 수정·삭제는 `getIsAdmin()`이 false면 `.eq('user_id', user.id)` 추가, 성공 시 `revalidatePath`
+  - [ ] **`incrementReformedTVViews`는 복제하지 않는다** — reformed-tv에 정의만 있고 호출부가 없는 dead code다.
+    조회수는 `ViewTracker` → `features/posts/actions.ts`의 `incrementViews`가 처리한다
+    (기존 dead code 자체는 요청 범위 밖이라 건드리지 않는다)
+
+  ### 3단계 — 목록 페이지 DB 연동
+  - [ ] `src/app/community/philosophia/page.tsx` 수정 — `MOCK_VIDEOS` → Supabase 쿼리
+    - `select('id, title, youtube_url, views, created_at, category, profiles(nickname)', { count: 'exact' })`
+      + `.eq('board','philosophia')` + `created_at` 역순 + `.range(from, to)`, 카테고리 필터는 `.eq('category', ...)`
+    - `PAGE_SIZE = 12` **확정**. **`Pagination` 컴포넌트 부착** — 1차에서는 목업 8건이라 뺐다
+    - `Pagination`도 라이트 톤이라 다크 배경 위 대비 확인 필요 (B안 범위에 포함)
+    - 썸네일을 목업 오선 플레이스홀더 → `getYoutubeThumbnail()` 실제 이미지로 교체.
+      **`videoId`가 없을 때의 플레이스홀더 폴백은 유지한다** (1차 디자인 자산)
+    - `NNN ENTRIES` 카운트를 `videos.length` → 전체 `count`로 교체
+    - `[영상 등록]` 버튼을 `supabase.auth.getUser()` 결과로 **로그인 사용자에게만 노출**
+    - **카드 우측 상단 연작 라벨 제거** — 연작을 쓰지 않기로 확정했다.
+      제거 후 넘버링(`01`)만 남는 카드 상단 여백이 허전하지 않은지 확인할 것
+    - **`STAGGER` 배열을 8개 → 12개로 확장** (`PAGE_SIZE=12`와 일치시킨다).
+      정적 문자열 배열이라 `[animation-delay:770ms]`까지 4개를 70ms 간격으로 추가하면 된다
+  - [ ] `src/features/philosophia/mock-videos.ts` **삭제** (연동 완료 후)
+
+  ### 4단계 — 상세 페이지 (다크 — B안)
+  - [ ] `PhilosophiaHero` 일반화 — 지금은 제목·breadcrumb·인트로가 전부 하드코딩이다.
+    `title` / `breadcrumbs` prop을 받고 인트로 블록은 목록에서만 렌더하도록 분기 (상세·목록 공용)
+  - [ ] `src/app/community/philosophia/[id]/page.tsx` 신규 — `reformed-tv/[id]/page.tsx` 대응
+    - `generateMetadata` — title/description(본문 태그 제거 후 120자)/OG/Twitter/canonical.
+      OG 이미지는 유튜브 썸네일, 없으면 `/images/logo.png`
+    - 본문 조회 시 `.eq('board','philosophia')` 필수 (다른 게시판 글이 이 경로로 열리는 것 방지)
+    - `YoutubePlayer`는 **1단계에서 옮긴 `@/features/youtube/YoutubePlayer`를 import**한다
+    - `ViewTracker`(`boardPath="/community/philosophia"`), `ShareButtons`, `BackToListLink`, `articleJsonLd` 배치
+    - 작성자·수정 권한: `isAuthor || isAdmin`일 때만 `PhilosophiaActions` 노출
+    - **다크 적용** — 배경·본문·메타를 목록과 같은 토큰으로. 라이트 톤인 `ShareButtons`·`BackToListLink`·
+      `PhilosophiaActions` 버튼이 다크 배경에서 읽히는지 확인하고, 안 되면 이 페이지에서만 클래스를 덮어쓴다
+      (공용 컴포넌트 자체는 수정하지 않는다 — 다른 24개 게시판에 영향)
+    - `YoutubePlayer`는 `rounded-xl shadow-md`라 라운드 0 격자와 충돌한다. 상세에서 감싸는 쪽에서 조정할지 확인
+  - [ ] `src/features/philosophia/PhilosophiaActions.tsx` 신규 — 수정/삭제 버튼 + `ConfirmDialog` 2종 (`ReformedTVActions` 대응)
+
+  ### 5단계 — 등록 · 수정 페이지 (라이트 — B안 범위 밖)
+  - [ ] `src/features/philosophia/PhilosophiaForm.tsx` 신규 — `ReformedTVForm` 대응. **기존 라이트 톤 그대로**
+    - 필드: 카테고리(라디오 `일반`/`숏츠` 필수) · 유튜브 URL(필수, `extractYoutubeId`로 유효성 검사 + 썸네일 미리보기) ·
+      제목(필수) · 설명(textarea, 선택). **연작 입력 필드는 없다**
+    - `mode: 'create' | 'edit'` 양용, 취소 시 `ConfirmModal` 확인, `isRedirectError` 재throw 처리
+  - [ ] `src/app/community/philosophia/new/page.tsx` 신규 — 비로그인 `redirect('/login?next=/community/philosophia/new')`.
+    `PageHeader`(라이트) 사용
+  - [ ] `src/app/community/philosophia/[id]/edit/page.tsx` 신규 — 비로그인 리다이렉트 +
+    `!post || (!isAdmin && post.user_id !== user.id)`이면 `notFound()`
+  - [ ] **1차의 `[영상 등록]` 링크 404가 이 단계에서 해소된다**
+  - [ ] 다크(목록·상세) → 라이트(폼) 전환이 의도된 경계임을 확인. 어색하면 폼 진입 버튼 위치나 문구로 완충
+
+  ### 6단계 — 로딩 스켈레톤
+  - [ ] `src/app/community/philosophia/loading.tsx` 신규 — 목록용
+  - [ ] `src/app/community/philosophia/[id]/loading.tsx` 신규 — 상세용
+  - [ ] **기존 `PostGridSkeleton` / `VideoDetailSkeleton`은 라이트 톤이라 다크 배경에서 흰 판이 번쩍인다.**
+    B안이므로 목록·상세 두 곳 모두 해당된다 → **다크 전용 스켈레톤이 필요하다.**
+    공용 `skeletons.tsx`는 24개 게시판이 함께 쓰므로 수정하지 말고,
+    `features/philosophia/` 안에 이 코너 전용으로 만든다 (헤어라인 격자 + 네이비 톤)
+
+  ### 7단계 — SEO · 사이트 등록
+  - [ ] `src/app/sitemap.ts` — `BOARD_PATH_MAP`에 `'philosophia': '/community/philosophia'` 추가
+  - [ ] `src/app/sitemap.ts` — `STATIC_ROUTES`에 `/community/philosophia` 추가 (`weekly` / `0.7`, reformed-tv와 동일)
+  - [ ] `public/llms.txt` — `## 커뮤니티` 섹션에 한 줄 추가
+  - [x] `Header.tsx` GNB 메뉴 — **1차에서 이미 완료**(커뮤니티 서브메뉴, ReformedTV 다음). 2차 작업 아님
+  - [ ] 비로그인 접근 가능한 공개 게시판이므로 사이트맵·llms.txt 제외 대상이 아니다 (CLAUDE.md SEO 가이드 확인 완료)
+
+  ### 8단계 — 검증
+  - [ ] `npm run build` 통과
+  - [ ] `npx eslint`로 신규·수정 파일만 검사
+  - [ ] 수동 — 등록 → 목록 노출 → 상세 진입 → 조회수 증가 → 수정 → 삭제 전체 흐름
+  - [ ] 수동 — 비로그인 시 목록·상세는 보이고 `[영상 등록]`은 안 보이는지, `/new` 직접 접근 시 로그인으로 리다이렉트되는지
+  - [ ] 수동 — 타인 글 수정/삭제 차단, 관리자 계정은 허용되는지
+  - [ ] 수동 — 13건 이상 등록해 `Pagination` 2페이지 동작 + 카테고리 필터와 페이지 파라미터 조합 확인
+  - [ ] 수동 — 숏츠(세로 영상) 썸네일이 16:9 카드에서 깨지지 않는지
+  - [ ] 수동 — 다크(목록·상세) ↔ 라이트(등록·수정) 전환 시 어색함 없는지
+  - [ ] 수동 — 375 / 768 / 1440px
+
+  ### 파일 요약
+  - **1단계(선행·독립 커밋)** — 이동 1개 `features/reformed-tv/YoutubePlayer.tsx` → `features/youtube/`,
+    그에 따른 수정 2개 `app/community/reformed-tv/[id]/page.tsx` · `app/community/open-lecture/[id]/page.tsx`
+  - 신규 9개 — `features/philosophia/`에 `actions.ts` · `PhilosophiaForm.tsx` · `PhilosophiaActions.tsx` · 다크 스켈레톤,
+    `app/community/philosophia/`에 `[id]/page.tsx` · `[id]/edit/page.tsx` · `new/page.tsx` · `loading.tsx` · `[id]/loading.tsx`
+  - 수정 4개 — `app/community/philosophia/page.tsx`(목업→DB) · `features/philosophia/PhilosophiaHero.tsx`(prop 일반화) ·
+    `app/sitemap.ts` · `public/llms.txt`
+  - 삭제 1개 — `features/philosophia/mock-videos.ts`
+  - 재사용(수정 없음) — `ViewTracker` · `ShareButtons` · `BackToListLink` · `Pagination` · `ConfirmModal` · `ConfirmDialog` ·
+    `PageHeader`(폼에서만) · `getIsAdmin` · `extractYoutubeId` / `getYoutubeThumbnail` ·
+    `formatYMD` / `formatDateTimeVerbose` · `articleJsonLd`
+  - 신규 의존성 없음. **DB 마이그레이션 없음**
+  - 커밋 분리 — 1단계(YoutubePlayer 이동)와 2~8단계(철학시가 2차)는 **반드시 별도 커밋**.
+    1단계는 다른 게시판 2곳을 건드리므로 롤백 단위를 섞지 않는다
