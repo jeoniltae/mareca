@@ -427,13 +427,23 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
     - 등록 → 상세 이동, 수정 → 반영, 삭제 → 목록 복귀
     - 다크(목록·상세) → 라이트(폼) 전환이 어색하지 않은지
 
-  ### 6단계 — 로딩 스켈레톤
-  - [ ] `src/app/community/philosophia/loading.tsx` 신규 — 목록용
-  - [ ] `src/app/community/philosophia/[id]/loading.tsx` 신규 — 상세용
-  - [ ] **기존 `PostGridSkeleton` / `VideoDetailSkeleton`은 라이트 톤이라 다크 배경에서 흰 판이 번쩍인다.**
-    B안이므로 목록·상세 두 곳 모두 해당된다 → **다크 전용 스켈레톤이 필요하다.**
-    공용 `skeletons.tsx`는 24개 게시판이 함께 쓰므로 수정하지 말고,
-    `features/philosophia/` 안에 이 코너 전용으로 만든다 (헤어라인 격자 + 네이비 톤)
+  ### 6단계 — 로딩 스켈레톤 (다크) — [완료] 2026-08-28
+  - [x] `src/features/philosophia/skeletons.tsx` 신규 — `PhilosophiaListSkeleton` / `PhilosophiaDetailSkeleton`
+    - 공용 `components/shared/skeletons.tsx`는 **수정하지 않았다**(24개 게시판 공용). 참조도 0건
+    - 한 파일 다중 export는 공용 `skeletons.tsx`의 기존 관행을 따른 것이다(코딩 규칙 3항 — 기존 스타일 유지)
+    - 색은 목록·상세와 같은 토큰만 사용 — 바 `bg-[#EDE7D6]/10`, 썸네일·플레이어 자리 `bg-[#101D34]`, 배경 `bg-[#14243F]`.
+      라운드 0과 헤어라인 격자도 실제 화면 그대로라 전환 시 형태가 바뀌지 않는다
+  - [x] **히어로는 스켈레톤으로 만들지 않고 실제 `PhilosophiaHero`를 렌더한다** — 데이터 의존이 없어
+    가짜 바로 대체할 이유가 없고, 로딩→실제 전환 시 상단이 흔들리지 않는다
+    - 상세 스켈레톤은 게시글 제목을 모르므로 breadcrumb 마지막 항목을 비웠다.
+      로드 후 제목 crumb이 추가되며 미세하게 밀리지만, 모바일에서는 마지막 crumb이 감춰져 있어 영향이 없다
+  - [x] 카드 개수는 **8개**로 잡았다 — 4열 기준 두 줄이라 첫 화면은 채우면서 `PAGE_SIZE`(12)만큼 길게 늘어지지 않는다.
+    12개로 깔면 실제 글이 적을 때 스켈레톤이 훨씬 길었다가 접히는 역효과가 난다
+  - [x] `src/app/community/philosophia/loading.tsx` · `[id]/loading.tsx` 신규 — 위 컴포넌트를 연결만 한다
+  - [x] `npm run build` 통과 / `npx eslint` — 기존 `no-img-element` 2건 외 새 문제 없음
+  - [x] 런타임 — 목록 요청의 **스트리밍 응답에 스켈레톤(`animate-pulse`)이 실제로 포함된 뒤 최종 콘텐츠가 도착**하는 것 확인.
+    등록·수정·상세 라우트도 회귀 없음
+  - **미검증** — 전환 순간의 시각적 흔들림은 눈으로 봐야 한다. 8단계에서 네트워크 스로틀링으로 확인
 
   ### 7단계 — SEO · 사이트 등록
   - [ ] `src/app/sitemap.ts` — `BOARD_PATH_MAP`에 `'philosophia': '/community/philosophia'` 추가
