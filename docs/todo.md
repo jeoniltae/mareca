@@ -326,21 +326,40 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
   - [x] export 대조 — reformed-tv 4개 중 dead code 1개를 뺀 **3개가 1:1 대응**함을 확인
   - 아직 호출부가 없다(폼은 5단계). **동작 검증은 5단계 이후 8단계에서 한다**
 
-  ### 3단계 — 목록 페이지 DB 연동
-  - [ ] `src/app/community/philosophia/page.tsx` 수정 — `MOCK_VIDEOS` → Supabase 쿼리
-    - `select('id, title, youtube_url, views, created_at, category, profiles(nickname)', { count: 'exact' })`
+  ### 3단계 — 목록 페이지 DB 연동 — [완료] 2026-08-28
+  - [x] `src/app/community/philosophia/page.tsx` 수정 — `MOCK_VIDEOS` → Supabase 쿼리
+    - `select('id, title, youtube_url, views, created_at, category', { count: 'exact' })`
       + `.eq('board','philosophia')` + `created_at` 역순 + `.range(from, to)`, 카테고리 필터는 `.eq('category', ...)`
-    - `PAGE_SIZE = 12` **확정**. **`Pagination` 컴포넌트 부착** — 1차에서는 목업 8건이라 뺐다
-    - `Pagination`도 라이트 톤이라 다크 배경 위 대비 확인 필요 (B안 범위에 포함)
-    - 썸네일을 목업 오선 플레이스홀더 → `getYoutubeThumbnail()` 실제 이미지로 교체.
-      **`videoId`가 없을 때의 플레이스홀더 폴백은 유지한다** (1차 디자인 자산)
-    - `NNN ENTRIES` 카운트를 `videos.length` → 전체 `count`로 교체
+    - **`profiles(nickname)` 조인은 뺐다** — reformed-tv는 select에 넣어두고 목록에서 쓰지 않는다. 불필요한 조인이라 복제하지 않았다
+    - `PAGE_SIZE = 12` 확정
+    - `NNN ENTRIES` 카운트를 전체 `count`로 교체 (현재 페이지 건수가 아니라 총 건수)
     - `[영상 등록]` 버튼을 `supabase.auth.getUser()` 결과로 **로그인 사용자에게만 노출**
-    - **카드 우측 상단 연작 라벨 제거** — 연작을 쓰지 않기로 확정했다.
-      제거 후 넘버링(`01`)만 남는 카드 상단 여백이 허전하지 않은지 확인할 것
-    - **`STAGGER` 배열을 8개 → 12개로 확장** (`PAGE_SIZE=12`와 일치시킨다).
-      정적 문자열 배열이라 `[animation-delay:770ms]`까지 4개를 70ms 간격으로 추가하면 된다
-  - [ ] `src/features/philosophia/mock-videos.ts` **삭제** (연동 완료 후)
+    - **카드 우측 상단 연작 라벨 제거** 완료. 상단이 넘버링 단독이 되면서 `justify-between` 래퍼가 불필요해져 함께 정리
+    - **넘버링에 `from`을 더했다** — `String(from + i + 1)`. 2페이지가 `01`부터 다시 시작하지 않고 `13`으로 이어진다
+    - **`STAGGER` 8개 → 12개 확장** (`PAGE_SIZE`와 일치). 빌드 CSS에 12개 값 전부 생성 확인
+      (`0s` · `70ms` · `.14s` … `.7s` · `.77s` — 미니파이어가 짧은 표기로 변환한다)
+    - 제목에 `line-clamp-2` 추가 — 실제 제목은 목업보다 길 수 있어 카드 높이가 들쭉날쭉해지는 것을 막는다
+  - [x] `src/features/philosophia/mock-videos.ts` **삭제** (`git rm`). 잔여 참조 0건 확인
+  - [x] **썸네일** — `videoId`가 있으면 `getYoutubeThumbnail()` 실제 이미지, 없으면 **오선 패턴 플레이스홀더 폴백 유지**
+    - `next/image`는 쓰지 못한다 — `next.config.ts`의 `remotePatterns`에 `img.youtube.com`이 없다.
+      설정은 전 사이트 공용이라 이번 범위에서 건드리지 않고, **reformed-tv와 동일하게 `<img>`를 썼다**
+    - 그 결과 `@next/next/no-img-element` 경고 1건이 뜬다. **reformed-tv도 동일한 경고를 안고 있어 새로 만든 문제가 아니다**
+    - 밝은 썸네일 위에서 재생 아이콘이 묻히지 않도록 **얇은 스크림**(`bg-[#101D34]/30`, 호버 시 `/10`)을 깔았다
+  - [x] **`PhilosophiaPagination.tsx` 신규** — 공용 `Pagination`을 쓰지 않았다
+    - 공용 쪽은 `bg-slate-800` 활성 알약 · `hover:bg-slate-100`이라 **다크 네이비 위에서 흰 판이 뜬다**
+    - 공용 컴포넌트는 24개 게시판이 함께 쓰므로 수정하지 않고, 이 코너 전용으로 분리했다
+    - **페이지 윈도우 규칙(7개 초과 시 `...` 축약)은 공용과 동일하게 복제**해 동작 차이를 없앴다
+    - 스타일은 목록 탭과 통일 — 활성 페이지는 골드 밑줄, 라운드 없음, 모노 숫자
+    - 계획의 "파일 요약"에는 없던 신규 파일이다. 다크 대비 확인 항목이 실제로 문제로 확정되어 파생됐다
+  - [x] `npm run build` 통과 / `npx eslint` — 위 `no-img-element` 경고 1건 외 깨끗함
+  - [x] 런타임 확인 (`board='philosophia'`가 아직 빈 상태) — `STATUS=200`,
+    `000 ENTRIES`(목업 8이 아닌 실제 count), `NO ENTRIES` 빈 상태, 비로그인 시 `[영상 등록]` 미노출,
+    카테고리 필터(`?category=숏츠`) 정상, 페이지네이션 미렌더(1페이지 이하)
+  - **미검증 — 데이터가 없어 확인 불가.** 8단계에서 실제 글을 등록한 뒤 확인한다
+    - 실제 유튜브 썸네일 렌더 · 스크림 대비
+    - 페이지네이션 2페이지 이상 동작 + 카테고리 필터와 `page` 파라미터 조합
+    - 넘버링이 2페이지에서 `13`으로 이어지는지
+    - `line-clamp-2`가 긴 제목에서 의도대로 잘리는지
 
   ### 4단계 — 상세 페이지 (다크 — B안)
   - [ ] `PhilosophiaHero` 일반화 — 지금은 제목·breadcrumb·인트로가 전부 하드코딩이다.
