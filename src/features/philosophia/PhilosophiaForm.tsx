@@ -34,6 +34,7 @@ export function PhilosophiaForm({ mode, postId, initialValues, cancelHref }: Phi
   const [category, setCategory] = useState(initialValues?.category ?? '')
   const [title, setTitle] = useState(initialValues?.title ?? '')
   const [description, setDescription] = useState(initialValues?.description ?? '')
+  const [thumbnailMissing, setThumbnailMissing] = useState(false)
 
   const videoId = extractYoutubeId(youtubeUrl)
   const thumbnailUrl = videoId ? getYoutubeThumbnail(videoId) : null
@@ -49,6 +50,10 @@ export function PhilosophiaForm({ mode, postId, initialValues, cancelHref }: Phi
     }
     if (!videoId) {
       setError('올바른 유튜브 URL을 입력해주세요.')
+      return
+    }
+    if (thumbnailMissing) {
+      setError('존재하지 않는 영상입니다. URL을 확인해주세요.')
       return
     }
     setError(null)
@@ -115,7 +120,10 @@ export function PhilosophiaForm({ mode, postId, initialValues, cancelHref }: Phi
             type="url"
             required
             value={youtubeUrl}
-            onChange={(e) => setYoutubeUrl(e.target.value)}
+            onChange={(e) => {
+              setYoutubeUrl(e.target.value)
+              setThumbnailMissing(false)
+            }}
             placeholder="https://youtube.com/watch?v=..."
             className="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300"
           />
@@ -124,10 +132,18 @@ export function PhilosophiaForm({ mode, postId, initialValues, cancelHref }: Phi
           <div className="mt-3">
             <p className="text-xs text-slate-500 mb-1.5">미리보기</p>
             <img
+              key={thumbnailUrl}
               src={thumbnailUrl}
               alt="YouTube 썸네일"
+              // 유튜브는 없는 영상 ID에도 404 대신 120×90 회색 플레이스홀더를 준다.
+              // 정상 mqdefault는 320×180이므로 폭으로 죽은 영상을 가려낸다.
+              onLoad={(e) => setThumbnailMissing(e.currentTarget.naturalWidth <= 120)}
+              onError={() => setThumbnailMissing(true)}
               className="w-48 rounded-lg border border-slate-200"
             />
+            {thumbnailMissing && (
+              <p className="text-xs text-red-500 mt-1.5">존재하지 않는 영상입니다. URL을 확인해주세요.</p>
+            )}
           </div>
         )}
       </div>
