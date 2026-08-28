@@ -308,21 +308,23 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
       - **`LiteYouTubeEmbed`의 CSS 청크가 두 페이지 모두에 로드**되는 것 확인
         (`node_modules_react-lite-youtube-embed_dist_LiteYouTubeEmbed_*.css`) — CSS import가 이동을 따라갔다
     - [x] 사용자 수동 — 두 화면에서 썸네일·재생 버튼 위치 정상 확인 (2026-08-28)
-    - [ ] **독립 커밋** — 사용자가 직접 수행한다. 이 이동은 다른 게시판 2곳(ReformedTV·오픈강좌)을 건드리므로
-      철학시가 1차 미커밋분과 **반드시 별도 커밋**으로 나눌 것
-      - 커밋 A (철학시가 1차) — `src/app/community/philosophia/`, `src/features/philosophia/`, `src/components/shared/Header.tsx`
-      - 커밋 B (YoutubePlayer 이동) — `src/features/youtube/YoutubePlayer.tsx`(rename),
-        `src/app/community/reformed-tv/[id]/page.tsx`, `src/app/community/open-lecture/[id]/page.tsx`
-      - `docs/todo.md`는 두 작업 내용이 섞여 있어 어느 쪽에 붙여도 무방하다
+    - [x] **독립 커밋** — 사용자가 직접 수행 (2026-08-28). `be9ee1e` / `6c13bb6` / `6d71ffc` 3건으로 분리 커밋됨
+  - **1단계 [완료]** — 2단계부터는 철학시가 슬라이스 안에서만 작업하므로 다른 게시판에 영향이 없다
 
-  ### 2단계 — Server Action
-  - [ ] `src/features/philosophia/actions.ts` 신규 — `reformed-tv/actions.ts`를 그대로 대응시킨다
+  ### 2단계 — Server Action — [완료] 2026-08-28
+  - [x] `src/features/philosophia/actions.ts` 신규 — `reformed-tv/actions.ts`를 그대로 대응시켰다
     - `createPhilosophiaPost` / `updatePhilosophiaPost` / `deletePhilosophiaPost`
     - `BOARD = 'philosophia'`, `BASE_PATH = '/community/philosophia'`
     - 비로그인 `redirect('/login')`, 수정·삭제는 `getIsAdmin()`이 false면 `.eq('user_id', user.id)` 추가, 성공 시 `revalidatePath`
-  - [ ] **`incrementReformedTVViews`는 복제하지 않는다** — reformed-tv에 정의만 있고 호출부가 없는 dead code다.
+    - 폼 필드명은 reformed-tv와 동일하게 유지 — `title` / `youtube_url` / `description`(→ `content` 컬럼) / `category`.
+      5단계 `PhilosophiaForm`의 `name` 속성이 여기에 맞춰져야 한다
+    - `create`·`update`는 이동할 id를 반환하고, `delete`만 `redirect(BASE_PATH)`로 목록에 보낸다 (reformed-tv와 동일)
+  - [x] **`incrementReformedTVViews`는 복제하지 않았다** — reformed-tv에 정의만 있고 호출부가 없는 dead code다.
     조회수는 `ViewTracker` → `features/posts/actions.ts`의 `incrementViews`가 처리한다
     (기존 dead code 자체는 요청 범위 밖이라 건드리지 않는다)
+  - [x] `npm run build` 통과 / `npx eslint` 깨끗함
+  - [x] export 대조 — reformed-tv 4개 중 dead code 1개를 뺀 **3개가 1:1 대응**함을 확인
+  - 아직 호출부가 없다(폼은 5단계). **동작 검증은 5단계 이후 8단계에서 한다**
 
   ### 3단계 — 목록 페이지 DB 연동
   - [ ] `src/app/community/philosophia/page.tsx` 수정 — `MOCK_VIDEOS` → Supabase 쿼리
