@@ -288,19 +288,32 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
       - `react-lite-youtube-embed`와 그 CSS import는 `YoutubePlayer.tsx` 안에서만 쓰여 **파일과 함께 통째로 이동한다**
       - `features/youtube/`에는 `youtube-utils.ts` 하나뿐이라 **이름 충돌 없음**
       - props(`videoId`, `title`)·마크업은 **변경하지 않는다.** 순수 이동 + import 경로 갱신뿐이다
-  - **1-B. 이동 실행**
-    - [ ] `git mv src/features/reformed-tv/YoutubePlayer.tsx src/features/youtube/YoutubePlayer.tsx` (이력 보존)
-    - [ ] 위 2개 파일의 import 경로를 `@/features/youtube/YoutubePlayer`로 수정
-    - [ ] 파일 상단 한국어 한 줄 주석 추가 (코딩 규칙 6항 — 현재 없다)
-  - **1-C. 회귀 확인 (수정 후)**
-    - [ ] `grep -rn "features/reformed-tv/YoutubePlayer" src` — **0건이어야 한다** (잔여 참조 없음)
-    - [ ] `grep -rn "YoutubePlayer" src` — 정의 1 + import 2 + 사용 2로 이동 전과 개수가 같은지 대조
-    - [ ] `npm run build` 통과
-    - [ ] `npx eslint`로 이동한 파일 + 수정한 2개 파일 검사
-    - [ ] 수동 — **ReformedTV 상세**에서 영상 재생 정상 (`/community/reformed-tv/[id]`)
-    - [ ] 수동 — **오픈강좌 상세**에서 영상 재생 정상 (`/community/open-lecture/[id]`) ← 이번 이동의 최대 회귀 위험 지점
-    - [ ] 수동 — 두 화면 모두 `LiteYouTubeEmbed`의 CSS가 깨지지 않았는지 (썸네일·재생 버튼 위치)
-    - [ ] 이상 없으면 **여기서 독립 커밋** 후 2단계로 진행
+  - **1-B. 이동 실행 — [완료] 2026-08-28**
+    - [x] `git mv src/features/reformed-tv/YoutubePlayer.tsx src/features/youtube/YoutubePlayer.tsx` (이력 보존).
+      `git status`가 `R`(rename)로 인식 — 이력이 끊기지 않았다
+    - [x] 2개 파일의 import 경로를 `@/features/youtube/YoutubePlayer`로 수정
+      (`reformed-tv/[id]/page.tsx:11`, `open-lecture/[id]/page.tsx:12`)
+    - [x] 파일 상단 한국어 한 줄 주석 추가 (코딩 규칙 6항 — 이동 전에는 없었다). `'use client'` 바로 아래에 배치
+    - [x] props·마크업·`react-lite-youtube-embed` import는 **한 줄도 바꾸지 않았다**
+  - **1-C. 회귀 확인 (수정 후) — 자동 검증 [완료] 2026-08-28**
+    - [x] `grep -rn "features/reformed-tv/YoutubePlayer" src` — **0건** (잔여 참조 없음)
+    - [x] `grep -rn "YoutubePlayer" src` — **이동 전 6건 → 이동 후 6건**으로 동일
+      (정의 파일 2 = `interface` + `export function`, import 2, 사용 2)
+    - [x] `npm run build` 통과
+    - [x] `npx eslint` — 이동한 파일 + 수정한 2개 파일 깨끗함
+    - [x] 런타임 검증 — `npm run dev`로 두 게시판 상세를 실제 요청해 확인
+      - ReformedTV 상세 — `STATUS=200`, `lty-playbtn` 렌더 확인
+      - 오픈강좌 상세 — 앞쪽 8건을 순회해 **유튜브가 있는 4건 전부 `lty-playbtn` 렌더 확인**.
+        나머지 4건은 `youtube_url`이 없는 공지·기사형이라 플레이어가 안 나오는 게 정상이다
+      - **`LiteYouTubeEmbed`의 CSS 청크가 두 페이지 모두에 로드**되는 것 확인
+        (`node_modules_react-lite-youtube-embed_dist_LiteYouTubeEmbed_*.css`) — CSS import가 이동을 따라갔다
+    - [x] 사용자 수동 — 두 화면에서 썸네일·재생 버튼 위치 정상 확인 (2026-08-28)
+    - [ ] **독립 커밋** — 사용자가 직접 수행한다. 이 이동은 다른 게시판 2곳(ReformedTV·오픈강좌)을 건드리므로
+      철학시가 1차 미커밋분과 **반드시 별도 커밋**으로 나눌 것
+      - 커밋 A (철학시가 1차) — `src/app/community/philosophia/`, `src/features/philosophia/`, `src/components/shared/Header.tsx`
+      - 커밋 B (YoutubePlayer 이동) — `src/features/youtube/YoutubePlayer.tsx`(rename),
+        `src/app/community/reformed-tv/[id]/page.tsx`, `src/app/community/open-lecture/[id]/page.tsx`
+      - `docs/todo.md`는 두 작업 내용이 섞여 있어 어느 쪽에 붙여도 무방하다
 
   ### 2단계 — Server Action
   - [ ] `src/features/philosophia/actions.ts` 신규 — `reformed-tv/actions.ts`를 그대로 대응시킨다
