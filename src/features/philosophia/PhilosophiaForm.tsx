@@ -1,0 +1,209 @@
+'use client'
+// 최더함의 철학시가 등록·수정 폼 — 관리 동선이라 사이트의 다른 폼과 같은 라이트 톤을 유지한다
+
+import { useState, useTransition } from 'react'
+import { Link2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { cn } from '@/lib/utils'
+import { ConfirmModal } from '@/components/shared/ConfirmModal'
+import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtube-utils'
+import { isRedirectError } from 'next/dist/client/components/redirect-error'
+import { createPhilosophiaPost, updatePhilosophiaPost } from './actions'
+
+const CATEGORIES = ['일반', '숏츠'] as const
+
+interface PhilosophiaFormProps {
+  mode: 'create' | 'edit'
+  postId?: string
+  initialValues?: {
+    title: string
+    youtube_url: string | null
+    description: string | null
+    category: string | null
+  }
+  cancelHref: string
+}
+
+export function PhilosophiaForm({ mode, postId, initialValues, cancelHref }: PhilosophiaFormProps) {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+  const [isCancelling, startCancelTransition] = useTransition()
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [youtubeUrl, setYoutubeUrl] = useState(initialValues?.youtube_url ?? '')
+  const [category, setCategory] = useState(initialValues?.category ?? '')
+  const [title, setTitle] = useState(initialValues?.title ?? '')
+  const [description, setDescription] = useState(initialValues?.description ?? '')
+
+  const videoId = extractYoutubeId(youtubeUrl)
+  const thumbnailUrl = videoId ? getYoutubeThumbnail(videoId) : null
+
+  async function handleSubmit(formData: FormData) {
+    if (!category) {
+      setError('카테고리를 선택해주세요.')
+      return
+    }
+    if (!youtubeUrl.trim()) {
+      setError('유튜브 URL을 입력해주세요.')
+      return
+    }
+    if (!videoId) {
+      setError('올바른 유튜브 URL을 입력해주세요.')
+      return
+    }
+    setError(null)
+
+    startTransition(async () => {
+      try {
+        if (mode === 'edit' && postId) {
+          const targetId = await updatePhilosophiaPost(postId, formData)
+          router.replace(`/community/philosophia/${targetId}`)
+        } else {
+          const targetId = await createPhilosophiaPost(formData)
+          router.replace(`/community/philosophia/${targetId}`)
+        }
+      } catch (e) {
+        if (isRedirectError(e)) throw e
+        setError('저장 중 오류가 발생했습니다. 다시 시도해주세요.')
+      }
+    })
+  }
+
+  return (
+    <form action={handleSubmit} className="space-y-5">
+      {/* 카테고리 */}
+      <div>
+        <label className="text-sm font-medium text-slate-700 block mb-2">
+          카테고리 <span className="text-red-500">*</span>
+        </label>
+        <div className="flex gap-2">
+          {CATEGORIES.map((cat) => (
+            <label key={cat} className="cursor-pointer">
+              <input
+                type="radio"
+                name="category"
+                value={cat}
+                checked={category === cat}
+                onChange={() => setCategory(cat)}
+                className="sr-only"
+              />
+              <span
+                className={cn(
+                  'inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border transition-all duration-150 select-none',
+                  category === cat
+                    ? 'bg-sky-600 text-white border-sky-600 shadow-sm'
+                    : 'bg-white text-slate-500 border-slate-200 hover:border-sky-400 hover:text-sky-600',
+                )}
+              >
+                {cat === '숏츠' && <span className="text-[11px] leading-none">▶</span>}
+                {cat}
+              </span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* 유튜브 URL */}
+      <div>
+        <label className="text-sm font-medium text-slate-700 block mb-1.5">
+          유튜브 URL <span className="text-red-500">*</span>
+        </label>
+        <div className="flex items-center gap-2">
+          <Link2 size={18} className="text-red-500 shrink-0" />
+          <input
+            name="youtube_url"
+            type="url"
+            required
+            value={youtubeUrl}
+            onChange={(e) => setYoutubeUrl(e.target.value)}
+            placeholder="https://youtube.com/watch?v=..."
+            className="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300"
+          />
+        </div>
+        {thumbnailUrl && (
+          <div className="mt-3">
+            <p className="text-xs text-slate-500 mb-1.5">미리보기</p>
+            <img
+              src={thumbnailUrl}
+              alt="YouTube 썸네일"
+              className="w-48 rounded-lg border border-slate-200"
+            />
+          </div>
+        )}
+      </div>
+
+      {/* 제목 */}
+      <div>
+        <label className="text-sm font-medium text-slate-700 block mb-1.5">
+          제목 <span className="text-red-500">*</span>
+        </label>
+        <input
+          name="title"
+          type="text"
+          required
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="시가 제목을 입력하세요"
+          className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300"
+        />
+      </div>
+
+      {/* 설명 */}
+      <div>
+        <label className="text-sm font-medium text-slate-700 block mb-1.5">
+          설명 <span className="text-slate-400 font-normal text-xs">(선택)</span>
+        </label>
+        <textarea
+          name="description"
+          rows={10}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="시가에 대한 설명을 입력하세요"
+          className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300 resize-none"
+        />
+      </div>
+
+      {error && <p className="text-sm text-red-500">{error}</p>}
+
+      <div className="flex items-center justify-end gap-3 pt-2">
+        <button
+          type="button"
+          onClick={() => setShowCancelConfirm(true)}
+          disabled={isCancelling}
+          className={cn(
+            'px-5 py-2.5 text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors',
+            isCancelling && 'opacity-60 cursor-not-allowed',
+          )}
+        >
+          {isCancelling ? '취소 중...' : '취소'}
+        </button>
+        <button
+          type="submit"
+          disabled={isPending}
+          className={cn(
+            'px-5 py-2.5 text-sm font-semibold text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-colors',
+            isPending && 'opacity-60 cursor-not-allowed',
+          )}
+        >
+          {isPending ? '저장 중...' : mode === 'edit' ? '수정 완료' : '등록'}
+        </button>
+      </div>
+
+      <ConfirmModal
+        open={showCancelConfirm}
+        title="작성 취소"
+        description="작성 중인 내용이 저장되지 않습니다. 취소하시겠어요?"
+        confirmLabel="취소하기"
+        cancelLabel="계속 작성"
+        confirmClassName="bg-red-500 hover:bg-red-600 text-white"
+        onConfirm={() => {
+          setShowCancelConfirm(false)
+          startCancelTransition(() => {
+            router.replace(cancelHref)
+          })
+        }}
+        onCancel={() => setShowCancelConfirm(false)}
+      />
+    </form>
+  )
+}

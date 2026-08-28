@@ -400,17 +400,32 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
     - `ShareButtons` 링크 복사 버튼의 다크 대비가 실제로 읽히는지
     - 조회수 증가(`ViewTracker`), 수정·삭제 버튼 노출 조건
 
-  ### 5단계 — 등록 · 수정 페이지 (라이트 — B안 범위 밖)
-  - [ ] `src/features/philosophia/PhilosophiaForm.tsx` 신규 — `ReformedTVForm` 대응. **기존 라이트 톤 그대로**
+  ### 5단계 — 등록 · 수정 페이지 (라이트 — B안 범위 밖) — [완료] 2026-08-28
+  - [x] `src/features/philosophia/PhilosophiaForm.tsx` 신규 — `ReformedTVForm` 대응. **기존 라이트 톤 그대로**
     - 필드: 카테고리(라디오 `일반`/`숏츠` 필수) · 유튜브 URL(필수, `extractYoutubeId`로 유효성 검사 + 썸네일 미리보기) ·
-      제목(필수) · 설명(textarea, 선택). **연작 입력 필드는 없다**
+      제목(필수) · 설명(textarea, 선택). **연작 입력 필드 없음**
     - `mode: 'create' | 'edit'` 양용, 취소 시 `ConfirmModal` 확인, `isRedirectError` 재throw 처리
-  - [ ] `src/app/community/philosophia/new/page.tsx` 신규 — 비로그인 `redirect('/login?next=/community/philosophia/new')`.
-    `PageHeader`(라이트) 사용
-  - [ ] `src/app/community/philosophia/[id]/edit/page.tsx` 신규 — 비로그인 리다이렉트 +
-    `!post || (!isAdmin && post.user_id !== user.id)`이면 `notFound()`
-  - [ ] **1차의 `[영상 등록]` 링크 404가 이 단계에서 해소된다**
-  - [ ] 다크(목록·상세) → 라이트(폼) 전환이 의도된 경계임을 확인. 어색하면 폼 진입 버튼 위치나 문구로 완충
+    - `sky-600` 계열을 그대로 뒀다 — B안이 "관리 동선은 기존 자산 재사용"이고, 사이트의 다른 폼 24개와 톤이 같아야 한다.
+      여기만 골드·네이비로 바꾸면 반쯤 브랜딩된 폼이 되어 오히려 어색하다
+    - placeholder 문구만 게시판 성격에 맞게 조정(`영상 제목` → `시가 제목`)
+  - [x] `src/app/community/philosophia/new/page.tsx` 신규 — 비로그인 `redirect('/login?next=…')`
+  - [x] `src/app/community/philosophia/[id]/edit/page.tsx` 신규 — 비로그인 리다이렉트 +
+    `!post || (!isAdmin && post.user_id !== user.id)`이면 `notFound()`. 조회에 `.eq('board', BOARD)` 포함
+  - [x] **`PageHeader`에 배경 이미지를 넣지 않고 `bgColor="bg-[#182B4E]"`만 줬다**
+    - `public/images/breadcrumb/`은 전부 개혁자 초상과 기념비라 '철학시가'와 맞는 이미지가 없다
+    - 이미지 없이 네이비 단색으로 두면 **폼은 라이트지만 헤더 색으로 코너 정체성이 이어진다**(다크→라이트 경계 완충)
+  - [x] **1차의 `[영상 등록]` 링크 404 해소** — `/new` 라우트가 실제로 생겼다
+  - [x] `npm run build` 통과 — 4개 라우트 모두 생성(`/philosophia`, `/[id]`, `/[id]/edit`, `/new`)
+  - [x] `npx eslint` — `no-img-element` 경고 2건(목록 썸네일, 폼 미리보기)뿐.
+    **`ReformedTVForm`도 동일한 경고를 안고 있어 새로 만든 문제가 아니다**
+  - [x] **폼 `name` ↔ `actions.ts` `formData.get()` 전수 대조** — `category`/`description`/`title`/`youtube_url` 4개 일치.
+    특히 `description` → `content` 컬럼 매핑이 이름이 달라 놓치기 쉬운 지점이었다
+  - [x] 런타임 — 비로그인으로 `/new`·`/[id]/edit` 요청 시 **로그인 화면 렌더 + `NEXT_REDIRECT` 페이로드 확인,
+    폼 필드 유출 0건**. reformed-tv 대조군과 동작 동일
+    - not-found와 마찬가지로 HTTP는 200이다(Next.js RSC 리다이렉트 방식). reformed-tv도 같아 기존 동작이다
+  - **미검증 — 로그인이 필요해 확인 불가.** 8단계에서 실제 계정으로 확인한다
+    - 등록 → 상세 이동, 수정 → 반영, 삭제 → 목록 복귀
+    - 다크(목록·상세) → 라이트(폼) 전환이 어색하지 않은지
 
   ### 6단계 — 로딩 스켈레톤
   - [ ] `src/app/community/philosophia/loading.tsx` 신규 — 목록용
