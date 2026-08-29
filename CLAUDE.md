@@ -15,6 +15,8 @@ UI는 모바일 우선 반응형 웹으로 제작한다.
 - 코딩 규칙 및 금지 사항: `docs/coding-guidelines.md`
 - 작업 결정 기록: `docs/context-notes.md`
 - 작업 목록 및 미해결 이슈: `docs/todo.md`
+- 기능별 상세 작업 기록: `docs/features/` — `todo.md`에서 분량이 커진 항목을 기능 단위로 분리해 둔다.
+  해당 기능을 손대기 전에 반드시 확인할 것 (예: `docs/features/philosophia.md`)
 ---
 
 ## 기술 스택
@@ -75,8 +77,13 @@ src/
 │   └── shared/        # 프로젝트 공통 컴포넌트
 ├── features/          # 기능별 모듈
 │   ├── auth/          # 로그인, 세션
-│   ├── posts/         # 게시글 CRUD
-│   └── youtube/       # 유튜브 링크 파싱 및 렌더링
+│   ├── posts/         # 게시글 CRUD (에디터·첨부·이미지·조회수 등 공용)
+│   ├── youtube/       # 유튜브 URL 파싱, 지연 로드 플레이어 (영상 게시판 공용)
+│   ├── books/         # 리폼드북스 — 목차·본문 구획(sections)
+│   ├── gallery/       # 행사앨범 — 이미지 뷰어
+│   ├── open-lecture/  # 마스터스 오픈강좌 — 일정·장소·기사 링크
+│   ├── philosophia/   # 최더함의 철학시가 — 다크 톤 전용 UI
+│   └── reformed-tv/   # ReformedTV
 ├── lib/               # 유틸리티 (supabase 클라이언트 등)
 ├── hooks/             # 커스텀 React Hooks
 └── types/             # 전역 TypeScript 타입
@@ -124,23 +131,45 @@ src/
 
 ## DB 스키마
 
+스키마 원본은 **`src/types/supabase.ts`**(자동 생성)다. 컬럼을 바꾸면 `npm run db:types`로 재생성할 것.
+컬럼을 추가한 실제 DDL은 `docs/context-notes.md`에 남아 있다.
+
 ### profiles
 | 컬럼 | 타입 | 설명 |
 |---|---|---|
 | id | uuid | auth.users.id 참조 (PK) |
 | nickname | text | 표시 이름 |
+| is_admin | boolean | 관리자. 모든 게시글 수정/삭제 가능 (`lib/admin.ts`의 `getIsAdmin`) |
+| is_masters | boolean | masters 계정 구분 |
 | created_at | timestamptz | |
 
 ### posts
+
+**모든 게시판이 이 테이블 하나를 공유한다.** `board`로 게시판을, `category`로 게시판 안의 분류를 구분한다.
+둘 다 자유 문자열이라 **게시판을 추가할 때 마이그레이션이 필요 없다.**
+
 | 컬럼 | 타입 | 설명 |
 |---|---|---|
 | id | uuid | PK |
 | user_id | uuid | profiles.id 참조 |
+| board | text | 게시판 구분 (예: `free`, `notice`, `reformed-tv`, `philosophia`) |
+| category | text | 게시판 내 분류 (예: `공지` / `일반` / `숏츠`) |
 | title | text | 제목 |
-| content | text | 본문 |
+| content | text | 본문 (nullable) |
+| views | integer | 조회수 — `ViewTracker` → `incrementViews`로 증가 |
 | youtube_url | text | 유튜브 링크 (nullable) |
+| thumbnail_url | text | 대표 이미지 (nullable) |
+| article_url | text | 외부 기사 링크 (nullable) — 오픈강좌 |
+| event_date | date | 행사 일자 (nullable) — 오픈강좌 |
+| event_time | time | 행사 시각 (nullable) — 오픈강좌 |
+| location | text | 장소 (nullable) — 오픈강좌 |
+| sections | jsonb | 구획 본문 (nullable) — 리폼드북스 목차 |
 | created_at | timestamptz | |
 | updated_at | timestamptz | |
+
+### 그 밖의 테이블
+- `press_articles` — RSS로 수집한 외부 언론 기사
+- `post_images` · `post_attachments` · `post_videos` — 게시글 첨부 (이미지 / 파일 / 영상)
 
 ### 미구현 (추후 추가 예정)
 - comments (게시글 댓글)

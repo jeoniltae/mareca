@@ -1,4 +1,5 @@
 'use client'
+// 최더함의 철학시가 등록·수정 폼 — 관리 동선이라 사이트의 다른 폼과 같은 라이트 톤을 유지한다
 
 import { useState, useTransition } from 'react'
 import { Link2 } from 'lucide-react'
@@ -8,11 +9,11 @@ import { ConfirmModal } from '@/components/shared/ConfirmModal'
 import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtube-utils'
 import { isYoutubeThumbnailMissing } from '@/features/youtube/verify-thumbnail'
 import { isRedirectError } from 'next/dist/client/components/redirect-error'
-import { createReformedTVPost, updateReformedTVPost } from './actions'
+import { createPhilosophiaPost, updatePhilosophiaPost } from './actions'
 
 const CATEGORIES = ['일반', '숏츠'] as const
 
-interface ReformedTVFormProps {
+interface PhilosophiaFormProps {
   mode: 'create' | 'edit'
   postId?: string
   initialValues?: {
@@ -24,7 +25,7 @@ interface ReformedTVFormProps {
   cancelHref: string
 }
 
-export function ReformedTVForm({ mode, postId, initialValues, cancelHref }: ReformedTVFormProps) {
+export function PhilosophiaForm({ mode, postId, initialValues, cancelHref }: PhilosophiaFormProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [isCancelling, startCancelTransition] = useTransition()
@@ -68,11 +69,11 @@ export function ReformedTVForm({ mode, postId, initialValues, cancelHref }: Refo
 
       try {
         if (mode === 'edit' && postId) {
-          const targetId = await updateReformedTVPost(postId, formData)
-          router.replace(`/community/reformed-tv/${targetId}`)
+          const targetId = await updatePhilosophiaPost(postId, formData)
+          router.replace(`/community/philosophia/${targetId}`)
         } else {
-          const targetId = await createReformedTVPost(formData)
-          router.replace(`/community/reformed-tv/${targetId}`)
+          const targetId = await createPhilosophiaPost(formData)
+          router.replace(`/community/philosophia/${targetId}`)
         }
       } catch (e) {
         if (isRedirectError(e)) throw e
@@ -85,7 +86,9 @@ export function ReformedTVForm({ mode, postId, initialValues, cancelHref }: Refo
     <form action={handleSubmit} className="space-y-5">
       {/* 카테고리 */}
       <div>
-        <label className="text-sm font-medium text-slate-700 block mb-2">카테고리 <span className="text-red-500">*</span></label>
+        <label className="text-sm font-medium text-slate-700 block mb-2">
+          카테고리 <span className="text-red-500">*</span>
+        </label>
         <div className="flex gap-2">
           {CATEGORIES.map((cat) => (
             <label key={cat} className="cursor-pointer">
@@ -164,7 +167,7 @@ export function ReformedTVForm({ mode, postId, initialValues, cancelHref }: Refo
           required
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="영상 제목을 입력하세요"
+          placeholder="시가 제목을 입력하세요"
           className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300"
         />
       </div>
@@ -179,7 +182,7 @@ export function ReformedTVForm({ mode, postId, initialValues, cancelHref }: Refo
           rows={10}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="영상에 대한 설명을 입력하세요"
+          placeholder="시가에 대한 설명을 입력하세요"
           className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300 resize-none"
         />
       </div>

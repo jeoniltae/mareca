@@ -7,193 +7,297 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
 
 ---
 
-- **[완료] 관리자 권한 — 모든 게시글 수정/삭제**
-  - 배경: 현재 게시글 수정/삭제는 작성자 본인만 가능. 관리자는 모든 게시글을 수정/삭제할 수 있어야 함
-  - 관리자 계정: 새 계정을 별도 생성 후 관리자로 지정 (기존 masters@mareca.kr 계정 사용 안 함)
-  - 로그인 방식: 비밀번호 로그인 (Supabase Email/Password Auth) — 일반 유저와 동일한 로그인 화면
-  - 관리자 식별: `profiles` 테이블에 `is_admin boolean` 컬럼 추가, Supabase 대시보드에서 해당 유저 row에 수동으로 `true` 설정
-  - 구현 범위:
-    - `profiles` 테이블 `is_admin` 컬럼 추가 (기본값 `false`)
-    - RLS 정책: 수정/삭제 정책에 `is_admin = true` 예외 추가
-    - Server Action(`updatePost`, `deletePost`): `user_id` 일치 조건에 관리자 예외 처리 추가
-    - `PostActions.tsx`: 관리자 로그인 시 본인 게시글이 아니어도 수정/삭제 버튼 노출
-    - `PostForm.tsx`: '공지' 카테고리 선택 옵션을 관리자만 볼 수 있도록 제한
-    - Server Action(`createPost`, `updatePost`): 비관리자가 `category='공지'`로 저장 시 거부 처리
+## 한눈에 보기
 
-- **[완료] 관련기사 상세 페이지 및 카카오톡 공유 기능**
-  - 배경: 카카오 Share SDK는 `link`에 앱에 등록된 도메인만 허용하므로, 외부 기사 URL을 카카오 공유 링크로 직접 사용 불가. 현재 관련기사 목록에서 카카오 공유 버튼을 제거하고 링크 복사만 제공 중
-  - 해결 방향: 관련기사 상세 페이지(`/news/press/[id]`)를 만들어 마레카 도메인 URL로 카카오 공유 → 상세 페이지 내에서 원문 기사로 이동하도록 유도
-  - 상세 페이지 구성:
-    - og_title, og_image, og_description 표시
-    - "원문 기사 보기" 외부 링크 버튼
-    - 카카오톡 공유 버튼 (link를 `/news/press/[id]` 마레카 URL로 설정)
-  - DB: `press_articles` 테이블의 `id`를 라우트 파라미터로 사용 (별도 DB 변경 불필요)
-  - 관련 파일: `src/app/news/press/[id]/page.tsx` 신규 생성, `src/app/news/press/page.tsx`의 카드 클릭 → 외부 URL 대신 `/news/press/[id]`로 변경
+| 상태 | 항목 | 핵심 |
+|---|---|---|
+| 미착수 | [로고 기반 브랜드 컬러 시스템 전면 적용](#미착수-로고-기반-브랜드-컬러-시스템-전면-적용) | sky/slate → 로고 추출 네이비·그린·골드·크림으로 교체. 20~25개 파일 |
+| 미착수 | [게시글 본문 서버 sanitize 도입 (선행 취약점)](#미착수-게시글-본문-서버-sanitize-도입-선행-취약점) | 저장된 XSS를 막을 수단이 없다. `sanitize-html` 화이트리스트 도입 |
+| 미착수 | [에디터 이미지 고아 파일 — 탭 닫기·뒤로가기 경로 정리](#미착수-에디터-이미지-고아-파일--탭-닫기뒤로가기-경로-정리) | 탭 닫기·뒤로가기로 이탈하면 업로드 이미지가 버킷에 남는다 |
+| 보류 | [404/500 페이지에서 "이전 페이지" 버튼(BackButton) 클릭 후 GNB 애니메이션·인터랙션 불작동](#보류-404500-페이지에서-이전-페이지-버튼backbutton-클릭-후-gnb-애니메이션인터랙션-불작동) | `router.back()` 후 GNB 애니메이션·hover 불작동. 여러 접근 모두 실패 |
+| 보류 | [Server Action 공통 부채 — board 필터 · 0건 판정 · 상세 revalidate](#보류-server-action-공통-부채--board-필터--0건-판정--상세-revalidate) | 액션 6개 전부 해당. **인지 후 의도적 보류** — 재검토 조건 명시 |
+| 참고 | [PWA 개발 시 서비스 워커 stale 캐시 주의](#참고-pwa-개발-시-서비스-워커-stale-캐시-주의) | `npm start` 한 번이면 SW가 등록돼 `npm run dev`에서도 요청을 가로챈다 |
+| 완료 | [관리자 권한 — 모든 게시글 수정/삭제](#완료-관리자-권한--모든-게시글-수정삭제) | `profiles.is_admin` 기반으로 수정·삭제 권한에 관리자 예외 추가 |
+| 완료 | [관련기사 상세 페이지 및 카카오톡 공유 기능](#완료-관련기사-상세-페이지-및-카카오톡-공유-기능) | 외부 기사를 카카오로 공유하려고 마레카 도메인 상세 페이지를 둠 |
+| 완료 | [언론기사 RSS 피드 수집 게시판](#완료-언론기사-rss-피드-수집-게시판) | GitHub Actions cron으로 기독일보·크리스천투데이 RSS 수집 |
+| 완료 | [후원하기 페이지](#완료-후원하기-페이지) | 폼 대신 푸터에 계좌번호 노출로 기획 변경 |
+| 완료 | [웹 성능 개선 (Core Web Vitals)](#완료-웹-성능-개선-core-web-vitals) | TTFB · FCP · CLS 개선 |
+| 완료 | [스마트폰 홈 화면 바로가기 아이콘 추가 기능 (PWA)](#완료-스마트폰-홈-화면-바로가기-아이콘-추가-기능-pwa) | `layout.tsx`에 배너. iOS는 설치 완료를 감지할 수 없다 |
+| 완료 | [게시글 에디터 기능 추가](#완료-게시글-에디터-기능-추가) | 밑줄 · 취소선 · 색상 · 하이라이트 · 링크 · 인용구 |
+| 완료 | [게시판 추가 — 2묶음: 총회 공식 문서](#완료-게시판-추가--2묶음-총회-공식-문서) | 총회의사록 · 교회계획 |
+| 완료 | [게시판 추가 — 3묶음: 소식/커뮤니티](#완료-게시판-추가--3묶음-소식커뮤니티) | 공지사항 · 마스터스 메시지 · Plus Voice |
+| 완료 | [게시판 에디터 HTML 소스 편집기 추가](#완료-게시판-에디터-html-소스-편집기-추가) | 관리자 전용 `</>` 토글. Tiptap 정규화를 반드시 거친다 |
+| 완료 | [게시판 추가 — 최더함의 철학시가 (1·2차)](features/philosophia.md) | 다크 잉크 네이비 영상 아카이브. **별도 문서** · 검증 1건 남음 |
 
-- **[미착수] 로고 기반 브랜드 컬러 시스템 전면 적용**
-  - 배경: 현재 프로젝트는 Tailwind 기본 `sky-600/700`, `slate-800` 계열을 Primary 컬러로 사용 중. 로고(public/images/logo.png)의 색상과 괴리가 있어 브랜드 일관성이 부족함
-  - 로고 추출 컬러: 네이비 `#1C2E50` / 포레스트 그린 `#2A5728` / 골드 `#C8A224` / 크림 `#EEE8D5`
-  - 작업 계획 (5단계):
-    1. `tailwind.config.ts`에 `brand-navy`, `brand-green`, `brand-gold`, `brand-cream` 커스텀 토큰 정의
-    2. `Header.tsx`, `Footer.tsx`, `PageHeader.tsx` — `slate-800` → `brand-navy`, 활성 메뉴 → `brand-gold`
-    3. 전체 파일 `sky-600/700/300` → `brand-green` 일괄 교체 (버튼, focus ring, 링크 호버 등)
-    4. `brand-gold` 포인트 컬러 선별 적용 (활성 카테고리, NEW 뱃지 등)
-    5. 전체 화면 검토 및 미세 조정
-  - 예상 수정 파일: 약 20~25개 / 예상 소요 시간: 약 1시간
+---
 
-- **[완료] 언론기사 RSS 피드 수집 게시판**
-  - 개요: 특정 기독교 언론사의 RSS 피드를 주기적으로 수집해 게시판 형태로 노출, 클릭 시 원문 기사로 이동
-  - 수집 대상 언론사:
-    - 기독일보: `http://christiandaily.co.kr/rss`
-    - 크리스천투데이: `https://www.christiantoday.co.kr/rss`
-  - 구현 방식: GitHub Actions 스케줄러(cron) → RSS XML 파싱 → Supabase `press_articles` 테이블 저장 → Server Component로 렌더링
-  - DB 스키마 (예정):
-    - `id` uuid PK, `url` text, `og_title` text, `og_image` text, `og_description` text, `source_name` text, `published_at` date, `created_at` timestamptz
-  - 표시 정책: 제목 + 요약 + 링크만 노출 (기사 원문 복사 금지 — 저작권)
-  - 관련 파일 위치 예정: `src/features/press/`, `src/app/news/press/page.tsx`
+## 미착수
 
-- **[완료] 후원하기 페이지**
-  - 개요: 후원 신청 폼을 입력받아 Supabase에 저장, 관리자가 확인 후 계좌이체로 수동 처리하는 방식 (온라인 즉시결제 없음)
-  - 구현 흐름: 사용자 폼 입력 → 제출 → Supabase `donations` 테이블 저장 → 관리자 확인 후 계좌 안내
-  - 폼 필드: 성명, 성별, 연락처, 이메일, 주소(카카오 주소 API), 교단명, 교회명, 교직, 회원구분(개인/단체/교회), 후원액(매월), 후원 은행
-  - DB 스키마 (예정): `id` uuid, `name` text, `gender` text, `phone` text, `email` text, `address` text, `church_name` text, `denomination` text, `position` text, `member_type` text, `amount` integer, `bank` text, `agreed_privacy` boolean, `created_at` timestamptz
-  - 추가 고려사항:
-    - 하단 개인정보 수집·이용 동의 체크박스 필수
-    - 비로그인 제출 허용 시 스팸 방지 처리 필요
-    - 관리자 알림: Supabase 대시보드 확인 또는 이메일 알림(Resend) 추가 가능
-  - 관련 파일 위치 예정: `src/app/donate/page.tsx`, `src/features/donate/`
-  - 기획 의도가 바뀌어서 푸터에 후원 계좌번호 노출하는것으로 변경
+### [미착수] 로고 기반 브랜드 컬러 시스템 전면 적용
 
-- **[완료] 웹 성능 개선 (Core Web Vitals)**
-  - 배경: Vercel Speed Insights 기준 FCP 2.06s, CLS 0.14, TTFB 1.54s — 세 항목 모두 개선 여지 있음
-  - 개선 항목 (임팩트 순):
-    1. **TTFB (1.54s)**: Supabase 쿼리가 많은 Server Component에 Next.js `revalidate` 또는 `cache` 적용 — 자주 바뀌지 않는 데이터(임원 목록, 게시판 목록 등) 우선
-    2. **FCP (2.06s)**: TTFB 개선 시 자동 개선 기대 / 추가로 외부 폰트 preload 설정 확인
-    3. **CLS (0.14)**: 이미지 `width`/`height` 미지정 요소 확인 및 Next.js `<Image>` 컴포넌트 적용, 폰트 로드 전후 레이아웃 밀림 제거
-  - 수정 난이도: CLS < FCP < TTFB
+- 배경: 현재 프로젝트는 Tailwind 기본 `sky-600/700`, `slate-800` 계열을 Primary 컬러로 사용 중. 로고(public/images/logo.png)의 색상과 괴리가 있어 브랜드 일관성이 부족함
+- 로고 추출 컬러: 네이비 `#1C2E50` / 포레스트 그린 `#2A5728` / 골드 `#C8A224` / 크림 `#EEE8D5`
+- 작업 계획 (5단계):
+  1. `tailwind.config.ts`에 `brand-navy`, `brand-green`, `brand-gold`, `brand-cream` 커스텀 토큰 정의
+  2. `Header.tsx`, `Footer.tsx`, `PageHeader.tsx` — `slate-800` → `brand-navy`, 활성 메뉴 → `brand-gold`
+  3. 전체 파일 `sky-600/700/300` → `brand-green` 일괄 교체 (버튼, focus ring, 링크 호버 등)
+  4. `brand-gold` 포인트 컬러 선별 적용 (활성 카테고리, NEW 뱃지 등)
+  5. 전체 화면 검토 및 미세 조정
+- 예상 수정 파일: 약 20~25개 / 예상 소요 시간: 약 1시간
 
-- **[완료] 스마트폰 홈 화면 바로가기 아이콘 추가 기능 (PWA)**
-  - 구현 위치: `src/components/shared/AddToHomeScreen.tsx`, `src/app/layout.tsx`에서 렌더
-  - **메인 페이지가 아니라 `layout.tsx`에 둔다** — `layout.tsx` 인라인 스크립트가 모든 경로에서
-    `beforeinstallprompt`를 `preventDefault`로 선점하므로, 배너가 `/`에만 있으면 공유 링크로
-    서브 페이지에 진입한 사용자는 Chrome 기본 설치 UI도 막히고 배너도 못 봐서 설치 경로가 사라진다
-  - 플랫폼별 동작:
-    - Android/데스크톱 Chrome: `beforeinstallprompt`를 가로채 시스템 설치 다이얼로그 호출
-    - iOS Safari: 설치 API가 없어 "공유 → 홈 화면에 추가" 3단계 안내 모달로 대체
-  - 형태: 고정 오버레이(문서 흐름 밖 — CLS 방지). 모바일은 하단 전체 폭 바, 데스크톱(sm~)은 좌측 하단 pill
-  - 노출 조건: standalone 실행 중이 아니고, 닫은 지 7일이 지났을 때. 스크롤 조건 없이 상시 노출
-  - 이벤트 수신은 `layout.tsx`의 `next/script`(`beforeInteractive`)가 담당하고 컴포넌트는 구독만 한다
-    (`beforeinstallprompt`는 페이지 로드당 1회만 발생하고 클라이언트 라우팅으로는 재발생하지 않음)
-  - 배너 높이는 `globals.css`의 `--a2hs-banner-height` 하나로 관리 — 「맨 위로」 버튼 오프셋과
-    `body.has-a2hs-banner`의 문서 하단 여백이 같은 값을 참조한다. **배너 높이를 바꾸면 이 변수도 함께 수정할 것**
-  - 미해결: iOS는 설치 완료를 감지할 수 없어(`appinstalled` 미지원) 설치 후에도 Safari 탭에서는 배너가 계속 노출됨
+### [미착수] 게시글 본문 서버 sanitize 도입 (선행 취약점)
 
-- **[참고] PWA 개발 시 서비스 워커 stale 캐시 주의**
-  - `npm start`로 한 번이라도 `localhost:3000`을 띄우면 서비스 워커가 등록되고,
-    **같은 origin이라 `npm run dev`로 바꿔도 계속 요청을 가로챈다**.
-    `next.config.ts`의 `disable: NODE_ENV === "development"`는 "새로 만들지 않는다"일 뿐 기존 등록을 지우지 않는다
-  - 증상: 새로 추가한 Tailwind 클래스만 골라서 적용 안 됨(요소가 엉뚱한 위치에 렌더), 제거한 모듈을 참조하는 런타임 에러,
-    하드 리로드하면 잠깐 정상이었다가 화면 이동 시 재발
-  - 판별: `grep -o "\.클래스명{[^}]*}" .next/static/css/*.css` — 빌드 CSS에 있으면 코드가 아니라 캐시 문제다
-  - 조치: DevTools → Application → Service Workers → 「네트워크 우회」 체크(DevTools 닫으면 풀림) + 등록 취소 + Clear site data.
-    `public/sw.js`, `public/workbox-*.js` 삭제도 가능(gitignore 대상, 빌드 시 재생성)
+- 배경: `createPost` / `updatePost`가 `content`를 검증 없이 저장하고 13개 상세 페이지가 `dangerouslySetInnerHTML`로 렌더 → 조작된 요청으로 저장된 XSS를 막을 수단이 없다. **HTML 소스 편집기와 무관하게 이미 존재하는 문제**이며, 소스 편집 결과가 항상 Tiptap을 통과하므로 그 기능이 새로 만드는 위험은 아니다
+- 방향: `sanitize-html` 도입 후 `createPost` / `updatePost`의 `content`에 화이트리스트 적용
+- 주의: Tiptap이 생성하는 `style="text-align:…"`(TextAlign), `<span style="color:…">`(Color), `<mark>`(Highlight), `colspan`/`rowspan`/`colwidth`(Table), `class`(Image·Link)를 모두 허용해야 한다. 하나라도 빠지면 기존 글 재저장 시 서식이 파괴된다
+- 주의: 오픈강좌는 `category !== '공지'`일 때 본문이 평문이라 sanitize하면 `<`가 escape된다 — 조건부 적용 필요
 
-- **[완료] 게시글 에디터 기능 추가**
-  - 대상 파일: `src/features/posts/PostEditor.tsx`
-  - 추가할 기능:
-    - 밑줄 (Underline) — StarterKit 미포함, `@tiptap/extension-underline` 설치 필요
-    - 취소선 (Strike) — StarterKit에 포함, 버튼만 추가
-    - 텍스트 색상 (Color) — `@tiptap/extension-color` + `@tiptap/extension-text-style` 설치 필요, 컬러 피커 UI 추가
-    - 하이라이트 (Highlight) — `@tiptap/extension-highlight` 설치 필요
-    - 링크 삽입/제거 (Link) — 익스텐션은 이미 등록됨, URL 입력 모달 UI 추가 필요
-    - 인용구 (Blockquote) — StarterKit에 포함, 버튼만 추가
+### [미착수] 에디터 이미지 고아 파일 — 탭 닫기·뒤로가기 경로 정리
 
-- **[완료] 게시판 추가 — 2묶음: 총회 공식 문서**
-  - 선행 작업 완료: `actions.ts`, `PostForm.tsx`, `PostActions.tsx` board/boardPath 범용화 완료 (1묶음 작업 시)
-  - 총회의사록: `board='minutes'`, 경로 `/report/minutes` — 기존 `src/app/report/minutes/page.tsx` ComingSoon → 게시판으로 교체, `[id]`, `new`, `[id]/edit` 신규 생성
-  - 교회계획: `board='church-plan'`, 경로 `/online-admin/plan` — 기존 `src/app/online-admin/plan/page.tsx` ComingSoon → 게시판으로 교체, `[id]`, `new`, `[id]/edit` 신규 생성
-  - 카테고리: `공지`, `일반` (단순)
+- 배경: 현재 에디터 업로드 이미지 정리는 [취소] 버튼을 눌러 확인 모달에서 확정할 때만 동작한다.
+  `PostForm.tsx`의 `onImageUploaded` → `editorImageUrls` 누적 → 취소 확정 시 `deleteEditorImages(editorImageUrls)` 흐름
+- **브라우저 탭을 닫거나 뒤로가기·GNB 클릭으로 이탈하면 이 핸들러가 실행되지 않아** 업로드된 파일이 `post-images` 버킷에 그대로 남는다
+- HTML 소스 편집기와 무관한 선행 문제다. 정리 로직이 본문 HTML이 아니라 업로드 시점(`onImageUploaded`)을 추적하므로 소스 편집 여부에 영향받지 않는다 (2026-08-25 확인)
+- 해결 방향 두 가지 — 택일 또는 병행
+  1. **`beforeunload` 경고** — 작성 중 이탈 시 브라우저 기본 확인창. 구현이 가볍지만 탭 닫기만 막고 Next.js 클라이언트 라우팅 이탈은 못 잡는다. 라우팅 이탈까지 막으려면 `next/navigation` 가드가 추가로 필요
+  2. **주기적 미참조 파일 청소** — GitHub Actions cron으로 `post-images` 버킷 목록과 `posts.content` / `post_images`를 대조해 어디서도 참조되지 않는 파일 삭제. 이탈 경로와 무관하게 확실하지만, **작성 중인 글의 이미지를 지우지 않도록 업로드 후 N시간 유예를 반드시 둘 것**
+- 권장: 2번(청소 배치)이 근본 해결. 1번만으로는 경로가 남는다
+- 관련 파일: `src/features/posts/PostForm.tsx`, `src/features/posts/actions.ts`(`deleteEditorImages`), `.github/workflows/`
 
-- **[완료] 게시판 추가 — 3묶음: 소식/커뮤니티**
-  - 선행 작업 완료: `actions.ts`, `PostForm.tsx`, `PostActions.tsx` board/boardPath 범용화 완료 (1묶음 작업 시)
-  - 공지사항: `board='notice'`, 경로 `/news/notice` — 기존 `src/app/news/notice/page.tsx` ComingSoon → 게시판으로 교체
-  - 마스터스 메시지: `board='message'`, 경로 `/community/message` — 기존 `src/app/community/message/page.tsx` ComingSoon → 게시판으로 교체
-  - Plus Voice: `board='voice'`, 경로 `/community/voice` — 기존 `src/app/community/voice/page.tsx` ComingSoon → 게시판으로 교체
-  - 카테고리: `공지`, `일반` (단순)
+---
 
-- **[완료] 게시판 에디터 HTML 소스 편집기 추가**
-  - 배경: 본문은 현재 `PostEditor.tsx`(Tiptap v3) 툴바로만 작성 가능. 관리자가 외부 마크업을 붙여넣거나 툴바로 표현이 어려운 구조(중첩 테이블, 세밀한 정렬)를 손보려면 소스 단계 편집이 필요함
-  - 목표: 관리자에게만 툴바에 `</>` 토글을 노출해 본문 HTML을 직접 편집
-  - 확정 사항:
-    - 권한은 `getIsAdmin`(`profiles.is_admin = true`)만 사용 — `masters@mareca.kr`는 제외
-    - 소스 편집 결과는 **반드시 `editor.commands.setContent()`를 거쳐** Tiptap 스키마로 정규화된 뒤에만 폼 상태로 전달. 정규화되지 않은 원본 HTML이 저장될 경로를 만들지 않는다
-    - 서버 sanitize는 이번 범위 밖 — 선행 취약점이므로 아래 별도 항목으로 분리
-    - `PostForm`을 쓰는 24개 페이지에 `isAdmin` prop을 넘기지 않고, `PostEditor`가 Server Action으로 직접 조회
-    - `OpenLectureForm.tsx`, `open-lecture/actions.ts`는 손대지 않음 (PostEditor 내부 변경만으로 충족)
-    - 신규 의존성 없음 / 신규 소스 파일 없음
-  - 1단계 — 이미지 URL 정규식 보강 (독립 커밋)
-    - [x] `PostForm.tsx:74` → `/<img[^>]+src=["']([^"']+)["']/g`
-    - [x] `posts/actions.ts:162`(`extractStorageImagePaths`) → 동일 패턴
-    - [x] `npm run build` 통과 확인
-    - 상세 페이지 13곳의 OG 이미지 추출 정규식은 건드리지 않음(범위 밖)
-  - 2단계 — 관리자 조회 Server Action
-    - [x] `posts/actions.ts`에 `import { getIsAdmin } from '@/lib/admin'` 추가
-    - [x] `export async function isEditorAdmin(): Promise<boolean> { return getIsAdmin() }` 추가 (`uploadImage` 위 별도 섹션)
-    - UI 노출 제어일 뿐, 실질적 안전장치는 3단계의 Tiptap 정규화다
-  - 3단계 — `PostEditor.tsx` 소스 편집 모드 (파일 위→아래 순서로 적용)
-    - [x] import 보강 — `Code2`(lucide-react), `isEditorAdmin`, `useEffect`
-    - [x] state 3개 추가 — `isAdmin` / `showSource` / `sourceHtml`
-    - [x] `useEffect`로 마운트 시 `isEditorAdmin()` 호출 — **`if (!editor) return null`보다 반드시 위**
-    - [x] `applySource` 추가 — `setContent(sourceHtml)`. **`setContent`는 `emitUpdate` 기본값이 `true`라 `onUpdate` → `onChange`가 알아서 발화한다**(처음엔 반대로 알고 `onChange`를 명시 호출했으나 중복이라 제거 — 코드리뷰에서 정정)
-    - [x] 실제로 고쳤을 때만 반영하도록 `appliedSourceRef` 가드 추가 — 구경만 하고 닫아도 본문이 정규화되던 문제, 실행취소 스택에 중복 쌓이던 문제 동시 해결
-    - [x] `flush()` 통로 추가 (`PostEditorHandle`) — macOS Safari·Firefox는 버튼 클릭 시 blur가 안 나서 소스 본문이 저장되지 않던 문제. `PostForm`·`OpenLectureForm`이 제출 직전 호출
-    - [x] `toggleSource` 추가 — 켤 때 `formatHtml(getHTML())` 세팅 + 팝오버 3개 닫기, 끌 때 `applySource()`
-    - [x] 툴바에 `isAdmin && <Btn onClick={toggleSource} active={showSource} title="HTML 소스 편집">` 추가 (undo/redo 뒤)
-    - [x] 소스 모드에서 나머지 툴바 숨김 — 숨겨진 에디터를 조작해도 `applySource()`가 덮어써 조용히 사라지므로
-      - 툴바 전체를 `{!showSource && (<> … </>)}`로 감쌌다. 감싼 구간은 **들여쓰기를 그대로 뒀다** — 240줄 재정렬 diff가 실제 변경을 가린다. 정리하려면 공백만 바꾸는 별도 커밋으로
-      - `</>` 앞 `<Divider />`는 `isAdmin` 안에 넣고 `!showSource` 조건도 걸었다 — 비관리자일 때 꼬리 구분선, 소스 모드일 때 앞머리 구분선이 남는 것을 막기 위함
-    - [x] textarea + 안내 문구(`에디터가 지원하지 않는 태그·속성은 적용 시 제거됩니다.`) 렌더, `onBlur={applySource}`
-    - [x] `EditorContent`는 언마운트하지 말고 `cn('bg-white', showSource && 'hidden')`으로 감춤 (인스턴스·undo 히스토리 보존)
-    - [x] 파일 하단에 `formatHtml` 로컬 함수 추가 — 블록 닫는 태그 뒤에만 개행
-    - [x] `npm run build` 통과 확인
-  - 4단계 — 자동 검증
-    - [x] `npm test` — **9개 통과.** `image-urls.test.ts` 추가로 이 저장소에서 처음으로 실제 검증이 돌아간다. `vitest.config.ts`의 `environment`를 `jsdom`(미설치라 실행 불가) → `node`로 변경
-    - [x] `npm run build` 타입 에러 없음
-    - [x] `npx eslint`로 수정한 3개 파일만 검사 — 깨끗함. (`npm run lint` 전체는 기존 에러/경고 다수 — `set-state-in-effect`, `no-img-element`, `public/sw.js` 빌드 산출물)
-  - 5단계 — 수동 검증 (`npm run dev`)
-    - [x] 관리자 계정 `/community/free/new`에 `</>` 버튼 노출
-    - [x] 토글 시 HTML이 블록 단위로 개행되어 보임
-    - [x] 소스에 `<p style="text-align:center">` 추가 → 토글 해제 시 WYSIWYG 반영
-    - [x] **소스 모드인 채로 바로 [등록]** → 정규화된 내용 저장 (이번 설계의 핵심 케이스 — blur가 click보다 먼저 발생함을 확인)
-    - [x] `<script>alert(1)</script>` 입력 → 토글 해제 시 Tiptap이 제거
-    - [x] `<img src='...'>`(작은따옴표) 저장 → 1단계 정규식이 잡는지
-    - [x] 비관리자 계정에서 `</>` 버튼 안 보임
-    - [x] 기존 게시글 수정 시 소스 모드를 한 번도 안 열면 서식 그대로 (회귀 확인)
-    - [x] `/community/open-lecture/new` 카테고리 `공지`에서도 정상 동작 (PostEditor 공유)
-    - 2026-08-25 사용자 수동 검증 완료 — 전 항목 이상 없음
-  - 6단계 — 문서 기록
-    - [x] `docs/context-notes.md` `## 2026-08-25` 섹션에 결정 기록 — 관리자 한정 이유, Tiptap 정규화로 sanitize 없이 현행 수준 유지한 근거, sanitize 분리 배경, blur 설계, 들여쓰기 유지 결정, 검증 한계
-    - [x] 이 항목 `[완료]` 표기 + 후속 항목 2건 등록(서버 sanitize, 고아 파일 이탈 경로)
+## 보류
 
-- **[미착수] 게시글 본문 서버 sanitize 도입 (선행 취약점)**
-  - 배경: `createPost` / `updatePost`가 `content`를 검증 없이 저장하고 13개 상세 페이지가 `dangerouslySetInnerHTML`로 렌더 → 조작된 요청으로 저장된 XSS를 막을 수단이 없다. **HTML 소스 편집기와 무관하게 이미 존재하는 문제**이며, 소스 편집 결과가 항상 Tiptap을 통과하므로 그 기능이 새로 만드는 위험은 아니다
-  - 방향: `sanitize-html` 도입 후 `createPost` / `updatePost`의 `content`에 화이트리스트 적용
-  - 주의: Tiptap이 생성하는 `style="text-align:…"`(TextAlign), `<span style="color:…">`(Color), `<mark>`(Highlight), `colspan`/`rowspan`/`colwidth`(Table), `class`(Image·Link)를 모두 허용해야 한다. 하나라도 빠지면 기존 글 재저장 시 서식이 파괴된다
-  - 주의: 오픈강좌는 `category !== '공지'`일 때 본문이 평문이라 sanitize하면 `<`가 escape된다 — 조건부 적용 필요
+### [보류] 404/500 페이지에서 "이전 페이지" 버튼(BackButton) 클릭 후 GNB 애니메이션·인터랙션 불작동
 
-- **[미착수] 에디터 이미지 고아 파일 — 탭 닫기·뒤로가기 경로 정리**
-  - 배경: 현재 에디터 업로드 이미지 정리는 [취소] 버튼을 눌러 확인 모달에서 확정할 때만 동작한다.
-    `PostForm.tsx`의 `onImageUploaded` → `editorImageUrls` 누적 → 취소 확정 시 `deleteEditorImages(editorImageUrls)` 흐름
-  - **브라우저 탭을 닫거나 뒤로가기·GNB 클릭으로 이탈하면 이 핸들러가 실행되지 않아** 업로드된 파일이 `post-images` 버킷에 그대로 남는다
-  - HTML 소스 편집기와 무관한 선행 문제다. 정리 로직이 본문 HTML이 아니라 업로드 시점(`onImageUploaded`)을 추적하므로 소스 편집 여부에 영향받지 않는다 (2026-08-25 확인)
-  - 해결 방향 두 가지 — 택일 또는 병행
-    1. **`beforeunload` 경고** — 작성 중 이탈 시 브라우저 기본 확인창. 구현이 가볍지만 탭 닫기만 막고 Next.js 클라이언트 라우팅 이탈은 못 잡는다. 라우팅 이탈까지 막으려면 `next/navigation` 가드가 추가로 필요
-    2. **주기적 미참조 파일 청소** — GitHub Actions cron으로 `post-images` 버킷 목록과 `posts.content` / `post_images`를 대조해 어디서도 참조되지 않는 파일 삭제. 이탈 경로와 무관하게 확실하지만, **작성 중인 글의 이미지를 지우지 않도록 업로드 후 N시간 유예를 반드시 둘 것**
-  - 권장: 2번(청소 배치)이 근본 해결. 1번만으로는 경로가 남는다
-  - 관련 파일: `src/features/posts/PostForm.tsx`, `src/features/posts/actions.ts`(`deleteEditorImages`), `.github/workflows/`
+- 증상: 404/500 같은 하드 네비게이션 페이지에서 `router.back()` 또는 `history.back()` 사용 시 이전 페이지로 돌아왔을 때 Header의 Framer Motion 애니메이션 및 hover 인터랙션이 동작하지 않음
+- "홈으로 가기"(`Link href="/"`) 클릭 시에는 정상 동작
+- 시도한 접근: bfcache `pageshow` 감지, `useEffect` → `useLayoutEffect` 변경, `isNavigatingRef` 네비게이션 가드, `BackButton` popstate+reload — 모두 미해결
+- 관련 파일: `src/components/shared/Header.tsx`, `src/components/shared/BackButton.tsx`, `src/app/not-found.tsx`, `src/app/error.tsx`
 
-- **[보류] 404/500 페이지에서 "이전 페이지" 버튼(BackButton) 클릭 후 GNB 애니메이션·인터랙션 불작동**
-  - 증상: 404/500 같은 하드 네비게이션 페이지에서 `router.back()` 또는 `history.back()` 사용 시 이전 페이지로 돌아왔을 때 Header의 Framer Motion 애니메이션 및 hover 인터랙션이 동작하지 않음
-  - "홈으로 가기"(`Link href="/"`) 클릭 시에는 정상 동작
-  - 시도한 접근: bfcache `pageshow` 감지, `useEffect` → `useLayoutEffect` 변경, `isNavigatingRef` 네비게이션 가드, `BackButton` popstate+reload — 모두 미해결
-  - 관련 파일: `src/components/shared/Header.tsx`, `src/components/shared/BackButton.tsx`, `src/app/not-found.tsx`, `src/app/error.tsx`
+### [보류] Server Action 공통 부채 — board 필터 · 0건 판정 · 상세 revalidate
+
+2026-08-29 철학시가 코드리뷰에서 지적됐다. **인지했고 의도적으로 지금은 고치지 않는다.**
+철학시가가 만든 회귀가 아니라 **처음부터 있던 프로젝트 전체 패턴**이라, 한 게시판만 고치면 6개 중 하나만
+다르게 동작해 오히려 일관성이 깨진다. 실측으로 확인한 현황은 아래와 같다.
+
+**(1) `update`/`delete`에 `board` 필터 없음** — 액션 6개 전부 해당
+`philosophia` · `reformed-tv` · `open-lecture` · `posts` · `books` · `gallery` 모두 `update:0 delete:0`
+
+- Server Action은 공개 POST 엔드포인트라, 로그인 사용자가 **다른 게시판 글의 id**로 직접 호출하면
+  그 글이 이 게시판 값으로 덮어써진다
+- **다만 권한 상승은 아니다.** 비관리자는 `.eq('user_id', user.id)`와 RLS에 막혀 **자기 글만** 건드릴 수 있고,
+  관리자는 범용 `posts/actions.ts`의 `deletePost`로 **이미** 전 게시판 권한을 갖는다. 최악이 자기 글 자해다
+- 정상 UI 흐름으로는 발생 불가 — 수정 페이지가 이미 `.eq('board', BOARD)`로 조회한 id만 넘긴다
+- 운영 현실: 글쓰기·수정·삭제를 하는 사람이 2~3명뿐이고, 여태 수면 위로 드러난 적이 없다
+
+**(2) 0건 업데이트를 성공으로 처리** — 액션 거의 전부 해당
+Supabase UPDATE/DELETE는 필터·RLS에 걸려 0행이어도 `error`가 `null`이라 그대로 성공 처리된다.
+관리자가 지운 사이 작성자가 저장하는 등 **경쟁 상황에서만** 조용한 실패가 난다
+
+**(3) 수정·삭제 후 상세 경로를 revalidate하지 않음**
+`philosophia` · `reformed-tv` · `open-lecture`는 목록만 무효화한다(`posts/actions.ts`만 목록+상세 둘 다).
+상세가 `ƒ (Dynamic)`이라 영향이 작고, **재현하지 못했다**
+
+**(4) 폼의 category state와 전송값 불일치** — `PhilosophiaForm` · `ReformedTVForm`
+가드는 state를 보는데 전송값은 체크된 라디오에서 나온다. `category`가 `['일반','숏츠']` 밖이어야 발생하는데
+폼으로 만든 글은 그 값이 나올 수 없다. **Supabase에서 직접 고쳐야만 재현되므로 사실상 도달 불가**
+
+#### 다시 볼 조건 — 아래 중 하나라도 생기면 재검토한다
+
+- 작성 권한이 외부 회원에게 열릴 때 (현재는 사실상 내부 2~3명)
+- 관리자 계정이 여러 명으로 늘어날 때
+- `PhilosophiaActions` 같은 컴포넌트를 다른 게시판에서 재사용할 때 —
+  **악의가 아니라 실수로** 다른 board의 id가 넘어가는 경로가 생긴다
+
+#### 고칠 때의 범위 (미리 조사해 둠)
+
+- (1) 전체 적용 시 `posts/actions.ts`가 **board 값이 아니라 `boardPath`만 받으므로**
+  시그니처를 바꿔야 하고 **24개 게시판 호출부**가 영향받는다. 게시판별 액션 6개는 각 2줄
+- (2) `.select('id')` 후 0건이면 throw — 액션당 2~4줄
+- (3) `revalidatePath(\`${BASE_PATH}/${id}\`)` 한 줄씩 추가 — 3파일
+- (4) 두 폼에서 `category`를 hidden input으로 보내거나 초기값을 검증
+
+---
+
+## 참고
+
+### [참고] PWA 개발 시 서비스 워커 stale 캐시 주의
+
+- `npm start`로 한 번이라도 `localhost:3000`을 띄우면 서비스 워커가 등록되고,
+  **같은 origin이라 `npm run dev`로 바꿔도 계속 요청을 가로챈다**.
+  `next.config.ts`의 `disable: NODE_ENV === "development"`는 "새로 만들지 않는다"일 뿐 기존 등록을 지우지 않는다
+- 증상: 새로 추가한 Tailwind 클래스만 골라서 적용 안 됨(요소가 엉뚱한 위치에 렌더), 제거한 모듈을 참조하는 런타임 에러,
+  하드 리로드하면 잠깐 정상이었다가 화면 이동 시 재발
+- 판별: `grep -o "\.클래스명{[^}]*}" .next/static/css/*.css` — 빌드 CSS에 있으면 코드가 아니라 캐시 문제다
+- 조치: DevTools → Application → Service Workers → 「네트워크 우회」 체크(DevTools 닫으면 풀림) + 등록 취소 + Clear site data.
+  `public/sw.js`, `public/workbox-*.js` 삭제도 가능(gitignore 대상, 빌드 시 재생성)
+
+---
+
+## 완료 (아카이브)
+
+### [완료] 관리자 권한 — 모든 게시글 수정/삭제
+
+- 배경: 현재 게시글 수정/삭제는 작성자 본인만 가능. 관리자는 모든 게시글을 수정/삭제할 수 있어야 함
+- 관리자 계정: 새 계정을 별도 생성 후 관리자로 지정 (기존 masters@mareca.kr 계정 사용 안 함)
+- 로그인 방식: 비밀번호 로그인 (Supabase Email/Password Auth) — 일반 유저와 동일한 로그인 화면
+- 관리자 식별: `profiles` 테이블에 `is_admin boolean` 컬럼 추가, Supabase 대시보드에서 해당 유저 row에 수동으로 `true` 설정
+- 구현 범위:
+  - `profiles` 테이블 `is_admin` 컬럼 추가 (기본값 `false`)
+  - RLS 정책: 수정/삭제 정책에 `is_admin = true` 예외 추가
+  - Server Action(`updatePost`, `deletePost`): `user_id` 일치 조건에 관리자 예외 처리 추가
+  - `PostActions.tsx`: 관리자 로그인 시 본인 게시글이 아니어도 수정/삭제 버튼 노출
+  - `PostForm.tsx`: '공지' 카테고리 선택 옵션을 관리자만 볼 수 있도록 제한
+  - Server Action(`createPost`, `updatePost`): 비관리자가 `category='공지'`로 저장 시 거부 처리
+
+### [완료] 관련기사 상세 페이지 및 카카오톡 공유 기능
+
+- 배경: 카카오 Share SDK는 `link`에 앱에 등록된 도메인만 허용하므로, 외부 기사 URL을 카카오 공유 링크로 직접 사용 불가. 현재 관련기사 목록에서 카카오 공유 버튼을 제거하고 링크 복사만 제공 중
+- 해결 방향: 관련기사 상세 페이지(`/news/press/[id]`)를 만들어 마레카 도메인 URL로 카카오 공유 → 상세 페이지 내에서 원문 기사로 이동하도록 유도
+- 상세 페이지 구성:
+  - og_title, og_image, og_description 표시
+  - "원문 기사 보기" 외부 링크 버튼
+  - 카카오톡 공유 버튼 (link를 `/news/press/[id]` 마레카 URL로 설정)
+- DB: `press_articles` 테이블의 `id`를 라우트 파라미터로 사용 (별도 DB 변경 불필요)
+- 관련 파일: `src/app/news/press/[id]/page.tsx` 신규 생성, `src/app/news/press/page.tsx`의 카드 클릭 → 외부 URL 대신 `/news/press/[id]`로 변경
+
+### [완료] 언론기사 RSS 피드 수집 게시판
+
+- 개요: 특정 기독교 언론사의 RSS 피드를 주기적으로 수집해 게시판 형태로 노출, 클릭 시 원문 기사로 이동
+- 수집 대상 언론사:
+  - 기독일보: `http://christiandaily.co.kr/rss`
+  - 크리스천투데이: `https://www.christiantoday.co.kr/rss`
+- 구현 방식: GitHub Actions 스케줄러(cron) → RSS XML 파싱 → Supabase `press_articles` 테이블 저장 → Server Component로 렌더링
+- DB 스키마 (예정):
+  - `id` uuid PK, `url` text, `og_title` text, `og_image` text, `og_description` text, `source_name` text, `published_at` date, `created_at` timestamptz
+- 표시 정책: 제목 + 요약 + 링크만 노출 (기사 원문 복사 금지 — 저작권)
+- 관련 파일 위치 예정: `src/features/press/`, `src/app/news/press/page.tsx`
+
+### [완료] 후원하기 페이지
+
+- 개요: 후원 신청 폼을 입력받아 Supabase에 저장, 관리자가 확인 후 계좌이체로 수동 처리하는 방식 (온라인 즉시결제 없음)
+- 구현 흐름: 사용자 폼 입력 → 제출 → Supabase `donations` 테이블 저장 → 관리자 확인 후 계좌 안내
+- 폼 필드: 성명, 성별, 연락처, 이메일, 주소(카카오 주소 API), 교단명, 교회명, 교직, 회원구분(개인/단체/교회), 후원액(매월), 후원 은행
+- DB 스키마 (예정): `id` uuid, `name` text, `gender` text, `phone` text, `email` text, `address` text, `church_name` text, `denomination` text, `position` text, `member_type` text, `amount` integer, `bank` text, `agreed_privacy` boolean, `created_at` timestamptz
+- 추가 고려사항:
+  - 하단 개인정보 수집·이용 동의 체크박스 필수
+  - 비로그인 제출 허용 시 스팸 방지 처리 필요
+  - 관리자 알림: Supabase 대시보드 확인 또는 이메일 알림(Resend) 추가 가능
+- 관련 파일 위치 예정: `src/app/donate/page.tsx`, `src/features/donate/`
+- 기획 의도가 바뀌어서 푸터에 후원 계좌번호 노출하는것으로 변경
+
+### [완료] 웹 성능 개선 (Core Web Vitals)
+
+- 배경: Vercel Speed Insights 기준 FCP 2.06s, CLS 0.14, TTFB 1.54s — 세 항목 모두 개선 여지 있음
+- 개선 항목 (임팩트 순):
+  1. **TTFB (1.54s)**: Supabase 쿼리가 많은 Server Component에 Next.js `revalidate` 또는 `cache` 적용 — 자주 바뀌지 않는 데이터(임원 목록, 게시판 목록 등) 우선
+  2. **FCP (2.06s)**: TTFB 개선 시 자동 개선 기대 / 추가로 외부 폰트 preload 설정 확인
+  3. **CLS (0.14)**: 이미지 `width`/`height` 미지정 요소 확인 및 Next.js `<Image>` 컴포넌트 적용, 폰트 로드 전후 레이아웃 밀림 제거
+- 수정 난이도: CLS < FCP < TTFB
+
+### [완료] 스마트폰 홈 화면 바로가기 아이콘 추가 기능 (PWA)
+
+- 구현 위치: `src/components/shared/AddToHomeScreen.tsx`, `src/app/layout.tsx`에서 렌더
+- **메인 페이지가 아니라 `layout.tsx`에 둔다** — `layout.tsx` 인라인 스크립트가 모든 경로에서
+  `beforeinstallprompt`를 `preventDefault`로 선점하므로, 배너가 `/`에만 있으면 공유 링크로
+  서브 페이지에 진입한 사용자는 Chrome 기본 설치 UI도 막히고 배너도 못 봐서 설치 경로가 사라진다
+- 플랫폼별 동작:
+  - Android/데스크톱 Chrome: `beforeinstallprompt`를 가로채 시스템 설치 다이얼로그 호출
+  - iOS Safari: 설치 API가 없어 "공유 → 홈 화면에 추가" 3단계 안내 모달로 대체
+- 형태: 고정 오버레이(문서 흐름 밖 — CLS 방지). 모바일은 하단 전체 폭 바, 데스크톱(sm~)은 좌측 하단 pill
+- 노출 조건: standalone 실행 중이 아니고, 닫은 지 7일이 지났을 때. 스크롤 조건 없이 상시 노출
+- 이벤트 수신은 `layout.tsx`의 `next/script`(`beforeInteractive`)가 담당하고 컴포넌트는 구독만 한다
+  (`beforeinstallprompt`는 페이지 로드당 1회만 발생하고 클라이언트 라우팅으로는 재발생하지 않음)
+- 배너 높이는 `globals.css`의 `--a2hs-banner-height` 하나로 관리 — 「맨 위로」 버튼 오프셋과
+  `body.has-a2hs-banner`의 문서 하단 여백이 같은 값을 참조한다. **배너 높이를 바꾸면 이 변수도 함께 수정할 것**
+- 미해결: iOS는 설치 완료를 감지할 수 없어(`appinstalled` 미지원) 설치 후에도 Safari 탭에서는 배너가 계속 노출됨
+
+### [완료] 게시글 에디터 기능 추가
+
+- 대상 파일: `src/features/posts/PostEditor.tsx`
+- 추가할 기능:
+  - 밑줄 (Underline) — StarterKit 미포함, `@tiptap/extension-underline` 설치 필요
+  - 취소선 (Strike) — StarterKit에 포함, 버튼만 추가
+  - 텍스트 색상 (Color) — `@tiptap/extension-color` + `@tiptap/extension-text-style` 설치 필요, 컬러 피커 UI 추가
+  - 하이라이트 (Highlight) — `@tiptap/extension-highlight` 설치 필요
+  - 링크 삽입/제거 (Link) — 익스텐션은 이미 등록됨, URL 입력 모달 UI 추가 필요
+  - 인용구 (Blockquote) — StarterKit에 포함, 버튼만 추가
+
+### [완료] 게시판 추가 — 2묶음: 총회 공식 문서
+
+- 선행 작업 완료: `actions.ts`, `PostForm.tsx`, `PostActions.tsx` board/boardPath 범용화 완료 (1묶음 작업 시)
+- 총회의사록: `board='minutes'`, 경로 `/report/minutes` — 기존 `src/app/report/minutes/page.tsx` ComingSoon → 게시판으로 교체, `[id]`, `new`, `[id]/edit` 신규 생성
+- 교회계획: `board='church-plan'`, 경로 `/online-admin/plan` — 기존 `src/app/online-admin/plan/page.tsx` ComingSoon → 게시판으로 교체, `[id]`, `new`, `[id]/edit` 신규 생성
+- 카테고리: `공지`, `일반` (단순)
+
+### [완료] 게시판 추가 — 3묶음: 소식/커뮤니티
+
+- 선행 작업 완료: `actions.ts`, `PostForm.tsx`, `PostActions.tsx` board/boardPath 범용화 완료 (1묶음 작업 시)
+- 공지사항: `board='notice'`, 경로 `/news/notice` — 기존 `src/app/news/notice/page.tsx` ComingSoon → 게시판으로 교체
+- 마스터스 메시지: `board='message'`, 경로 `/community/message` — 기존 `src/app/community/message/page.tsx` ComingSoon → 게시판으로 교체
+- Plus Voice: `board='voice'`, 경로 `/community/voice` — 기존 `src/app/community/voice/page.tsx` ComingSoon → 게시판으로 교체
+- 카테고리: `공지`, `일반` (단순)
+
+### [완료] 게시판 에디터 HTML 소스 편집기 추가
+
+- 배경: 본문은 현재 `PostEditor.tsx`(Tiptap v3) 툴바로만 작성 가능. 관리자가 외부 마크업을 붙여넣거나 툴바로 표현이 어려운 구조(중첩 테이블, 세밀한 정렬)를 손보려면 소스 단계 편집이 필요함
+- 목표: 관리자에게만 툴바에 `</>` 토글을 노출해 본문 HTML을 직접 편집
+- 확정 사항:
+  - 권한은 `getIsAdmin`(`profiles.is_admin = true`)만 사용 — `masters@mareca.kr`는 제외
+  - 소스 편집 결과는 **반드시 `editor.commands.setContent()`를 거쳐** Tiptap 스키마로 정규화된 뒤에만 폼 상태로 전달. 정규화되지 않은 원본 HTML이 저장될 경로를 만들지 않는다
+  - 서버 sanitize는 이번 범위 밖 — 선행 취약점이므로 아래 별도 항목으로 분리
+  - `PostForm`을 쓰는 24개 페이지에 `isAdmin` prop을 넘기지 않고, `PostEditor`가 Server Action으로 직접 조회
+  - `OpenLectureForm.tsx`, `open-lecture/actions.ts`는 손대지 않음 (PostEditor 내부 변경만으로 충족)
+  - 신규 의존성 없음 / 신규 소스 파일 없음
+- 1단계 — 이미지 URL 정규식 보강 (독립 커밋)
+  - [x] `PostForm.tsx:74` → `/<img[^>]+src=["']([^"']+)["']/g`
+  - [x] `posts/actions.ts:162`(`extractStorageImagePaths`) → 동일 패턴
+  - [x] `npm run build` 통과 확인
+  - 상세 페이지 13곳의 OG 이미지 추출 정규식은 건드리지 않음(범위 밖)
+- 2단계 — 관리자 조회 Server Action
+  - [x] `posts/actions.ts`에 `import { getIsAdmin } from '@/lib/admin'` 추가
+  - [x] `export async function isEditorAdmin(): Promise<boolean> { return getIsAdmin() }` 추가 (`uploadImage` 위 별도 섹션)
+  - UI 노출 제어일 뿐, 실질적 안전장치는 3단계의 Tiptap 정규화다
+- 3단계 — `PostEditor.tsx` 소스 편집 모드 (파일 위→아래 순서로 적용)
+  - [x] import 보강 — `Code2`(lucide-react), `isEditorAdmin`, `useEffect`
+  - [x] state 3개 추가 — `isAdmin` / `showSource` / `sourceHtml`
+  - [x] `useEffect`로 마운트 시 `isEditorAdmin()` 호출 — **`if (!editor) return null`보다 반드시 위**
+  - [x] `applySource` 추가 — `setContent(sourceHtml)`. **`setContent`는 `emitUpdate` 기본값이 `true`라 `onUpdate` → `onChange`가 알아서 발화한다**(처음엔 반대로 알고 `onChange`를 명시 호출했으나 중복이라 제거 — 코드리뷰에서 정정)
+  - [x] 실제로 고쳤을 때만 반영하도록 `appliedSourceRef` 가드 추가 — 구경만 하고 닫아도 본문이 정규화되던 문제, 실행취소 스택에 중복 쌓이던 문제 동시 해결
+  - [x] `flush()` 통로 추가 (`PostEditorHandle`) — macOS Safari·Firefox는 버튼 클릭 시 blur가 안 나서 소스 본문이 저장되지 않던 문제. `PostForm`·`OpenLectureForm`이 제출 직전 호출
+  - [x] `toggleSource` 추가 — 켤 때 `formatHtml(getHTML())` 세팅 + 팝오버 3개 닫기, 끌 때 `applySource()`
+  - [x] 툴바에 `isAdmin && <Btn onClick={toggleSource} active={showSource} title="HTML 소스 편집">` 추가 (undo/redo 뒤)
+  - [x] 소스 모드에서 나머지 툴바 숨김 — 숨겨진 에디터를 조작해도 `applySource()`가 덮어써 조용히 사라지므로
+    - 툴바 전체를 `{!showSource && (<> … </>)}`로 감쌌다. 감싼 구간은 **들여쓰기를 그대로 뒀다** — 240줄 재정렬 diff가 실제 변경을 가린다. 정리하려면 공백만 바꾸는 별도 커밋으로
+    - `</>` 앞 `<Divider />`는 `isAdmin` 안에 넣고 `!showSource` 조건도 걸었다 — 비관리자일 때 꼬리 구분선, 소스 모드일 때 앞머리 구분선이 남는 것을 막기 위함
+  - [x] textarea + 안내 문구(`에디터가 지원하지 않는 태그·속성은 적용 시 제거됩니다.`) 렌더, `onBlur={applySource}`
+  - [x] `EditorContent`는 언마운트하지 말고 `cn('bg-white', showSource && 'hidden')`으로 감춤 (인스턴스·undo 히스토리 보존)
+  - [x] 파일 하단에 `formatHtml` 로컬 함수 추가 — 블록 닫는 태그 뒤에만 개행
+  - [x] `npm run build` 통과 확인
+- 4단계 — 자동 검증
+  - [x] `npm test` — **9개 통과.** `image-urls.test.ts` 추가로 이 저장소에서 처음으로 실제 검증이 돌아간다. `vitest.config.ts`의 `environment`를 `jsdom`(미설치라 실행 불가) → `node`로 변경
+  - [x] `npm run build` 타입 에러 없음
+  - [x] `npx eslint`로 수정한 3개 파일만 검사 — 깨끗함. (`npm run lint` 전체는 기존 에러/경고 다수 — `set-state-in-effect`, `no-img-element`, `public/sw.js` 빌드 산출물)
+- 5단계 — 수동 검증 (`npm run dev`)
+  - [x] 관리자 계정 `/community/free/new`에 `</>` 버튼 노출
+  - [x] 토글 시 HTML이 블록 단위로 개행되어 보임
+  - [x] 소스에 `<p style="text-align:center">` 추가 → 토글 해제 시 WYSIWYG 반영
+  - [x] **소스 모드인 채로 바로 [등록]** → 정규화된 내용 저장 (이번 설계의 핵심 케이스 — blur가 click보다 먼저 발생함을 확인)
+  - [x] `<script>alert(1)</script>` 입력 → 토글 해제 시 Tiptap이 제거
+  - [x] `<img src='...'>`(작은따옴표) 저장 → 1단계 정규식이 잡는지
+  - [x] 비관리자 계정에서 `</>` 버튼 안 보임
+  - [x] 기존 게시글 수정 시 소스 모드를 한 번도 안 열면 서식 그대로 (회귀 확인)
+  - [x] `/community/open-lecture/new` 카테고리 `공지`에서도 정상 동작 (PostEditor 공유)
+  - 2026-08-25 사용자 수동 검증 완료 — 전 항목 이상 없음
+- 6단계 — 문서 기록
+  - [x] `docs/context-notes.md` `## 2026-08-25` 섹션에 결정 기록 — 관리자 한정 이유, Tiptap 정규화로 sanitize 없이 현행 수준 유지한 근거, sanitize 분리 배경, blur 설계, 들여쓰기 유지 결정, 검증 한계
+  - [x] 이 항목 `[완료]` 표기 + 후속 항목 2건 등록(서버 sanitize, 고아 파일 이탈 경로)
+
+### [완료] 게시판 추가 — 최더함의 철학시가 (1·2차)
+
+다크 잉크 네이비 에디토리얼 톤의 영상 아카이브. 1차(목록 화면 디자인)와 2차(DB 연동 · 상세/등록/수정 · SEO) 모두 완료.
+
+설계 결정 · 단계별 체크리스트 · 검증 기록은 분량이 커서 별도 문서로 분리했다 → [`docs/features/philosophia.md`](features/philosophia.md)
+
+- **남은 확인 1건** — 8단계 (7)번(페이지네이션 2페이지 · 넘버링 이어짐)은 글이 12건을 넘어야 확인된다

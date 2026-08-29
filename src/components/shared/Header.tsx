@@ -93,6 +93,7 @@ const NAV_ITEMS: NavItem[] = [
       { label: '마스터스 메시지', href: '/community/message' },
       { label: '마스터스 오픈강좌', href: '/community/open-lecture' },
       { label: 'ReformedTV', href: '/community/reformed-tv' },
+      { label: '최더함의 철학시가', href: '/community/philosophia' },
       { label: '자유게시판', href: '/community/free' },
       { label: '행사앨범', href: '/community/album' },
       { label: 'Plus Voice', href: '/community/voice' },

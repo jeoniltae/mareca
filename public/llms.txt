@@ -31,6 +31,7 @@
 - [Plus Voice](https://www.mareca.org/community/voice): 의견·제언 게시판
 - [총회 행사앨범](https://www.mareca.org/community/album): 행사 사진 갤러리
 - [ReformedTV](https://www.mareca.org/community/reformed-tv): 영상 콘텐츠
+- [최더함의 철학시가](https://www.mareca.org/community/philosophia): 시에 AI 곡조를 입혀 듣는 철학시가 영상
 - [오픈강좌](https://www.mareca.org/community/open-lecture): 신학 강좌 영상
 
 ## Optional
