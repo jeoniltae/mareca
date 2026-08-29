@@ -128,6 +128,7 @@ export function articleJsonLd({
   dateModified,
   imageUrl,
   authorName,
+  keywords,
 }: {
   title: string
   description: string
@@ -136,6 +137,7 @@ export function articleJsonLd({
   dateModified?: string
   imageUrl?: string
   authorName?: string
+  keywords?: string[]
 }) {
   return {
     '@context': 'https://schema.org',
@@ -143,6 +145,8 @@ export function articleJsonLd({
     headline: title,
     description,
     url,
+    // 비어 있으면 아예 넣지 않는다 (빈 배열은 구조화 데이터에서 의미가 없다)
+    ...(keywords?.length ? { keywords } : {}),
     datePublished,
     dateModified: dateModified ?? datePublished,
     image: imageUrl ?? `${BASE_URL}/images/logo.png`,

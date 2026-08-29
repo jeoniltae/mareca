@@ -12,6 +12,7 @@ import { ShareButtons } from '@/components/shared/ShareButtons'
 import { BackToListLink } from '@/components/shared/BackToListLink'
 import { PhilosophiaHero } from '@/features/philosophia/PhilosophiaHero'
 import { PhilosophiaActions } from '@/features/philosophia/PhilosophiaActions'
+import { philosophiaDescription, philosophiaKeywords } from '@/features/philosophia/content-meta'
 import { batang, plexMono } from '@/features/philosophia/fonts'
 import { Calendar, Eye, User } from 'lucide-react'
 
@@ -34,8 +35,8 @@ export async function generateMetadata({ params }: Props) {
 
   const videoId = data?.youtube_url ? extractYoutubeId(data.youtube_url) : null
   const thumbnailUrl = videoId ? getYoutubeThumbnail(videoId) : '/images/logo.png'
-  const rawText = data?.content?.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim() ?? ''
-  const description = rawText.slice(0, 120) || '최더함 목사의 철학시가 영상입니다.'
+  // 본문 앞부분은 전 글이 같은 소개문·CREDITS라 그대로 쓰면 description이 전부 중복된다
+  const description = philosophiaDescription(data?.content, data?.title ?? '최더함의 철학시가')
 
   return {
     title: data?.title ?? '최더함의 철학시가',
@@ -165,7 +166,8 @@ export default async function PhilosophiaDetailPage({ params }: Props) {
               __html: JSON.stringify(
                 articleJsonLd({
                   title: post.title,
-                  description: post.content?.slice(0, 120) ?? '',
+                  description: philosophiaDescription(post.content, post.title),
+                  keywords: philosophiaKeywords(post.content),
                   url: `${process.env.NEXT_PUBLIC_SITE_URL}${BASE_PATH}/${id}`,
                   datePublished: post.created_at ?? undefined,
                   dateModified: post.updated_at ?? undefined,
