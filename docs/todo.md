@@ -15,6 +15,7 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
 | 미착수 | [게시글 본문 서버 sanitize 도입 (선행 취약점)](#미착수-게시글-본문-서버-sanitize-도입-선행-취약점) | 저장된 XSS를 막을 수단이 없다. `sanitize-html` 화이트리스트 도입 |
 | 미착수 | [에디터 이미지 고아 파일 — 탭 닫기·뒤로가기 경로 정리](#미착수-에디터-이미지-고아-파일--탭-닫기뒤로가기-경로-정리) | 탭 닫기·뒤로가기로 이탈하면 업로드 이미지가 버킷에 남는다 |
 | 보류 | [404/500 페이지에서 "이전 페이지" 버튼(BackButton) 클릭 후 GNB 애니메이션·인터랙션 불작동](#보류-404500-페이지에서-이전-페이지-버튼backbutton-클릭-후-gnb-애니메이션인터랙션-불작동) | `router.back()` 후 GNB 애니메이션·hover 불작동. 여러 접근 모두 실패 |
+| 보류 | [Server Action 공통 부채 — board 필터 · 0건 판정 · 상세 revalidate](#보류-server-action-공통-부채--board-필터--0건-판정--상세-revalidate) | 액션 6개 전부 해당. **인지 후 의도적 보류** — 재검토 조건 명시 |
 | 참고 | [PWA 개발 시 서비스 워커 stale 캐시 주의](#참고-pwa-개발-시-서비스-워커-stale-캐시-주의) | `npm start` 한 번이면 SW가 등록돼 `npm run dev`에서도 요청을 가로챈다 |
 | 완료 | [관리자 권한 — 모든 게시글 수정/삭제](#완료-관리자-권한--모든-게시글-수정삭제) | `profiles.is_admin` 기반으로 수정·삭제 권한에 관리자 예외 추가 |
 | 완료 | [관련기사 상세 페이지 및 카카오톡 공유 기능](#완료-관련기사-상세-페이지-및-카카오톡-공유-기능) | 외부 기사를 카카오로 공유하려고 마레카 도메인 상세 페이지를 둠 |
@@ -73,6 +74,49 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
 - "홈으로 가기"(`Link href="/"`) 클릭 시에는 정상 동작
 - 시도한 접근: bfcache `pageshow` 감지, `useEffect` → `useLayoutEffect` 변경, `isNavigatingRef` 네비게이션 가드, `BackButton` popstate+reload — 모두 미해결
 - 관련 파일: `src/components/shared/Header.tsx`, `src/components/shared/BackButton.tsx`, `src/app/not-found.tsx`, `src/app/error.tsx`
+
+### [보류] Server Action 공통 부채 — board 필터 · 0건 판정 · 상세 revalidate
+
+2026-08-29 철학시가 코드리뷰에서 지적됐다. **인지했고 의도적으로 지금은 고치지 않는다.**
+철학시가가 만든 회귀가 아니라 **처음부터 있던 프로젝트 전체 패턴**이라, 한 게시판만 고치면 6개 중 하나만
+다르게 동작해 오히려 일관성이 깨진다. 실측으로 확인한 현황은 아래와 같다.
+
+**(1) `update`/`delete`에 `board` 필터 없음** — 액션 6개 전부 해당
+`philosophia` · `reformed-tv` · `open-lecture` · `posts` · `books` · `gallery` 모두 `update:0 delete:0`
+
+- Server Action은 공개 POST 엔드포인트라, 로그인 사용자가 **다른 게시판 글의 id**로 직접 호출하면
+  그 글이 이 게시판 값으로 덮어써진다
+- **다만 권한 상승은 아니다.** 비관리자는 `.eq('user_id', user.id)`와 RLS에 막혀 **자기 글만** 건드릴 수 있고,
+  관리자는 범용 `posts/actions.ts`의 `deletePost`로 **이미** 전 게시판 권한을 갖는다. 최악이 자기 글 자해다
+- 정상 UI 흐름으로는 발생 불가 — 수정 페이지가 이미 `.eq('board', BOARD)`로 조회한 id만 넘긴다
+- 운영 현실: 글쓰기·수정·삭제를 하는 사람이 2~3명뿐이고, 여태 수면 위로 드러난 적이 없다
+
+**(2) 0건 업데이트를 성공으로 처리** — 액션 거의 전부 해당
+Supabase UPDATE/DELETE는 필터·RLS에 걸려 0행이어도 `error`가 `null`이라 그대로 성공 처리된다.
+관리자가 지운 사이 작성자가 저장하는 등 **경쟁 상황에서만** 조용한 실패가 난다
+
+**(3) 수정·삭제 후 상세 경로를 revalidate하지 않음**
+`philosophia` · `reformed-tv` · `open-lecture`는 목록만 무효화한다(`posts/actions.ts`만 목록+상세 둘 다).
+상세가 `ƒ (Dynamic)`이라 영향이 작고, **재현하지 못했다**
+
+**(4) 폼의 category state와 전송값 불일치** — `PhilosophiaForm` · `ReformedTVForm`
+가드는 state를 보는데 전송값은 체크된 라디오에서 나온다. `category`가 `['일반','숏츠']` 밖이어야 발생하는데
+폼으로 만든 글은 그 값이 나올 수 없다. **Supabase에서 직접 고쳐야만 재현되므로 사실상 도달 불가**
+
+#### 다시 볼 조건 — 아래 중 하나라도 생기면 재검토한다
+
+- 작성 권한이 외부 회원에게 열릴 때 (현재는 사실상 내부 2~3명)
+- 관리자 계정이 여러 명으로 늘어날 때
+- `PhilosophiaActions` 같은 컴포넌트를 다른 게시판에서 재사용할 때 —
+  **악의가 아니라 실수로** 다른 board의 id가 넘어가는 경로가 생긴다
+
+#### 고칠 때의 범위 (미리 조사해 둠)
+
+- (1) 전체 적용 시 `posts/actions.ts`가 **board 값이 아니라 `boardPath`만 받으므로**
+  시그니처를 바꿔야 하고 **24개 게시판 호출부**가 영향받는다. 게시판별 액션 6개는 각 2줄
+- (2) `.select('id')` 후 0건이면 throw — 액션당 2~4줄
+- (3) `revalidatePath(\`${BASE_PATH}/${id}\`)` 한 줄씩 추가 — 3파일
+- (4) 두 폼에서 `category`를 hidden input으로 보내거나 초기값을 검증
 
 ---
 

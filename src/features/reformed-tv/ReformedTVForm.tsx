@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { ConfirmModal } from '@/components/shared/ConfirmModal'
 import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtube-utils'
+import { isYoutubeThumbnailMissing } from '@/features/youtube/verify-thumbnail'
 import { isRedirectError } from 'next/dist/client/components/redirect-error'
 import { createReformedTVPost, updateReformedTVPost } from './actions'
 
@@ -58,6 +59,13 @@ export function ReformedTVForm({ mode, postId, initialValues, cancelHref }: Refo
     setError(null)
 
     startTransition(async () => {
+      // 미리보기 onLoad가 끝나기 전에 제출하면 위 가드가 그냥 통과한다. 여기서 한 번 더 확인한다
+      if (await isYoutubeThumbnailMissing(getYoutubeThumbnail(videoId))) {
+        setThumbnailMissing(true)
+        setError('존재하지 않는 영상입니다. URL을 확인해주세요.')
+        return
+      }
+
       try {
         if (mode === 'edit' && postId) {
           const targetId = await updateReformedTVPost(postId, formData)
