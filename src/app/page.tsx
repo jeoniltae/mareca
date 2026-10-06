@@ -329,7 +329,7 @@ function SeminaryCTA() {
             <span className="text-sky-600 font-medium">개혁신학</span>을 배우고 가르치는
             것입니다.
             <br />
-            7인의 개혁파 신학교수가 전신합니다. 3년 과정 졸업, 주 학사수 및 학원수
+            7인의 개혁파 신학교수가 가르칩니다. 3년 과정으로, 주간 학사 수업과 학원 수업을 함께 운영합니다.
           </p>
         </div>
         <ComingSoonButton
