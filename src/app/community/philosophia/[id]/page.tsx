@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase-server'
 import { notFound } from 'next/navigation'
 import { formatDateTimeVerbose } from '@/lib/date'
-import { articleJsonLd, youtubeVideoObjectJsonLd } from '@/lib/json-ld'
+import { articleJsonLd, toJsonLdHtml, youtubeVideoObjectJsonLd } from '@/lib/json-ld'
 import { getIsAdmin } from '@/lib/admin'
 import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtube-utils'
 import { YoutubePlayer } from '@/features/youtube/YoutubePlayer'
@@ -77,6 +77,8 @@ export default async function PhilosophiaDetailPage({ params }: Props) {
   const isAuthor = user?.id === post.user_id
   const videoId = post.youtube_url ? extractYoutubeId(post.youtube_url) : null
   const nickname = (post.profiles as { nickname: string | null } | null)?.nickname ?? '알 수 없음'
+  // Article·VideoObject가 같은 값을 쓰도록 한 번만 계산한다
+  const description = philosophiaDescription(post.content, post.title)
 
   return (
     <div className="bg-[#14243F]">
@@ -163,10 +165,10 @@ export default async function PhilosophiaDetailPage({ params }: Props) {
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{
-              __html: JSON.stringify(
+              __html: toJsonLdHtml(
                 articleJsonLd({
                   title: post.title,
-                  description: philosophiaDescription(post.content, post.title),
+                  description,
                   keywords: philosophiaKeywords(post.content),
                   url: `${process.env.NEXT_PUBLIC_SITE_URL}${BASE_PATH}/${id}`,
                   datePublished: post.created_at ?? undefined,
@@ -181,10 +183,10 @@ export default async function PhilosophiaDetailPage({ params }: Props) {
             <script
               type="application/ld+json"
               dangerouslySetInnerHTML={{
-                __html: JSON.stringify(
+                __html: toJsonLdHtml(
                   youtubeVideoObjectJsonLd({
                     title: post.title,
-                    description: philosophiaDescription(post.content, post.title),
+                    description,
                     videoId,
                     thumbnailUrl: getYoutubeThumbnail(videoId),
                     uploadDate: post.created_at ?? undefined,

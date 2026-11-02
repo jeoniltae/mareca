@@ -1,5 +1,11 @@
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.mareca.org'
 
+// <script>에 넣을 JSON 문자열. JSON.stringify는 <를 이스케이프하지 않아
+// 제목·본문의 '</script>'가 태그를 닫고 스크립트를 주입할 수 있다. <는 JSON으로는 같은 값이다
+export function toJsonLdHtml(data: unknown) {
+  return JSON.stringify(data).replace(/</g, '\\u003c')
+}
+
 export function organizationJsonLd() {
   return {
     '@context': 'https://schema.org',

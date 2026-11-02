@@ -1,7 +1,7 @@
 
 import { createClient } from '@/lib/supabase-server'
 import { formatDateTimeVerbose } from '@/lib/date'
-import { articleJsonLd, youtubeVideoObjectJsonLd } from '@/lib/json-ld'
+import { articleJsonLd, toJsonLdHtml, youtubeVideoObjectJsonLd } from '@/lib/json-ld'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { notFound } from 'next/navigation'
 import { ViewTracker } from '@/features/posts/ViewTracker'
@@ -140,7 +140,7 @@ export default async function ReformedTVDetailPage({ params }: Props) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(
+            __html: toJsonLdHtml(
               articleJsonLd({
                 title: post.title,
                 description: post.content?.slice(0, 120) ?? '',
@@ -157,7 +157,7 @@ export default async function ReformedTVDetailPage({ params }: Props) {
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{
-              __html: JSON.stringify(
+              __html: toJsonLdHtml(
                 youtubeVideoObjectJsonLd({
                   title: post.title,
                   description: post.content?.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 120) ?? '',
