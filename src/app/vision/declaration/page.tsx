@@ -1,6 +1,6 @@
 ﻿import { Link } from 'next-view-transitions'
 import { ChevronRight } from 'lucide-react'
-import { breadcrumbJsonLd } from '@/lib/json-ld'
+import { breadcrumbJsonLd, toJsonLdHtml } from '@/lib/json-ld'
 
 import type { Metadata } from 'next'
 import { OG_IMAGE } from '@/lib/constants'
@@ -47,7 +47,7 @@ export default function AboutDeclarationPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(BREADCRUMBS)) }}
+        dangerouslySetInnerHTML={{ __html: toJsonLdHtml(breadcrumbJsonLd(BREADCRUMBS)) }}
       />
       {/* 헤더 섹션 */}
       <section className="bg-[#1C2E50] py-16 sm:py-20">

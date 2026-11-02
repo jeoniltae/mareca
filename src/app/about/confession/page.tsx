@@ -1,6 +1,6 @@
 ﻿import { PageHeader } from '@/components/shared/PageHeader'
 import { Crown, BookOpen, Building2 } from 'lucide-react'
-import { confessionPageJsonLd } from '@/lib/json-ld'
+import { confessionPageJsonLd, toJsonLdHtml } from '@/lib/json-ld'
 
 import type { Metadata } from 'next'
 import { OG_IMAGE } from '@/lib/constants'
@@ -58,7 +58,7 @@ export default function AboutConfessionPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(confessionPageJsonLd()) }}
+        dangerouslySetInnerHTML={{ __html: toJsonLdHtml(confessionPageJsonLd()) }}
       />
       <PageHeader
         title="신앙고백"

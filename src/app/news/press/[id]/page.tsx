@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { ExternalLink, CalendarDays, Newspaper, ChevronLeft } from 'lucide-react'
 import { formatYMD } from '@/lib/date'
 import { BackToListLink } from '@/components/shared/BackToListLink'
-import { articleJsonLd } from '@/lib/json-ld'
+import { articleJsonLd, toJsonLdHtml } from '@/lib/json-ld'
 import { truncateAtSentence } from '@/lib/text'
 import { OG_IMAGE } from '@/lib/constants'
 
@@ -88,7 +88,7 @@ export default async function PressArticleDetailPage({ params }: Props) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: toJsonLdHtml(jsonLd) }}
       />
 
       <PageHeader

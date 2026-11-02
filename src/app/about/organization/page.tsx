@@ -1,6 +1,6 @@
 ﻿import { PageHeader } from '@/components/shared/PageHeader'
 import { CheckCircle2, Users } from 'lucide-react'
-import { breadcrumbJsonLd } from '@/lib/json-ld'
+import { breadcrumbJsonLd, toJsonLdHtml } from '@/lib/json-ld'
 
 import type { Metadata } from 'next'
 import { OG_IMAGE } from '@/lib/constants'
@@ -97,7 +97,7 @@ export default function AboutOrganizationPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(BREADCRUMBS)) }}
+        dangerouslySetInnerHTML={{ __html: toJsonLdHtml(breadcrumbJsonLd(BREADCRUMBS)) }}
       />
       <PageHeader
         title="총회조직 및 사역원칙"

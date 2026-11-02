@@ -1,7 +1,7 @@
 ﻿import type { Metadata } from 'next'
 import { Noto_Sans_KR } from 'next/font/google'
 import './globals.css'
-import { organizationJsonLd, websiteJsonLd } from '@/lib/json-ld'
+import { organizationJsonLd, websiteJsonLd, toJsonLdHtml } from '@/lib/json-ld'
 import { Header } from '@/components/shared/Header'
 import { Footer } from '@/components/shared/Footer'
 import { ScrollToTop } from '@/components/shared/ScrollToTop'
@@ -119,7 +119,7 @@ export default function RootLayout({
           <SpeedInsights />
           <script
             type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify([organizationJsonLd(), websiteJsonLd()]) }}
+            dangerouslySetInnerHTML={{ __html: toJsonLdHtml([organizationJsonLd(), websiteJsonLd()]) }}
           />
         </body>
       </html>

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { constitutionData } from './law-data'
 import { ConstitutionContent } from './ConstitutionContent'
-import { breadcrumbJsonLd } from '@/lib/json-ld'
+import { breadcrumbJsonLd, toJsonLdHtml } from '@/lib/json-ld'
 
 const TABS = constitutionData.map((s) => ({ id: s.id, title: s.title }))
 const BREADCRUMBS = [{ label: '총회헌법', href: '/constitution' }, { label: '총회헌법' }]
@@ -17,7 +17,7 @@ export default function ConstitutionLawPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(BREADCRUMBS)) }}
+        dangerouslySetInnerHTML={{ __html: toJsonLdHtml(breadcrumbJsonLd(BREADCRUMBS)) }}
       />
       <PageHeader
         title="총회헌법"
