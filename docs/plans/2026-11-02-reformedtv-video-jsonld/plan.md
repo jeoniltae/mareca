@@ -1,7 +1,7 @@
 # 구현 계획: 유튜브 영상 게시판 상세 — VideoObject JSON-LD 추가
 
 - spec: ./spec.md
-- 상태: 리뷰 완료
+- 상태: 완료
 
 ## 개요
 

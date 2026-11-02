@@ -210,6 +210,7 @@ alter table public.새테이블 enable row level security;
    - **단, 비로그인 접근 불가 페이지(layout.tsx에서 redirect 처리)는 사이트맵에 추가하지 않는다**
    - `public/llms.txt`에도 해당 섹션 링크 추가 (접근 제한 페이지는 사이트맵과 동일하게 제외)
 3. **새 동적 라우트** (`[id]/page.tsx` 신규 생성) → `generateMetadata` + `articleJsonLd` 추가 (`src/lib/json-ld.ts`의 헬퍼 사용)
+   - JSON-LD `<script>`는 **`__html: toJsonLdHtml(...)`** 으로 넣는다. `JSON.stringify` 직접 사용 금지 — 제목·본문의 `</script>`가 태그를 닫아 저장형 XSS가 된다 (2026-11-02 발견)
 4. **새 핵심 정적 페이지(about/vision/constitution류)** → `src/lib/json-ld.ts`의 `breadcrumbJsonLd()`로 BreadcrumbList 적용 (페이지의 `breadcrumbs={[...]}` 리터럴을 변수로 추출해 `PageHeader`와 JSON-LD 양쪽에 전달). 페이지가 자체 FAQPage 등 BreadcrumbList를 이미 포함한 JSON-LD 헬퍼(예: `confessionPageJsonLd`)를 쓰고 있다면 중복 추가하지 않음
 
 ### AI 크롤러 정책
@@ -227,7 +228,7 @@ alter table public.새테이블 enable row level security;
 - `src/app/robots.ts` — 크롤러 허용/차단 규칙 (AI 크롤러 포함)
 - `public/llms.txt` — AI 검색·답변 엔진용 사이트 개요
 - `src/app/manifest.ts` — PWA 설정
-- `src/lib/json-ld.ts` — JSON-LD 헬퍼 (`organizationJsonLd`, `websiteJsonLd`, `breadcrumbJsonLd`, `articleJsonLd`, `confessionPageJsonLd`, `videoObjectJsonLd`, `youtubeVideoObjectJsonLd`)
+- `src/lib/json-ld.ts` — JSON-LD 헬퍼 (`organizationJsonLd`, `websiteJsonLd`, `breadcrumbJsonLd`, `articleJsonLd`, `confessionPageJsonLd`, `videoObjectJsonLd`, `youtubeVideoObjectJsonLd`, `toJsonLdHtml` — `<script>` 삽입용 안전 직렬화)
 - `src/app/layout.tsx` — 전역 metadata (OG, Twitter, canonical, 구글/네이버 인증, Organization·WebSite JSON-LD)
 
 ---

@@ -489,3 +489,5 @@ Lyrics: 최더함 / Music: Created with SUNO AI / Video & Editing: 최희진
   본문 앞부분을 그대로 쓰면 전 글이 같은 소개문이 되는 문제(2026-08-29 위 항목)를 VideoObject에서도 피한다
 - 다크 톤 마크업은 건드리지 않았다 — `<script>` 한 개를 기존 Article 스크립트 바로 아래에 추가했을 뿐이다
 - 기록: [`docs/plans/2026-11-02-reformedtv-video-jsonld/`](../plans/2026-11-02-reformedtv-video-jsonld/plan.md)
+- (리뷰 후속) JSON-LD 두 스크립트를 `toJsonLdHtml()`로 직렬화하도록 바꿨다 — 제목·본문의 `</script>`로 인한 XSS 방지.
+  같은 김에 `description`을 한 번만 계산해 Article·VideoObject가 공유한다 (`docs/context-notes.md` 2026-11-02)
