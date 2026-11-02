@@ -25,8 +25,10 @@ base_branch: main         # Vercel이 main push 시 자동 배포
 - 컨벤션: `CLAUDE.md` "코드 컨벤션" (named export, `cn()`, 인라인 스타일 금지, Server Component 기본)
 - 코드의 `mareca.kr` 이메일은 Supabase 계정용 더미다. 실제 도메인은 `mareca.org`. 새 실제 주소를 만들지 않는다
 - 테스트는 유틸 함수 단위 테스트(Vitest)만 쓴다. 컴포넌트·E2E 테스트는 추가하지 않는다 (의도적 결정)
-- 커밋: `docs/coding-guidelines.md` §9(시맨틱 커밋)를 따른다. 작업 하나가 검증까지 끝나면 SHIP을 기다리지 않고 커밋한다
-  (push는 프로덕션 배포라 SHIP에서 확인 후). 스킬의 "커밋은 SHIP에서만" 규칙보다 이 항목이 우선한다 (2026-11-02 사용자 결정)
+- 커밋: **사용자가 직접 한다. Claude는 `git commit`을 실행하지 않고 커밋 메시지만 작성한다** (2026-11-02 사용자 결정)
+  - 단위는 `docs/coding-guidelines.md` §9(시맨틱 커밋) — 작업 하나가 검증까지 끝나면 포함할 파일 목록 + 메시지를 제시한다
+  - 메시지 형식은 git 기록을 따른다 (`<type>: <한국어 요약> - <상세 항목>`)
+  - 사용자가 커밋한 뒤에는 스킬의 "사용자가 단계 도중에 직접 커밋했을 때" 규칙으로 검증 내용과 커밋 내용을 대조한다
 
 ## VERIFY
 - 린트는 `npm run lint`, 빌드는 `npm run build`
@@ -44,5 +46,5 @@ base_branch: main         # Vercel이 main push 시 자동 배포
 - 작업 중 결정과 DDL은 `docs/context-notes.md` 맨 위(최신순)에 기록한다
 - 기능별 문서(`docs/features/<기능>.md`)가 있으면 갱신한다
 - `CLAUDE.md`의 구조표·DB 스키마·SEO 가이드가 바뀌었으면 갱신한다
-- 커밋 메시지는 git 기록 형식을 따른다: `<type>: <한국어 요약> - <상세 항목>` (feat / fix / docs …)
-- main push는 곧 프로덕션 배포다. 푸시 전에 한 번 더 확인받는다
+- 남은 미커밋 변경이 있으면 커밋 메시지 초안만 제시한다 (커밋·푸시는 사용자가 직접 한다)
+- main push는 곧 프로덕션 배포다

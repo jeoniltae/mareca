@@ -28,17 +28,18 @@
 - [x] 작업 1: `youtubeVideoObjectJsonLd` 헬퍼 + 단위 테스트
 
 ### 체크포인트: 기반
-- [ ] `npx vitest run` 통과 (기존 테스트 포함)
-- [ ] `npx tsc --noEmit` 통과
+- [x] `npx vitest run` 통과 (기존 테스트 포함)
+- [x] `npx tsc --noEmit` 통과
 
 ### 2단계: 페이지 적용
-- [ ] 작업 2: ReformedTV 상세에 VideoObject 출력
-- [ ] 작업 3: ReformedTV `generateMetadata` board 필터
-- [ ] 작업 4: 철학시가 상세에 VideoObject 출력
+- [x] 작업 2: ReformedTV 상세에 VideoObject 출력
+- [x] 작업 3: ReformedTV `generateMetadata` board 필터
+- [x] 작업 4: 철학시가 상세에 VideoObject 출력
 
 ### 체크포인트: 페이지 적용
-- [ ] `npx vitest run` · `npm run lint` · `npx tsc --noEmit` · `npm run build` 통과
-- [ ] 두 게시판 상세 HTML에서 VideoObject 확인, 화면 동작 변경 없음
+- [x] `npx vitest run` · `npm run lint` · `npx tsc --noEmit` · `npm run build` 통과
+      — lint는 변경 파일 4개 기준 통과. 전체 `npm run lint`는 건드리지 않은 파일의 기존 오류 15건으로 실패(이번 변경과 무관)
+- [ ] 두 게시판 상세 HTML에서 VideoObject 확인, 화면 동작 변경 없음 — HTML 확인은 완료, 브라우저 화면·재생은 VERIFY
 - [ ] 사용자 확인 후 다음으로 진행
 
 ### 3단계: 문서
@@ -63,8 +64,8 @@
 - [x] 테스트 통과
 
 **검증:**
-- [ ] `npx vitest run`
-- [ ] `npx tsc --noEmit`
+- [x] `npx vitest run`
+- [x] `npx tsc --noEmit`
 
 **의존:** 없음
 
@@ -81,14 +82,15 @@
 description은 `generateMetadata`와 같은 식(태그 제거 → 공백 정리 → trim → 120자), uploadDate는 `post.created_at`.
 
 **완료 기준:**
-- [ ] 영상 있는 글의 HTML에 `"@type":"VideoObject"`가 정확히 1개, `embedUrl`의 ID가 그 글의 영상 ID와 일치
-- [ ] 영상 없는(또는 파싱 실패) 글에는 VideoObject 없음
-- [ ] 화면·플레이어 동작 변경 없음
+- [x] 영상 있는 글의 HTML에 `"@type":"VideoObject"`가 정확히 1개, `embedUrl`의 ID가 그 글의 영상 ID와 일치
+- [ ] 영상 없는(또는 파싱 실패) 글에는 VideoObject 없음 — `videoId &&` 조건으로 보장. 해당 글을 찾지 못해 실측 못 함 → VERIFY
+- [ ] 화면·플레이어 동작 변경 없음 — 플레이어 마크업(썸네일) 출력은 curl로 확인. 브라우저 재생은 VERIFY
 
 **검증:**
-- [ ] `npx tsc --noEmit` · `npm run lint`
+- [x] `npx tsc --noEmit` · `npm run lint` — lint는 변경 파일 기준
 - [ ] 수동 확인: `npm run dev` → 목록에서 글 id 하나를 골라 `curl -s http://localhost:3000/community/reformed-tv/<id>`의 출력에서
       `VideoObject` 개수와 `embedUrl` 확인. 브라우저로 열어 썸네일 → 클릭 → 재생 확인
+      — curl 확인은 완료(VideoObject 1개, embedUrl ID 일치). 브라우저 재생은 VERIFY
 
 **의존:** 작업 1
 
@@ -103,12 +105,12 @@ description은 `generateMetadata`와 같은 식(태그 제거 → 공백 정리 
 그 글의 제목·설명이 메타데이터로 새는 것을 막는다(철학시가와 동일한 격리).
 
 **완료 기준:**
-- [ ] 다른 board 글 id 요청 시 `<title>`이 그 글 제목이 아니다(본문은 기존대로 not-found)
-- [ ] 자기 board 글은 기존과 같은 `<title>`·description
+- [x] 다른 board 글 id 요청 시 `<title>`이 그 글 제목이 아니다(본문은 기존대로 not-found)
+- [x] 자기 board 글은 기존과 같은 `<title>`·description
 
 **검증:**
-- [ ] `npx tsc --noEmit`
-- [ ] 수동 확인: 철학시가 글 id로 `curl -s http://localhost:3000/community/reformed-tv/<철학시가 id>` → `<title>` 확인
+- [x] `npx tsc --noEmit`
+- [x] 수동 확인: 철학시가 글 id로 `curl -s http://localhost:3000/community/reformed-tv/<철학시가 id>` → `<title>` 확인
 
 **의존:** 없음 (작업 2와 같은 파일이라 순서상 뒤에 둔다)
 
@@ -123,13 +125,14 @@ description은 `generateMetadata`와 같은 식(태그 제거 → 공백 정리 
 description은 `philosophiaDescription(post.content, post.title)`. 다크 톤 마크업은 건드리지 않는다.
 
 **완료 기준:**
-- [ ] 영상 있는 글의 HTML에 `"@type":"VideoObject"` 1개, `embedUrl` ID 일치
-- [ ] description이 Article의 description과 같은 값
-- [ ] 화면(다크 톤)·플레이어 동작 변경 없음
+- [x] 영상 있는 글의 HTML에 `"@type":"VideoObject"` 1개, `embedUrl` ID 일치
+- [x] description이 Article의 description과 같은 값
+- [ ] 화면(다크 톤)·플레이어 동작 변경 없음 — 플레이어 마크업 출력은 curl로 확인. 브라우저 확인은 VERIFY
 
 **검증:**
-- [ ] `npx tsc --noEmit` · `npm run lint` · `npm run build`
+- [x] `npx tsc --noEmit` · `npm run lint` · `npm run build` — lint는 변경 파일 기준
 - [ ] 수동 확인: `curl -s http://localhost:3000/community/philosophia/<id>`로 VideoObject 확인, 브라우저로 화면·재생 확인
+      — curl 확인은 완료(VideoObject 1개, description이 Article과 같음). 브라우저 화면·재생은 VERIFY
 
 **의존:** 작업 1
 

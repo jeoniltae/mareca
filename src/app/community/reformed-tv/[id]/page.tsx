@@ -1,7 +1,7 @@
 
 import { createClient } from '@/lib/supabase-server'
 import { formatDateTimeVerbose } from '@/lib/date'
-import { articleJsonLd } from '@/lib/json-ld'
+import { articleJsonLd, youtubeVideoObjectJsonLd } from '@/lib/json-ld'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { notFound } from 'next/navigation'
 import { ViewTracker } from '@/features/posts/ViewTracker'
@@ -19,7 +19,7 @@ interface Props {
 export async function generateMetadata({ params }: Props) {
   const { id } = await params
   const supabase = await createClient()
-  const { data } = await supabase.from('posts').select('title, content, youtube_url').eq('id', id).single()
+  const { data } = await supabase.from('posts').select('title, content, youtube_url').eq('id', id).eq('board', 'reformed-tv').single()
   const videoId = data?.youtube_url ? extractYoutubeId(data.youtube_url) : null
   const thumbnailUrl = videoId ? getYoutubeThumbnail(videoId) : '/images/logo.png'
   const rawText = data?.content?.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim() ?? ''
@@ -153,6 +153,22 @@ export default async function ReformedTVDetailPage({ params }: Props) {
             ),
           }}
         />
+        {videoId && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(
+                youtubeVideoObjectJsonLd({
+                  title: post.title,
+                  description: post.content?.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 120) ?? '',
+                  videoId,
+                  thumbnailUrl: getYoutubeThumbnail(videoId),
+                  uploadDate: post.created_at ?? undefined,
+                })
+              ),
+            }}
+          />
+        )}
         <ViewTracker id={id} boardPath="/community/reformed-tv" />
         {/* 목록으로 */}
         <div className="mt-4">

@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase-server'
 import { notFound } from 'next/navigation'
 import { formatDateTimeVerbose } from '@/lib/date'
-import { articleJsonLd } from '@/lib/json-ld'
+import { articleJsonLd, youtubeVideoObjectJsonLd } from '@/lib/json-ld'
 import { getIsAdmin } from '@/lib/admin'
 import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtube-utils'
 import { YoutubePlayer } from '@/features/youtube/YoutubePlayer'
@@ -177,6 +177,22 @@ export default async function PhilosophiaDetailPage({ params }: Props) {
               ),
             }}
           />
+          {videoId && (
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify(
+                  youtubeVideoObjectJsonLd({
+                    title: post.title,
+                    description: philosophiaDescription(post.content, post.title),
+                    videoId,
+                    thumbnailUrl: getYoutubeThumbnail(videoId),
+                    uploadDate: post.created_at ?? undefined,
+                  })
+                ),
+              }}
+            />
+          )}
           <ViewTracker id={id} boardPath={BASE_PATH} />
 
           <div className="mt-8">
