@@ -1,7 +1,7 @@
 # 구현 계획: 유튜브 영상 게시판 상세 — VideoObject JSON-LD 추가
 
 - spec: ./spec.md
-- 상태: 진행 중
+- 상태: 검증 완료
 
 ## 개요
 
@@ -39,15 +39,15 @@
 ### 체크포인트: 페이지 적용
 - [x] `npx vitest run` · `npm run lint` · `npx tsc --noEmit` · `npm run build` 통과
       — lint는 변경 파일 4개 기준 통과. 전체 `npm run lint`는 건드리지 않은 파일의 기존 오류 15건으로 실패(이번 변경과 무관)
-- [ ] 두 게시판 상세 HTML에서 VideoObject 확인, 화면 동작 변경 없음 — HTML 확인은 완료, 브라우저 화면·재생은 VERIFY
+- [x] 두 게시판 상세 HTML에서 VideoObject 확인, 화면 동작 변경 없음 — 전체 96건 HTML 검사 + 브라우저(agent-browser, 390px) 화면·재생 확인
 - [x] 사용자 확인 후 다음으로 진행
 
 ### 3단계: 문서
 - [x] 작업 5: 문서 갱신 (`CLAUDE.md` SEO 가이드 · `docs/todo.md` · `docs/features/philosophia.md`)
 
 ### 체크포인트: 완료
-- [ ] spec 성공 기준 중 배포 전 항목 모두 충족
-- [ ] REVIEW 준비됨
+- [ ] spec 성공 기준 중 배포 전 항목 모두 충족 — "영상 없는 글에 VideoObject 없음" 1건만 미실측(실데이터 96건 전부 영상 있음, `videoId &&` 조건으로만 보장). 나머지 충족
+- [x] REVIEW 준비됨
 
 ## 작업 상세
 
@@ -83,14 +83,14 @@ description은 `generateMetadata`와 같은 식(태그 제거 → 공백 정리 
 
 **완료 기준:**
 - [x] 영상 있는 글의 HTML에 `"@type":"VideoObject"`가 정확히 1개, `embedUrl`의 ID가 그 글의 영상 ID와 일치
-- [ ] 영상 없는(또는 파싱 실패) 글에는 VideoObject 없음 — `videoId &&` 조건으로 보장. 해당 글을 찾지 못해 실측 못 함 → VERIFY
-- [ ] 화면·플레이어 동작 변경 없음 — 플레이어 마크업(썸네일) 출력은 curl로 확인. 브라우저 재생은 VERIFY
+- [ ] 영상 없는(또는 파싱 실패) 글에는 VideoObject 없음 — `videoId &&` 조건으로 보장. 실데이터(ReformedTV 81·철학시가 15건)가 전부 영상 있는 글이라 실측 불가
+- [x] 화면·플레이어 동작 변경 없음 — 브라우저에서 썸네일 렌더 → 재생 클릭 → youtube-nocookie iframe 생성 확인
 
 **검증:**
 - [x] `npx tsc --noEmit` · `npm run lint` — lint는 변경 파일 기준
-- [ ] 수동 확인: `npm run dev` → 목록에서 글 id 하나를 골라 `curl -s http://localhost:3000/community/reformed-tv/<id>`의 출력에서
+- [x] 수동 확인: `npm run dev` → 목록에서 글 id 하나를 골라 `curl -s http://localhost:3000/community/reformed-tv/<id>`의 출력에서
       `VideoObject` 개수와 `embedUrl` 확인. 브라우저로 열어 썸네일 → 클릭 → 재생 확인
-      — curl 확인은 완료(VideoObject 1개, embedUrl ID 일치). 브라우저 재생은 VERIFY
+      — curl(전체 81건 VideoObject 1개·embedUrl ID 일치) + 브라우저 재생 확인 완료
 
 **의존:** 작업 1
 
@@ -127,12 +127,12 @@ description은 `philosophiaDescription(post.content, post.title)`. 다크 톤 �
 **완료 기준:**
 - [x] 영상 있는 글의 HTML에 `"@type":"VideoObject"` 1개, `embedUrl` ID 일치
 - [x] description이 Article의 description과 같은 값
-- [ ] 화면(다크 톤)·플레이어 동작 변경 없음 — 플레이어 마크업 출력은 curl로 확인. 브라우저 확인은 VERIFY
+- [x] 화면(다크 톤)·플레이어 동작 변경 없음 — 브라우저에서 다크 톤 렌더 → 재생 클릭 → iframe 생성 확인
 
 **검증:**
 - [x] `npx tsc --noEmit` · `npm run lint` · `npm run build` — lint는 변경 파일 기준
-- [ ] 수동 확인: `curl -s http://localhost:3000/community/philosophia/<id>`로 VideoObject 확인, 브라우저로 화면·재생 확인
-      — curl 확인은 완료(VideoObject 1개, description이 Article과 같음). 브라우저 화면·재생은 VERIFY
+- [x] 수동 확인: `curl -s http://localhost:3000/community/philosophia/<id>`로 VideoObject 확인, 브라우저로 화면·재생 확인
+      — curl(전체 15건 VideoObject 1개·embedUrl ID 일치) + 브라우저 화면·재생 확인 완료
 
 **의존:** 작업 1
 
