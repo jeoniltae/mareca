@@ -40,10 +40,10 @@
 - [x] `npx vitest run` · `npm run lint` · `npx tsc --noEmit` · `npm run build` 통과
       — lint는 변경 파일 4개 기준 통과. 전체 `npm run lint`는 건드리지 않은 파일의 기존 오류 15건으로 실패(이번 변경과 무관)
 - [ ] 두 게시판 상세 HTML에서 VideoObject 확인, 화면 동작 변경 없음 — HTML 확인은 완료, 브라우저 화면·재생은 VERIFY
-- [ ] 사용자 확인 후 다음으로 진행
+- [x] 사용자 확인 후 다음으로 진행
 
 ### 3단계: 문서
-- [ ] 작업 5: 문서 갱신 (`CLAUDE.md` SEO 가이드 · `docs/todo.md` · `docs/features/philosophia.md`)
+- [x] 작업 5: 문서 갱신 (`CLAUDE.md` SEO 가이드 · `docs/todo.md` · `docs/features/philosophia.md`)
 
 ### 체크포인트: 완료
 - [ ] spec 성공 기준 중 배포 전 항목 모두 충족
@@ -148,11 +148,11 @@ description은 `philosophiaDescription(post.content, post.title)`. 다크 톤 �
 `docs/todo.md` 완료 섹션에 항목 추가, `docs/features/philosophia.md` 후속 작업에 VideoObject 적용 기록.
 
 **완료 기준:**
-- [ ] 세 문서에 반영되고 서로 어긋나는 서술이 없다
-- [ ] 한국어 문장 끝 콜론 없음 (`coding-guidelines.md` §5)
+- [x] 세 문서에 반영되고 서로 어긋나는 서술이 없다
+- [x] 한국어 문장 끝 콜론 없음 (`coding-guidelines.md` §5)
 
 **검증:**
-- [ ] 수동 확인: `git diff --stat`으로 세 문서만 바뀌었는지, 각 diff 육안 확인
+- [x] 수동 확인: `git diff --stat`으로 세 문서만 바뀌었는지, 각 diff 육안 확인
 
 **의존:** 작업 2·3·4
 

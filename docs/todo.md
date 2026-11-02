@@ -28,6 +28,7 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
 | 완료 | [게시판 추가 — 3묶음: 소식/커뮤니티](#완료-게시판-추가--3묶음-소식커뮤니티) | 공지사항 · 마스터스 메시지 · Plus Voice |
 | 완료 | [게시판 에디터 HTML 소스 편집기 추가](#완료-게시판-에디터-html-소스-편집기-추가) | 관리자 전용 `</>` 토글. Tiptap 정규화를 반드시 거친다 |
 | 완료 | [게시판 추가 — 최더함의 철학시가 (1·2차)](features/philosophia.md) | 다크 잉크 네이비 영상 아카이브. **별도 문서** · 검증 1건 남음 |
+| 완료 | [유튜브 영상 게시판 상세 — VideoObject JSON-LD 추가](#완료-유튜브-영상-게시판-상세--videoobject-json-ld-추가) | ReformedTV·철학시가 상세가 구글에 영상 페이지로 인식되도록. 화면 변경 없음 |
 
 ---
 
@@ -301,3 +302,12 @@ Supabase UPDATE/DELETE는 필터·RLS에 걸려 0행이어도 `error`가 `null`�
 설계 결정 · 단계별 체크리스트 · 검증 기록은 분량이 커서 별도 문서로 분리했다 → [`docs/features/philosophia.md`](features/philosophia.md)
 
 - **남은 확인 1건** — 8단계 (7)번(페이지네이션 2페이지 · 넘버링 이어짐)은 글이 12건을 넘어야 확인된다
+
+### [완료] 유튜브 영상 게시판 상세 — VideoObject JSON-LD 추가
+
+- 배경: 상세 페이지가 구글에 `Article` JSON-LD만 전달했고, `YoutubePlayer`는 지연 로드라 클릭 전에는 iframe이 없다.
+  구글이 영상 페이지로 인식하지 못해 동영상 탭·영상 리치 결과에서 빠질 수 있었다
+- 조치: `lib/json-ld.ts`에 `youtubeVideoObjectJsonLd` 추가, ReformedTV·철학시가 상세에서 영상이 있을 때만 Article 아래에 출력.
+  곁다리로 ReformedTV `generateMetadata`에 board 필터 추가. 화면·영상 로드 방식·DB·폼은 변경 없음
+- 기록: spec·plan·검증은 [`docs/plans/2026-11-02-reformedtv-video-jsonld/`](plans/2026-11-02-reformedtv-video-jsonld/plan.md)
+- **배포 후 사용자 확인** — Google Rich Results Test에 상세 URL을 넣어 "동영상" 항목 오류 0건, 며칠 뒤 Search Console "동영상" 보고서 확인

@@ -200,6 +200,7 @@ alter table public.새테이블 enable row level security;
 - **게시글 상세 페이지**: `generateMetadata`가 DB에서 동적으로 title/description/OG/canonical 생성
 - **sitemap.xml**: `src/app/sitemap.ts`가 DB 조회해서 자동 생성 — 새 게시글도 자동 포함
 - **JSON-LD (Article)**: 게시글 작성 시 자동 적용 (17개 동적 라우트에 구현됨), 작성자 닉네임을 `author`(Person)로 포함 — 없으면 Organization으로 fallback
+- **JSON-LD (VideoObject)**: 영상이 주 콘텐츠인 상세 페이지에 Article과 함께 출력 — 유튜브(`youtubeVideoObjectJsonLd`): ReformedTV·최더함의 철학시가 / Mux(`videoObjectJsonLd`): 클럽소식. 영상이 없는 글에는 출력하지 않음
 - **JSON-LD (Organization·WebSite)**: `src/app/layout.tsx`에서 전역 적용
 - **JSON-LD (BreadcrumbList)**: about/vision/constitution 핵심 정적 페이지(confession 제외)에 적용
 
@@ -226,7 +227,7 @@ alter table public.새테이블 enable row level security;
 - `src/app/robots.ts` — 크롤러 허용/차단 규칙 (AI 크롤러 포함)
 - `public/llms.txt` — AI 검색·답변 엔진용 사이트 개요
 - `src/app/manifest.ts` — PWA 설정
-- `src/lib/json-ld.ts` — JSON-LD 헬퍼 (`organizationJsonLd`, `websiteJsonLd`, `breadcrumbJsonLd`, `articleJsonLd`, `confessionPageJsonLd`)
+- `src/lib/json-ld.ts` — JSON-LD 헬퍼 (`organizationJsonLd`, `websiteJsonLd`, `breadcrumbJsonLd`, `articleJsonLd`, `confessionPageJsonLd`, `videoObjectJsonLd`, `youtubeVideoObjectJsonLd`)
 - `src/app/layout.tsx` — 전역 metadata (OG, Twitter, canonical, 구글/네이버 인증, Organization·WebSite JSON-LD)
 
 ---

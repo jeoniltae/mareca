@@ -477,3 +477,15 @@ Lyrics: 최더함 / Music: Created with SUNO AI / Video & Editing: 최희진
 - 참고 — **`<meta name="keywords">`는 구글이 랭킹에 쓰지 않는다**(2009년 공식 발표). 그래서 추가하지 않았다.
   해시태그의 실질 이득은 **태그를 링크로 만들어 내부 링크 구조를 만들 때** 나오는데,
   태그 파싱·필터 페이지·사이트맵까지 필요해 이번 범위에서 제외했다
+
+## [완료] 후속 작업 — 2026-11-02
+
+### SEO — VideoObject JSON-LD 추가 (ReformedTV와 함께)
+
+- 상세 페이지에 `Article`과 별도로 유튜브용 `VideoObject` JSON-LD를 출력한다 (영상이 있는 글만).
+  `YoutubePlayer`가 지연 로드라 구글이 클릭 전 화면에서 iframe을 못 보므로, 스키마로 "이 페이지에 영상이 있다"를 알린다
+- 헬퍼는 공용 `lib/json-ld.ts`의 `youtubeVideoObjectJsonLd` — ReformedTV와 같은 함수를 쓴다
+- **description은 Article과 같은 `philosophiaDescription(post.content, post.title)`을 넘긴다.**
+  본문 앞부분을 그대로 쓰면 전 글이 같은 소개문이 되는 문제(2026-08-29 위 항목)를 VideoObject에서도 피한다
+- 다크 톤 마크업은 건드리지 않았다 — `<script>` 한 개를 기존 Article 스크립트 바로 아래에 추가했을 뿐이다
+- 기록: [`docs/plans/2026-11-02-reformedtv-video-jsonld/`](../plans/2026-11-02-reformedtv-video-jsonld/plan.md)
