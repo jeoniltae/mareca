@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation'
 import { getIsAdmin } from '@/lib/admin'
 import { BookDetail } from '@/features/books/BookDetail'
 import { ViewTracker } from '@/features/posts/ViewTracker'
-import { articleJsonLd } from '@/lib/json-ld'
+import { articleJsonLd, toJsonLdHtml } from '@/lib/json-ld'
 import type { BookSections } from '@/features/books/actions'
 import { PageHeader } from '@/components/shared/PageHeader'
 
@@ -91,7 +91,7 @@ export default async function BookDetailPage({ params }: Props) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
+          __html: toJsonLdHtml(
             articleJsonLd({
               title: post.title,
               description: sections.book_intro?.replace(/\s+/g, ' ').trim().slice(0, 120) ?? '',

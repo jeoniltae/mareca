@@ -28,6 +28,8 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
 | 완료 | [게시판 추가 — 3묶음: 소식/커뮤니티](#완료-게시판-추가--3묶음-소식커뮤니티) | 공지사항 · 마스터스 메시지 · Plus Voice |
 | 완료 | [게시판 에디터 HTML 소스 편집기 추가](#완료-게시판-에디터-html-소스-편집기-추가) | 관리자 전용 `</>` 토글. Tiptap 정규화를 반드시 거친다 |
 | 완료 | [게시판 추가 — 최더함의 철학시가 (1·2차)](features/philosophia.md) | 다크 잉크 네이비 영상 아카이브. **별도 문서** · 검증 1건 남음 |
+| 완료 | [유튜브 영상 게시판 상세 — VideoObject JSON-LD 추가](#완료-유튜브-영상-게시판-상세--videoobject-json-ld-추가) | ReformedTV·철학시가 상세가 구글에 영상 페이지로 인식되도록. 화면 변경 없음 |
+| 완료 | [JSON-LD `</script>` 탈출 XSS — 전 라우트 `toJsonLdHtml` 적용 (운영 중 취약점)](#완료-json-ld-script-탈출-xss--전-라우트-tojsonldhtml-적용-운영-중-취약점) | 모든 JSON-LD `<script>`(31개 파일)를 `toJsonLdHtml`로 직렬화. 2026-11-02 |
 
 ---
 
@@ -301,3 +303,33 @@ Supabase UPDATE/DELETE는 필터·RLS에 걸려 0행이어도 `error`가 `null`�
 설계 결정 · 단계별 체크리스트 · 검증 기록은 분량이 커서 별도 문서로 분리했다 → [`docs/features/philosophia.md`](features/philosophia.md)
 
 - **남은 확인 1건** — 8단계 (7)번(페이지네이션 2페이지 · 넘버링 이어짐)은 글이 12건을 넘어야 확인된다
+
+### [완료] 유튜브 영상 게시판 상세 — VideoObject JSON-LD 추가
+
+- 배경: 상세 페이지가 구글에 `Article` JSON-LD만 전달했고, `YoutubePlayer`는 지연 로드라 클릭 전에는 iframe이 없다.
+  구글이 영상 페이지로 인식하지 못해 동영상 탭·영상 리치 결과에서 빠질 수 있었다
+- 조치: `lib/json-ld.ts`에 `youtubeVideoObjectJsonLd` 추가, ReformedTV·철학시가 상세에서 영상이 있을 때만 Article 아래에 출력.
+  곁다리로 ReformedTV `generateMetadata`에 board 필터 추가. 화면·영상 로드 방식·DB·폼은 변경 없음
+- 기록: spec·plan·검증은 [`docs/plans/2026-11-02-reformedtv-video-jsonld/`](plans/2026-11-02-reformedtv-video-jsonld/plan.md)
+- **배포 후 사용자 확인** — Google Rich Results Test에 상세 URL을 넣어 "동영상" 항목 오류 0건, 며칠 뒤 Search Console "동영상" 보고서 확인
+
+### [완료] JSON-LD `</script>` 탈출 XSS — 전 라우트 `toJsonLdHtml` 적용 (운영 중 취약점)
+
+- 발견: 2026-11-02 VideoObject 작업 REVIEW (`docs/plans/2026-11-02-reformedtv-video-jsonld/plan.md` "리뷰 결과")
+- 문제: JSON-LD `<script>`를 `JSON.stringify(...)` 그대로 `dangerouslySetInnerHTML`에 넣는다. `JSON.stringify`는 `<`를 이스케이프하지 않아
+  제목·본문에 `</script><script>…</script>`가 있으면 태그가 닫히고 스크립트가 실행된다.
+  매직링크로 누구나 가입하고 로그인 사용자는 글을 쓸 수 있어 **저장형 XSS가 지금 운영에서 가능**하다 (관리자가 열면 관리자 세션으로 실행)
+- 해결 수단은 이미 있다 — `src/lib/json-ld.ts`의 `toJsonLdHtml(data)` (`<` → `\u003c`, 단위 테스트 있음).
+  ReformedTV·철학시가 상세는 적용 완료
+- 적용 대상 (`grep -rln "application/ld+json" src`)
+  - **DB 데이터가 들어가는 동적 라우트 — 우선**: `community/{album,free,message,open-lecture,voice}/[id]`, `club-news/news/[id]`,
+    `news/{all,books,notice,press}/[id]`, `online-admin/plan/[id]`, `report/minutes/[id]`, `resources/{education,pastoral,sermon,worship}/[id]`
+  - 상수만 들어가는 정적 페이지·`layout.tsx` — 위험은 없지만 패턴 통일을 위해 함께: `about/*`, `vision/*`, `constitution/law`, `layout.tsx`
+- 작업: 각 파일에서 `__html: JSON.stringify(` → `__html: toJsonLdHtml(` + import. 기계적 치환이라 페이지당 2~3줄
+- 검증: 빌드 + 대표 상세 몇 곳의 JSON-LD가 `JSON.parse`로 그대로 읽히는지, `grep -rn "__html: JSON.stringify" src`가 0건인지
+- **완료 (2026-11-02)** — `__html: JSON.stringify(` 를 `__html: toJsonLdHtml(` 로 일괄 치환 + import 추가 (29개 파일, 앞서 적용한 ReformedTV·철학시가 포함 31개)
+  - `grep -rn "__html: JSON.stringify" src` 0건, `application/ld+json` 있는 모든 파일에 `toJsonLdHtml` 사용 확인
+  - `tsc`·`vitest`(25건)·`build` 통과. 변경 파일 eslint의 오류 2건은 `about/chairman`의 기존 `react/no-unescaped-entities` (치환과 무관)
+  - 홈·정적 5곳·동적 상세 12개 게시판의 JSON-LD를 실제로 `JSON.parse` — 전부 정상, 원문에 `<` 없음
+  - 로그인·접근 제한 경로(`resources/*`, `report/minutes`, `online-admin/plan`)는 HTML 실측 못 함 — 같은 기계적 치환이며 타입체크·빌드 통과
+- 앞으로 새 JSON-LD는 `toJsonLdHtml`로만 넣는다 (`CLAUDE.md` SEO 가이드 "새 동적 라우트")

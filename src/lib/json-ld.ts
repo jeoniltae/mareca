@@ -1,5 +1,11 @@
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.mareca.org'
 
+// <script>에 넣을 JSON 문자열. JSON.stringify는 <를 이스케이프하지 않아
+// 제목·본문의 '</script>'가 태그를 닫고 스크립트를 주입할 수 있다. <는 JSON으로는 같은 값이다
+export function toJsonLdHtml(data: unknown) {
+  return JSON.stringify(data).replace(/</g, '\\u003c')
+}
+
 export function organizationJsonLd() {
   return {
     '@context': 'https://schema.org',
@@ -117,6 +123,32 @@ export function videoObjectJsonLd({
     uploadDate,
     contentUrl: `https://stream.mux.com/${playbackId}.m3u8`,
     embedUrl: `https://stream.mux.com/${playbackId}.m3u8`,
+  }
+}
+
+export function youtubeVideoObjectJsonLd({
+  title,
+  description,
+  videoId,
+  thumbnailUrl,
+  uploadDate,
+}: {
+  title: string
+  description: string
+  videoId: string
+  thumbnailUrl: string
+  uploadDate?: string
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    name: title,
+    // 구글은 description 누락을 오류로 처리한다
+    description: description || title,
+    thumbnailUrl,
+    uploadDate,
+    // contentUrl은 넣지 않는다 — 원본 파일은 유튜브 소유라 우리가 가진 주소가 없다
+    embedUrl: `https://www.youtube.com/embed/${videoId}`,
   }
 }
 

@@ -200,6 +200,7 @@ alter table public.새테이블 enable row level security;
 - **게시글 상세 페이지**: `generateMetadata`가 DB에서 동적으로 title/description/OG/canonical 생성
 - **sitemap.xml**: `src/app/sitemap.ts`가 DB 조회해서 자동 생성 — 새 게시글도 자동 포함
 - **JSON-LD (Article)**: 게시글 작성 시 자동 적용 (17개 동적 라우트에 구현됨), 작성자 닉네임을 `author`(Person)로 포함 — 없으면 Organization으로 fallback
+- **JSON-LD (VideoObject)**: 영상이 주 콘텐츠인 상세 페이지에 Article과 함께 출력 — 유튜브(`youtubeVideoObjectJsonLd`): ReformedTV·최더함의 철학시가 / Mux(`videoObjectJsonLd`): 클럽소식. 영상이 없는 글에는 출력하지 않음
 - **JSON-LD (Organization·WebSite)**: `src/app/layout.tsx`에서 전역 적용
 - **JSON-LD (BreadcrumbList)**: about/vision/constitution 핵심 정적 페이지(confession 제외)에 적용
 
@@ -209,6 +210,7 @@ alter table public.새테이블 enable row level security;
    - **단, 비로그인 접근 불가 페이지(layout.tsx에서 redirect 처리)는 사이트맵에 추가하지 않는다**
    - `public/llms.txt`에도 해당 섹션 링크 추가 (접근 제한 페이지는 사이트맵과 동일하게 제외)
 3. **새 동적 라우트** (`[id]/page.tsx` 신규 생성) → `generateMetadata` + `articleJsonLd` 추가 (`src/lib/json-ld.ts`의 헬퍼 사용)
+   - JSON-LD `<script>`는 **`__html: toJsonLdHtml(...)`** 으로 넣는다. `JSON.stringify` 직접 사용 금지 — 제목·본문의 `</script>`가 태그를 닫아 저장형 XSS가 된다 (2026-11-02 발견)
 4. **새 핵심 정적 페이지(about/vision/constitution류)** → `src/lib/json-ld.ts`의 `breadcrumbJsonLd()`로 BreadcrumbList 적용 (페이지의 `breadcrumbs={[...]}` 리터럴을 변수로 추출해 `PageHeader`와 JSON-LD 양쪽에 전달). 페이지가 자체 FAQPage 등 BreadcrumbList를 이미 포함한 JSON-LD 헬퍼(예: `confessionPageJsonLd`)를 쓰고 있다면 중복 추가하지 않음
 
 ### AI 크롤러 정책
@@ -226,7 +228,7 @@ alter table public.새테이블 enable row level security;
 - `src/app/robots.ts` — 크롤러 허용/차단 규칙 (AI 크롤러 포함)
 - `public/llms.txt` — AI 검색·답변 엔진용 사이트 개요
 - `src/app/manifest.ts` — PWA 설정
-- `src/lib/json-ld.ts` — JSON-LD 헬퍼 (`organizationJsonLd`, `websiteJsonLd`, `breadcrumbJsonLd`, `articleJsonLd`, `confessionPageJsonLd`)
+- `src/lib/json-ld.ts` — JSON-LD 헬퍼 (`organizationJsonLd`, `websiteJsonLd`, `breadcrumbJsonLd`, `articleJsonLd`, `confessionPageJsonLd`, `videoObjectJsonLd`, `youtubeVideoObjectJsonLd`, `toJsonLdHtml` — `<script>` 삽입용 안전 직렬화)
 - `src/app/layout.tsx` — 전역 metadata (OG, Twitter, canonical, 구글/네이버 인증, Organization·WebSite JSON-LD)
 
 ---

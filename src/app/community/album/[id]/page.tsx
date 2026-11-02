@@ -1,7 +1,7 @@
 
 import { createClient } from '@/lib/supabase-server'
 import { formatDateTimeVerbose } from '@/lib/date'
-import { articleJsonLd } from '@/lib/json-ld'
+import { articleJsonLd, toJsonLdHtml } from '@/lib/json-ld'
 import { notFound } from 'next/navigation'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { GalleryImageViewer } from '@/features/gallery/GalleryImageViewer'
@@ -125,7 +125,7 @@ export default async function GalleryDetailPage({ params }: Props) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(
+            __html: toJsonLdHtml(
               articleJsonLd({
                 title: post.title,
                 description: post.content?.slice(0, 120) ?? '',

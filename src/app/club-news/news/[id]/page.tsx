@@ -1,7 +1,7 @@
 
 import { createClient } from '@/lib/supabase-server'
 import { formatDateTime } from '@/lib/date'
-import { articleJsonLd } from '@/lib/json-ld'
+import { articleJsonLd, toJsonLdHtml } from '@/lib/json-ld'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { notFound } from 'next/navigation'
 import { ViewTracker } from '@/features/posts/ViewTracker'
@@ -151,7 +151,7 @@ export default async function ClubNewsDetailPage({ params }: Props) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(
+            __html: toJsonLdHtml(
               articleJsonLd({
                 title: post.title,
                 description: post.content?.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 120) ?? '',
@@ -167,7 +167,7 @@ export default async function ClubNewsDetailPage({ params }: Props) {
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{
-              __html: JSON.stringify(
+              __html: toJsonLdHtml(
                 videoObjectJsonLd({
                   title: post.title,
                   description: post.content?.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 120) ?? '',

@@ -1,5 +1,5 @@
 ﻿import { PageHeader } from '@/components/shared/PageHeader'
-import { breadcrumbJsonLd } from '@/lib/json-ld'
+import { breadcrumbJsonLd, toJsonLdHtml } from '@/lib/json-ld'
 import Image from 'next/image'
 
 import type { Metadata } from 'next'
@@ -35,7 +35,7 @@ export default function AboutIdentityPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(BREADCRUMBS)) }}
+        dangerouslySetInnerHTML={{ __html: toJsonLdHtml(breadcrumbJsonLd(BREADCRUMBS)) }}
       />
       <PageHeader
         title="우리는 누구인가?"
