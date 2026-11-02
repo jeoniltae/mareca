@@ -120,6 +120,32 @@ export function videoObjectJsonLd({
   }
 }
 
+export function youtubeVideoObjectJsonLd({
+  title,
+  description,
+  videoId,
+  thumbnailUrl,
+  uploadDate,
+}: {
+  title: string
+  description: string
+  videoId: string
+  thumbnailUrl: string
+  uploadDate?: string
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    name: title,
+    // 구글은 description 누락을 오류로 처리한다
+    description: description || title,
+    thumbnailUrl,
+    uploadDate,
+    // contentUrl은 넣지 않는다 — 원본 파일은 유튜브 소유라 우리가 가진 주소가 없다
+    embedUrl: `https://www.youtube.com/embed/${videoId}`,
+  }
+}
+
 export function articleJsonLd({
   title,
   description,
