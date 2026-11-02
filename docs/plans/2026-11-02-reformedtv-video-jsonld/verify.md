@@ -40,3 +40,19 @@
 - **전체 lint 실패는 기존 부채** — 이번 변경과 무관하지만 `npm run lint`가 배포 게이트라면 별도 정리 필요
 - **구글 인식 여부는 배포 후에만 확인 가능** — Rich Results Test "동영상" 오류 0건, Search Console "동영상" 보고서 (사용자 몫, `docs/todo.md`에 안내)
 - 참고 — 이번 세션에서 dev 서버를 백그라운드로 띄웠다 멈출 때 `next start-server` 자식 프로세스가 3000 포트에 남는 현상이 두 번 있었다. 직접 종료함
+
+## 리뷰 수정 후 재검증 (2026-11-02)
+
+REVIEW에서 `toJsonLdHtml` 적용(XSS 수정)과 `description` 공유를 반영한 뒤 다시 실행. 기준: `d8af7c6` + 미커밋 변경 4개 파일.
+
+| 명령 | 결과 |
+|---|---|
+| `npx vitest run` | exit 0 — 3 files, 25 tests passed (`toJsonLdHtml` 2건 추가: `<`·`</script>` 미포함, `JSON.parse` 왕복 동일) |
+| `npx eslint` (변경 파일 4개) | exit 0 |
+| `npx tsc --noEmit` | exit 0 |
+| `npm run build` | exit 0 |
+
+- **전수 HTML 재검사** — 이번에는 JSON-LD 블록을 실제 `JSON.parse`로 읽어 검사(이스케이프 후에도 유효 JSON인지).
+  Article 1개 · VideoObject 1개 · `embedUrl` ID = 플레이어 ID. **ReformedTV 81/81, 철학시가 15/15 통과**
+- **브라우저** — 철학시가 상세에서 재생 클릭 → `youtube-nocookie.com/embed/RdFpXqfGMcE?autoplay=1` iframe 생성
+- 두 상세 페이지에 `JSON.stringify` 직접 사용 0건

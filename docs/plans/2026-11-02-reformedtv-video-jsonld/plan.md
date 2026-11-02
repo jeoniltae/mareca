@@ -1,7 +1,7 @@
 # 구현 계획: 유튜브 영상 게시판 상세 — VideoObject JSON-LD 추가
 
 - spec: ./spec.md
-- 상태: 검증 완료
+- 상태: 리뷰 완료
 
 ## 개요
 
@@ -163,13 +163,33 @@ description은 `philosophiaDescription(post.content, post.title)`. 다크 톤 �
 
 **규모:** XS
 
+## 리뷰 결과 (2026-11-02)
+
+`code-review`(medium, `bd3bff8..HEAD`) + `security-review` + 프로젝트 REVIEW 체크리스트 대조. 사용자 결정에 따라 처리했다.
+
+| # | 발견 | 심각도 | 처리 |
+|---|---|---|---|
+| 1 | JSON-LD `</script>` 탈출 저장형 XSS — 새 VideoObject 스크립트 2곳 (같은 패턴이 기존 Article 17개 라우트·`layout.tsx`에도 있음) | 상 | **수정(A)** — `toJsonLdHtml()` 헬퍼 추가(`<` → `\u003c`) + 테스트 2건, 두 상세 페이지의 Article·VideoObject 4곳 적용. **나머지 라우트(B)는 별도 fix** → `docs/todo.md` 미착수 |
+| 2 | 철학시가 상세에서 `philosophiaDescription()` 이중 계산 | 하 | **수정** — `description` 한 번 계산해 Article·VideoObject에 공유 |
+| 3 | `uploadDate` 누락 가능 (`created_at` nullable 타입) | 하 | 수용 — DB 기본값으로 실제로 비지 않음, 실데이터 96건 전부 있음 |
+| 4 | 본문 빈 글의 meta·VideoObject description 대체 문구 불일치 | 하 | 수용 — 둘 다 유효한 값, 실데이터에 해당 글 없음 |
+| 5 | ReformedTV Article description이 공백 정리 없는 raw slice | 하 | 수용 — 기존 동작, 범위 밖 |
+| 6 | Mux·유튜브 VideoObject 헬퍼 중복 | 하 | 수용 — spec 설계 결정 |
+| 7 | 썸네일 320×180(mqdefault) | 하 | 수용 — 구글 최소 60×30 충족, `getYoutubeThumbnail`은 공용 |
+| 8 | `extractYoutubeId` 형식 검증 없음 | 하 | 수용 — 폼에서 썸네일 존재 검증, 실데이터 96건 정상 ID |
+
+프로젝트 체크리스트 — `coding-guidelines.md` "하지 말아야 할 것" 위반 없음, 접근 제한 경로 변경 없음.
+"`dangerouslySetInnerHTML` 사용자 입력 경로" 항목이 #1에 해당 → 수정함.
+
+수정 후 재검증 — `verify.md` "리뷰 수정 후 재검증" 참고.
+
 ## 위험과 대응
 
 | 위험 | 영향 | 대응 |
 |------|------|------|
 | 구글이 영상을 "페이지의 주 콘텐츠"로 보지 않아 영상 리치 결과가 안 나옴 | 중 | 코드로 통제 불가. 배포 후 Rich Results Test·Search Console "동영상" 보고서로 확인 (spec 성공 기준 마지막 항목, 사용자 몫) |
 | 지연 로드 플레이어라 구글이 "페이지에 영상이 안 보인다"고 판단 | 중 | 구글은 썸네일 + 재생 버튼 구조를 대체로 인정한다. 보고서에 "동영상이 페이지에 표시되지 않음"이 뜨면 후속으로 검토 (spec 비목표) |
-| JSON-LD `<script>`에 `JSON.stringify` 결과를 그대로 넣어 제목·본문의 `</script>` 문자열이 태그를 닫을 수 있음 | 하 | **기존 Article JSON-LD와 같은 데이터·같은 패턴**이라 이번 변경이 새로 여는 경로는 아니다. 글쓰기는 로그인 사용자만 가능. REVIEW에서 언급하고 별도 작업 여부를 사용자가 정한다 |
+| JSON-LD `<script>`에 `JSON.stringify` 결과를 그대로 넣어 제목·본문의 `</script>` 문자열이 태그를 닫을 수 있음 | **상** (계획 시 "하"로 과소평가 — 누구나 가입·글쓰기 가능해 저장형 XSS) | REVIEW에서 이 기능 범위(A)는 `toJsonLdHtml`로 수정. 나머지 라우트(B)는 `docs/todo.md` 미착수로 등록, 별도 fix |
 | `uploadDate`가 유튜브 실제 업로드일이 아닌 게시글 작성일 | 하 | 구글은 "페이지에 영상이 게시된 날"로 받아들인다. spec에서 확정 |
 
 ## 열린 질문

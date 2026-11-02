@@ -11,6 +11,7 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
 
 | 상태 | 항목 | 핵심 |
 |---|---|---|
+| 미착수 | [JSON-LD `</script>` 탈출 XSS — 전 라우트 `toJsonLdHtml` 적용 (운영 중 취약점)](#미착수-json-ld-script-탈출-xss--전-라우트-tojsonldhtml-적용-운영-중-취약점) | **우선.** 로그인 사용자 누구나 제목에 `</script>`를 넣어 저장형 XSS. 헬퍼는 있음, 나머지 라우트에 적용만 |
 | 미착수 | [로고 기반 브랜드 컬러 시스템 전면 적용](#미착수-로고-기반-브랜드-컬러-시스템-전면-적용) | sky/slate → 로고 추출 네이비·그린·골드·크림으로 교체. 20~25개 파일 |
 | 미착수 | [게시글 본문 서버 sanitize 도입 (선행 취약점)](#미착수-게시글-본문-서버-sanitize-도입-선행-취약점) | 저장된 XSS를 막을 수단이 없다. `sanitize-html` 화이트리스트 도입 |
 | 미착수 | [에디터 이미지 고아 파일 — 탭 닫기·뒤로가기 경로 정리](#미착수-에디터-이미지-고아-파일--탭-닫기뒤로가기-경로-정리) | 탭 닫기·뒤로가기로 이탈하면 업로드 이미지가 버킷에 남는다 |
@@ -33,6 +34,21 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
 ---
 
 ## 미착수
+
+### [미착수] JSON-LD `</script>` 탈출 XSS — 전 라우트 `toJsonLdHtml` 적용 (운영 중 취약점)
+
+- 발견: 2026-11-02 VideoObject 작업 REVIEW (`docs/plans/2026-11-02-reformedtv-video-jsonld/plan.md` "리뷰 결과")
+- 문제: JSON-LD `<script>`를 `JSON.stringify(...)` 그대로 `dangerouslySetInnerHTML`에 넣는다. `JSON.stringify`는 `<`를 이스케이프하지 않아
+  제목·본문에 `</script><script>…</script>`가 있으면 태그가 닫히고 스크립트가 실행된다.
+  매직링크로 누구나 가입하고 로그인 사용자는 글을 쓸 수 있어 **저장형 XSS가 지금 운영에서 가능**하다 (관리자가 열면 관리자 세션으로 실행)
+- 해결 수단은 이미 있다 — `src/lib/json-ld.ts`의 `toJsonLdHtml(data)` (`<` → `\u003c`, 단위 테스트 있음).
+  ReformedTV·철학시가 상세는 적용 완료
+- 남은 적용 대상 (`grep -rln "application/ld+json" src`)
+  - **DB 데이터가 들어가는 동적 라우트 — 우선**: `community/{album,free,message,open-lecture,voice}/[id]`, `club-news/news/[id]`,
+    `news/{all,books,notice,press}/[id]`, `online-admin/plan/[id]`, `report/minutes/[id]`, `resources/{education,pastoral,sermon,worship}/[id]`
+  - 상수만 들어가는 정적 페이지·`layout.tsx` — 위험은 없지만 패턴 통일을 위해 함께: `about/*`, `vision/*`, `constitution/law`, `layout.tsx`
+- 작업: 각 파일에서 `__html: JSON.stringify(` → `__html: toJsonLdHtml(` + import. 기계적 치환이라 페이지당 2~3줄
+- 검증: 빌드 + 대표 상세 몇 곳의 JSON-LD가 `JSON.parse`로 그대로 읽히는지, `grep -rn "__html: JSON.stringify" src`가 0건인지
 
 ### [미착수] 로고 기반 브랜드 컬러 시스템 전면 적용
 
