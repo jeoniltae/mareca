@@ -12,7 +12,8 @@ import { ShareButtons } from '@/components/shared/ShareButtons'
 import { BackToListLink } from '@/components/shared/BackToListLink'
 import { PhilosophiaHero } from '@/features/philosophia/PhilosophiaHero'
 import { PhilosophiaActions } from '@/features/philosophia/PhilosophiaActions'
-import { philosophiaDescription, philosophiaKeywords } from '@/features/philosophia/content-meta'
+import { philosophiaDescription } from '@/features/philosophia/content-meta'
+import { extractHashtags } from '@/lib/hashtags'
 import { batang, plexMono } from '@/features/philosophia/fonts'
 import { Calendar, Eye, User } from 'lucide-react'
 
@@ -169,7 +170,7 @@ export default async function PhilosophiaDetailPage({ params }: Props) {
                 articleJsonLd({
                   title: post.title,
                   description,
-                  keywords: philosophiaKeywords(post.content),
+                  keywords: extractHashtags(post.content),
                   url: `${process.env.NEXT_PUBLIC_SITE_URL}${BASE_PATH}/${id}`,
                   datePublished: post.created_at ?? undefined,
                   dateModified: post.updated_at ?? undefined,
