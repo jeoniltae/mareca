@@ -491,3 +491,16 @@ Lyrics: 최더함 / Music: Created with SUNO AI / Video & Editing: 최희진
 - 기록: [`docs/plans/2026-11-02-reformedtv-video-jsonld/`](../plans/2026-11-02-reformedtv-video-jsonld/plan.md)
 - (리뷰 후속) JSON-LD 두 스크립트를 `toJsonLdHtml()`로 직렬화하도록 바꿨다 — 제목·본문의 `</script>`로 인한 XSS 방지.
   같은 김에 `description`을 한 번만 계산해 Article·VideoObject가 공유한다 (`docs/context-notes.md` 2026-11-02)
+
+## [완료] 후속 작업 — 2026-11-19
+
+### SEO — 해시태그 공용화 · VideoObject keywords · 공유 문구 (ReformedTV 숏츠와 함께)
+
+- **태그 추출을 공용 모듈로 옮겼다** — `content-meta.ts`의 `HASHTAG` 정규식과 `philosophiaKeywords()`를
+  `src/lib/hashtags.ts`의 `extractHashtags()`·`stripHashtags()`로 이관했다(정규식 `/#[^\s#]+/g` 그대로).
+  ReformedTV 숏츠도 같은 함수를 쓴다. 위 2026-08-29 항목의 `philosophiaKeywords()`는 이제 없다
+  - 정규식은 `/g` 플래그라 `.test()`로 재사용하면 `lastIndex`가 남는다 — 모듈 밖으로 내보내지 않고 함수만 export
+  - `philosophiaDescription()` 결과는 그대로다 (기존 테스트 7건 무수정 통과, 상세 2건 변경 전후 meta 동일 확인)
+- **VideoObject에도 `keywords`** — `youtubeVideoObjectJsonLd`에 `keywords?` 추가(비면 필드 생략). 상세에서 한 번 계산해 Article·VideoObject가 공유
+- **카카오 공유 description** — 원문(`post.content`, 소개문·태그 포함) 대신 계산된 `description`을 넘긴다
+- 기록: [`docs/plans/2026-11-19-hashtag-seo/`](../plans/2026-11-19-hashtag-seo/plan.md)

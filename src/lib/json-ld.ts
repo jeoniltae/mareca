@@ -132,12 +132,14 @@ export function youtubeVideoObjectJsonLd({
   videoId,
   thumbnailUrl,
   uploadDate,
+  keywords,
 }: {
   title: string
   description: string
   videoId: string
   thumbnailUrl: string
   uploadDate?: string
+  keywords?: string[]
 }) {
   return {
     '@context': 'https://schema.org',
@@ -145,6 +147,8 @@ export function youtubeVideoObjectJsonLd({
     name: title,
     // 구글은 description 누락을 오류로 처리한다
     description: description || title,
+    // 비어 있으면 아예 넣지 않는다 (articleJsonLd와 같은 규칙)
+    ...(keywords?.length ? { keywords } : {}),
     thumbnailUrl,
     uploadDate,
     // contentUrl은 넣지 않는다 — 원본 파일은 유튜브 소유라 우리가 가진 주소가 없다

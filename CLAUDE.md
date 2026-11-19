@@ -201,6 +201,7 @@ alter table public.새테이블 enable row level security;
 - **sitemap.xml**: `src/app/sitemap.ts`가 DB 조회해서 자동 생성 — 새 게시글도 자동 포함
 - **JSON-LD (Article)**: 게시글 작성 시 자동 적용 (17개 동적 라우트에 구현됨), 작성자 닉네임을 `author`(Person)로 포함 — 없으면 Organization으로 fallback
 - **JSON-LD (VideoObject)**: 영상이 주 콘텐츠인 상세 페이지에 Article과 함께 출력 — 유튜브(`youtubeVideoObjectJsonLd`): ReformedTV·최더함의 철학시가 / Mux(`videoObjectJsonLd`): 클럽소식. 영상이 없는 글에는 출력하지 않음
+- **JSON-LD `keywords` (본문 해시태그)**: ReformedTV 숏츠·최더함의 철학시가는 본문 `#태그`를 `extractHashtags`(`src/lib/hashtags.ts`)로 뽑아 Article·VideoObject `keywords`에 넣는다. ReformedTV 숏츠 description은 `shortsDescription`(`{제목} — {본문}`, 채널 URL·공통 문구·태그 제거) — 같은 강의 숏츠끼리 본문이 같아 description이 중복되기 때문. 일반 영상은 해당 없음
 - **JSON-LD (Organization·WebSite)**: `src/app/layout.tsx`에서 전역 적용
 - **JSON-LD (BreadcrumbList)**: about/vision/constitution 핵심 정적 페이지(confession 제외)에 적용
 
@@ -229,6 +230,7 @@ alter table public.새테이블 enable row level security;
 - `public/llms.txt` — AI 검색·답변 엔진용 사이트 개요
 - `src/app/manifest.ts` — PWA 설정
 - `src/lib/json-ld.ts` — JSON-LD 헬퍼 (`organizationJsonLd`, `websiteJsonLd`, `breadcrumbJsonLd`, `articleJsonLd`, `confessionPageJsonLd`, `videoObjectJsonLd`, `youtubeVideoObjectJsonLd`, `toJsonLdHtml` — `<script>` 삽입용 안전 직렬화)
+- `src/lib/hashtags.ts` — 본문 `#태그` 추출(`extractHashtags`)·제거(`stripHashtags`). JSON-LD keywords·description용
 - `src/app/layout.tsx` — 전역 metadata (OG, Twitter, canonical, 구글/네이버 인증, Organization·WebSite JSON-LD)
 
 ---

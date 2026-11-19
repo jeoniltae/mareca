@@ -31,6 +31,18 @@ describe('youtubeVideoObjectJsonLd', () => {
   it('description이 비어 있으면 제목으로 대체한다 — 구글은 description 누락을 오류로 처리한다', () => {
     expect(youtubeVideoObjectJsonLd({ ...BASE, description: '' }).description).toBe(BASE.title)
   })
+
+  it('keywords가 있으면 그대로 넣는다', () => {
+    expect(youtubeVideoObjectJsonLd({ ...BASE, keywords: ['개혁신학', '칼빈'] })).toHaveProperty('keywords', [
+      '개혁신학',
+      '칼빈',
+    ])
+  })
+
+  it('keywords가 없거나 비어 있으면 필드 자체를 넣지 않는다', () => {
+    expect(youtubeVideoObjectJsonLd(BASE)).not.toHaveProperty('keywords')
+    expect(youtubeVideoObjectJsonLd({ ...BASE, keywords: [] })).not.toHaveProperty('keywords')
+  })
 })
 
 describe('toJsonLdHtml', () => {

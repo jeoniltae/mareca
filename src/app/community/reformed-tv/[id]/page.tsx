@@ -9,6 +9,8 @@ import { ReformedTVActions } from '@/features/reformed-tv/ReformedTVActions'
 import { getIsAdmin } from '@/lib/admin'
 import { extractYoutubeId, getYoutubeThumbnail } from '@/features/youtube/youtube-utils'
 import { YoutubePlayer } from '@/features/youtube/YoutubePlayer'
+import { shortsDescription } from '@/features/reformed-tv/content-meta'
+import { extractHashtags } from '@/lib/hashtags'
 import { ShareButtons } from '@/components/shared/ShareButtons'
 import { BackToListLink } from '@/components/shared/BackToListLink'
 import { Calendar, Eye, User } from 'lucide-react'
@@ -19,11 +21,15 @@ interface Props {
 export async function generateMetadata({ params }: Props) {
   const { id } = await params
   const supabase = await createClient()
-  const { data } = await supabase.from('posts').select('title, content, youtube_url').eq('id', id).eq('board', 'reformed-tv').single()
+  const { data } = await supabase.from('posts').select('title, content, youtube_url, category').eq('id', id).eq('board', 'reformed-tv').single()
   const videoId = data?.youtube_url ? extractYoutubeId(data.youtube_url) : null
   const thumbnailUrl = videoId ? getYoutubeThumbnail(videoId) : '/images/logo.png'
   const rawText = data?.content?.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim() ?? ''
-  const description = rawText.slice(0, 120) || '마스터스개혁파총회 ReformedTV 영상입니다.'
+  // 숏츠만 제목+정리된 본문 — 같은 강의의 숏츠끼리 본문이 같아 description이 중복된다. 일반 영상은 기존 그대로
+  const description =
+    data?.category === '숏츠'
+      ? shortsDescription(data.content, data.title)
+      : rawText.slice(0, 120) || '마스터스개혁파총회 ReformedTV 영상입니다.'
   return {
     title: data?.title ?? 'ReformedTV',
     description,
@@ -64,6 +70,11 @@ export default async function ReformedTVDetailPage({ params }: Props) {
   const videoId = post.youtube_url ? extractYoutubeId(post.youtube_url) : null
 
   const date = formatDateTimeVerbose(post.created_at)
+
+  // 숏츠만 description·keywords를 새 규칙으로 — 일반 영상은 아래 각 자리의 기존 식을 그대로 쓴다
+  const isShorts = post.category === '숏츠'
+  const shortsDesc = isShorts ? shortsDescription(post.content, post.title) : null
+  const keywords = isShorts ? extractHashtags(post.content) : undefined
 
   return (
     <>
@@ -132,7 +143,7 @@ export default async function ReformedTVDetailPage({ params }: Props) {
         <div className="pt-6 border-t border-slate-200">
           <ShareButtons
             title={post.title}
-            description={post.content ?? undefined}
+            description={shortsDesc ?? post.content ?? undefined}
             imageUrl={videoId ? getYoutubeThumbnail(videoId) : undefined}
           />
         </div>
@@ -143,7 +154,8 @@ export default async function ReformedTVDetailPage({ params }: Props) {
             __html: toJsonLdHtml(
               articleJsonLd({
                 title: post.title,
-                description: post.content?.slice(0, 120) ?? '',
+                description: shortsDesc ?? post.content?.slice(0, 120) ?? '',
+                keywords,
                 url: `${process.env.NEXT_PUBLIC_SITE_URL}/community/reformed-tv/${id}`,
                 datePublished: post.created_at ?? undefined,
                 dateModified: post.updated_at ?? undefined,
@@ -160,7 +172,9 @@ export default async function ReformedTVDetailPage({ params }: Props) {
               __html: toJsonLdHtml(
                 youtubeVideoObjectJsonLd({
                   title: post.title,
-                  description: post.content?.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 120) ?? '',
+                  description:
+                    shortsDesc ?? post.content?.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 120) ?? '',
+                  keywords,
                   videoId,
                   thumbnailUrl: getYoutubeThumbnail(videoId),
                   uploadDate: post.created_at ?? undefined,

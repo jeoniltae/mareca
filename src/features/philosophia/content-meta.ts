@@ -1,13 +1,13 @@
 // 철학시가 본문에서 SEO용 메타 정보를 뽑는다. 본문 자체는 건드리지 않고 메타태그·JSON-LD를 만들 때만 쓴다
 
 import { truncateAtSentence } from '@/lib/text'
+import { stripHashtags } from '@/lib/hashtags'
 
 /** 자막을 넣던 시기의 글에서 공통 머리말(소개문·CREDITS·해시태그)의 끝을 알리는 표식 */
 const LYRICS_MARKER = '🎵 가사'
 
 /** 유튜브 자동 자막이 남기는 마커 — `[음악]` `[노래]` 같은 한글 1~5자 대괄호와 `>>` */
 const CAPTION_NOISE = /\[[가-힣]{1,5}\]|>>/g
-const HASHTAG = /#[^\s#]+/g
 
 const DESCRIPTION_MAX = 120
 
@@ -26,7 +26,7 @@ const BOILERPLATE = [
 const isBoilerplate = (paragraph: string) => BOILERPLATE.some((re) => re.test(paragraph))
 
 const clean = (text: string) =>
-  text.replace(CAPTION_NOISE, ' ').replace(HASHTAG, ' ').replace(/\s+/g, ' ').trim()
+  stripHashtags(text.replace(CAPTION_NOISE, ' ')).replace(/\s+/g, ' ').trim()
 
 /**
  * 상세 페이지 description.
@@ -60,11 +60,4 @@ export function philosophiaDescription(content: string | null | undefined, title
   }
 
   return fallback
-}
-
-/** 본문에 적어둔 `#태그`를 JSON-LD keywords용으로 뽑는다. `#`는 떼고 중복은 제거한다 */
-export function philosophiaKeywords(content: string | null | undefined): string[] {
-  if (!content) return []
-  const found = content.match(HASHTAG) ?? []
-  return [...new Set(found.map((tag) => tag.slice(1)).filter(Boolean))]
 }

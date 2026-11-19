@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { philosophiaDescription, philosophiaKeywords } from './content-meta'
+import { philosophiaDescription } from './content-meta'
 
 const INTRO = '우리나라에서 최초로 철학시가(Philosong)라는 음악의 한 장르를 개척하고자 합니다'
 const CREDITS = 'CREDITS\nLyrics: 최더함\nMusic: Created with SUNO AI\nVideo & Editing: 최희진'
@@ -59,18 +59,3 @@ describe('philosophiaDescription', () => {
 })
 
 const DESCRIPTION_LIMIT = 121 // truncateAtSentence가 말줄임표를 붙일 수 있어 1자 여유
-
-describe('philosophiaKeywords', () => {
-  it('#을 떼고 중복을 제거한다', () => {
-    expect(philosophiaKeywords('#최더함 #철학시가 #최더함')).toEqual(['최더함', '철학시가'])
-  })
-
-  it('태그가 없으면 빈 배열', () => {
-    expect(philosophiaKeywords('태그 없는 본문')).toEqual([])
-    expect(philosophiaKeywords(null)).toEqual([])
-  })
-
-  it('본문 중간에 있는 태그도 잡는다', () => {
-    expect(philosophiaKeywords(WITH_LYRICS)).toContain('귀로듣는시')
-  })
-})
