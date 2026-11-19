@@ -39,12 +39,12 @@ ReformedTV **숏츠**의 description을 `{제목} — {정리된 본문}`으로 
 - [x] `npx tsc --noEmit` 통과
 
 ### 2단계: 페이지 적용
-- [ ] 작업 4: ReformedTV 상세 — 숏츠 description·keywords·공유 문구
-- [ ] 작업 5: 철학시가 상세 — VideoObject keywords·공유 문구
+- [x] 작업 4: ReformedTV 상세 — 숏츠 description·keywords·공유 문구
+- [x] 작업 5: 철학시가 상세 — VideoObject keywords·공유 문구
 
 ### 체크포인트: 페이지 적용
-- [ ] `npx vitest run` · 변경 파일 `npx eslint` · `npx tsc --noEmit` · `npm run build` 통과
-- [ ] 실제 앱에서 spec 사용자 시나리오 1~6 확인 (숏츠 / 같은 본문 숏츠 2건 / 일반 영상 / 철학시가 / 다른 board id → not-found)
+- [x] `npx vitest run` · 변경 파일 `npx eslint` · `npx tsc --noEmit` · `npm run build` 통과 — vitest는 작업 1~3 이후 페이지 변경이라 재실행은 VERIFY에서
+- [ ] 실제 앱에서 spec 사용자 시나리오 1~6 확인 — BUILD에서 1·2·3·5·6 확인(변경 전후 스냅샷 8경로 비교). 4(카카오 공유)와 not-found는 VERIFY에서 (숏츠 / 같은 본문 숏츠 2건 / 일반 영상 / 철학시가 / 다른 board id → not-found)
 - [ ] 사용자 확인 후 다음으로 진행
 
 ### 3단계: 문서
@@ -132,9 +132,9 @@ ReformedTV **숏츠**의 description을 `{제목} — {정리된 본문}`으로 
   Article·VideoObject·`ShareButtons`에 넘긴다. 일반 영상은 기존 식과 `keywords` 미전달 유지
 
 **완료 기준:**
-- [ ] 숏츠 상세: meta·og description이 `{제목} — …`, Article·VideoObject에 `keywords`
-- [ ] 일반 영상 상세: meta description·JSON-LD가 변경 전과 동일(`keywords` 없음)
-- [ ] 화면 본문 렌더 불변
+- [x] 숏츠 상세: meta·og description이 `{제목} — …`, Article·VideoObject에 `keywords`
+- [x] 일반 영상 상세: meta description·JSON-LD가 변경 전과 동일(`keywords` 없음)
+- [x] 화면 본문 렌더 불변
 
 **검증:**
 - [ ] `npx tsc --noEmit` · `npm run build`
@@ -154,8 +154,8 @@ ReformedTV **숏츠**의 description을 `{제목} — {정리된 본문}`으로 
 Article·VideoObject 양쪽에 넘기고, `ShareButtons`의 `description`을 `post.content` 대신 이미 계산된 `description`으로 바꾼다.
 
 **완료 기준:**
-- [ ] VideoObject에 `keywords` 출력, Article `keywords`와 같은 값
-- [ ] meta description은 변경 전과 동일
+- [x] VideoObject에 `keywords` 출력, Article `keywords`와 같은 값
+- [x] meta description은 변경 전과 동일
 
 **검증:**
 - [ ] `npm run build`

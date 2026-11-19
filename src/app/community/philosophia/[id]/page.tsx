@@ -80,6 +80,7 @@ export default async function PhilosophiaDetailPage({ params }: Props) {
   const nickname = (post.profiles as { nickname: string | null } | null)?.nickname ?? '알 수 없음'
   // Article·VideoObject가 같은 값을 쓰도록 한 번만 계산한다
   const description = philosophiaDescription(post.content, post.title)
+  const keywords = extractHashtags(post.content)
 
   return (
     <div className="bg-[#14243F]">
@@ -158,7 +159,7 @@ export default async function PhilosophiaDetailPage({ params }: Props) {
           <div className="mt-12 border-t border-[#EDE7D6]/15 pt-8 [&_button:last-child]:border-[#EDE7D6]/25 [&_button:last-child]:text-[#EDE7D6]/80 [&_button:last-child]:hover:bg-[#EDE7D6]/10">
             <ShareButtons
               title={post.title}
-              description={post.content ?? undefined}
+              description={description}
               imageUrl={videoId ? getYoutubeThumbnail(videoId) : undefined}
             />
           </div>
@@ -170,7 +171,7 @@ export default async function PhilosophiaDetailPage({ params }: Props) {
                 articleJsonLd({
                   title: post.title,
                   description,
-                  keywords: extractHashtags(post.content),
+                  keywords,
                   url: `${process.env.NEXT_PUBLIC_SITE_URL}${BASE_PATH}/${id}`,
                   datePublished: post.created_at ?? undefined,
                   dateModified: post.updated_at ?? undefined,
@@ -188,6 +189,7 @@ export default async function PhilosophiaDetailPage({ params }: Props) {
                   youtubeVideoObjectJsonLd({
                     title: post.title,
                     description,
+                    keywords,
                     videoId,
                     thumbnailUrl: getYoutubeThumbnail(videoId),
                     uploadDate: post.created_at ?? undefined,
