@@ -1,7 +1,7 @@
 # 구현 계획: 본문 해시태그 SEO 활용 — ReformedTV 숏츠 · 최더함의 철학시가
 
 - spec: ./spec.md
-- 상태: 진행 중
+- 상태: 검증 완료
 
 ## 개요
 
@@ -44,15 +44,15 @@ ReformedTV **숏츠**의 description을 `{제목} — {정리된 본문}`으로 
 
 ### 체크포인트: 페이지 적용
 - [x] `npx vitest run` · 변경 파일 `npx eslint` · `npx tsc --noEmit` · `npm run build` 통과 — vitest는 작업 1~3 이후 페이지 변경이라 재실행은 VERIFY에서
-- [ ] 실제 앱에서 spec 사용자 시나리오 1~6 확인 — BUILD에서 1·2·3·5·6 확인(변경 전후 스냅샷 8경로 비교). 4(카카오 공유)와 not-found는 VERIFY에서 (숏츠 / 같은 본문 숏츠 2건 / 일반 영상 / 철학시가 / 다른 board id → not-found)
-- [ ] 사용자 확인 후 다음으로 진행
+- [x] 실제 앱에서 spec 사용자 시나리오 1~6 확인 + not-found 2경로 — VERIFY에서 전부 확인 (verify.md)
+- [x] 사용자 확인 후 다음으로 진행
 
 ### 3단계: 문서
 - [x] 작업 6: 문서 갱신
 
 ### 체크포인트: 완료
-- [ ] spec 성공 기준 모두 충족
-- [ ] REVIEW 준비됨
+- [x] spec 성공 기준 모두 충족 — lint는 변경 파일 기준(전체는 기존 오류 15건)
+- [x] REVIEW 준비됨
 
 ## 작업 상세
 
@@ -69,8 +69,8 @@ ReformedTV **숏츠**의 description을 `{제목} — {정리된 본문}`으로 
 - [x] `hashtags.test.ts` 통과
 
 **검증:**
-- [ ] `npx vitest run`
-- [ ] `npx tsc --noEmit`
+- [x] `npx vitest run`
+- [x] `npx tsc --noEmit`
 
 **의존:** 없음
 
@@ -93,7 +93,7 @@ ReformedTV **숏츠**의 description을 `{제목} — {정리된 본문}`으로 
 - [x] 기존 json-ld 테스트 통과
 
 **검증:**
-- [ ] `npx vitest run`
+- [x] `npx vitest run`
 
 **의존:** 없음
 
@@ -114,7 +114,7 @@ ReformedTV **숏츠**의 description을 `{제목} — {정리된 본문}`으로 
 - [x] 120자(+말줄임표 1자) 이하
 
 **검증:**
-- [ ] `npx vitest run`
+- [x] `npx vitest run`
 
 **의존:** 작업 1 (`stripHashtags`)
 
@@ -137,8 +137,8 @@ ReformedTV **숏츠**의 description을 `{제목} — {정리된 본문}`으로 
 - [x] 화면 본문 렌더 불변
 
 **검증:**
-- [ ] `npx tsc --noEmit` · `npm run build`
-- [ ] 수동 확인: 개발 서버에서 숏츠 1건·같은 본문 숏츠 2건·일반 영상 1건의 HTML(`curl`)에서 `<meta name="description">`과 `application/ld+json` 비교.
+- [x] `npx tsc --noEmit` · `npm run build`
+- [x] 수동 확인: 개발 서버에서 숏츠 1건·같은 본문 숏츠 2건·일반 영상 1건의 HTML(`curl`)에서 `<meta name="description">`과 `application/ld+json` 비교.
       일반 영상은 변경 전 출력(작업 시작 전에 저장)과 diff
 
 **의존:** 작업 1, 2, 3
@@ -158,8 +158,8 @@ Article·VideoObject 양쪽에 넘기고, `ShareButtons`의 `description`을 `po
 - [x] meta description은 변경 전과 동일
 
 **검증:**
-- [ ] `npm run build`
-- [ ] 수동 확인: 철학시가 상세 1건 HTML에서 VideoObject `keywords`, meta description 변경 전후 동일
+- [x] `npm run build`
+- [x] 수동 확인: 철학시가 상세 1건 (2건 확인) HTML에서 VideoObject `keywords`, meta description 변경 전후 동일
 
 **의존:** 작업 1, 2
 
@@ -178,7 +178,7 @@ Article·VideoObject 양쪽에 넘기고, `ShareButtons`의 `description`을 `po
 - [x] 세 문서에 이번 변경과 보류 항목이 반영됨
 
 **검증:**
-- [ ] 수동 확인: 문서의 함수명·경로가 실제 코드와 일치 (`grep`)
+- [x] 수동 확인: 문서의 함수명·경로가 실제 코드와 일치 (`grep`)
 
 **의존:** 작업 4, 5
 
