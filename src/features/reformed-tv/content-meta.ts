@@ -5,7 +5,7 @@ import { stripHashtags } from '@/lib/hashtags'
 
 const DESCRIPTION_MAX = 120
 
-const URL = /https?:\/\//
+const URL_LINE = /https?:\/\//
 
 /**
  * 채널 공통 문구 줄. 숏츠마다 똑같이 붙어 있어 description에 의미를 더하지 않는다.
@@ -23,7 +23,7 @@ export function shortsDescription(content: string | null | undefined, title: str
   const body = (content ?? '')
     .split(/\r?\n/)
     .map((line) => line.trim())
-    .filter((line) => !URL.test(line) && !BOILERPLATE.some((re) => re.test(line)))
+    .filter((line) => !URL_LINE.test(line) && !BOILERPLATE.some((re) => re.test(line)))
     .map((line) => stripHashtags(line))
     .join(' ')
     .replace(/\s+/g, ' ')

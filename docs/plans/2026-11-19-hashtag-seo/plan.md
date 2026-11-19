@@ -1,7 +1,7 @@
 # 구현 계획: 본문 해시태그 SEO 활용 — ReformedTV 숏츠 · 최더함의 철학시가
 
 - spec: ./spec.md
-- 상태: 검증 완료
+- 상태: 리뷰 완료
 
 ## 개요
 
@@ -201,3 +201,24 @@ Article·VideoObject 양쪽에 넘기고, `ShareButtons`의 `description`을 `po
 ## 열린 질문
 
 없음
+
+## 리뷰 결과 (2026-11-19)
+
+- 대상: `85190d9..HEAD` 코드 변경 10개 파일 (`code-review` medium · `security-review`)
+- 보안: **발견 없음** — keywords는 `toJsonLdHtml`(`<` 이스케이프) 경유, description은 Metadata API·React prop. 새 `dangerouslySetInnerHTML` 경로 없음
+- 프로젝트 의무: diff에서 `any`·`useEffect` 페칭·default export·`console.log`·인라인 style 0건, 접근 제한 경로·새 라우트 없음
+- 실데이터 영향 측정(숏츠 58 · 철학시가 15건) 후 사용자 결정
+
+| # | 발견 | 실데이터 | 처리 |
+|---|---|---|---|
+| A | `reformed-tv/content-meta.ts`의 상수 `URL`이 전역 `URL` 생성자를 가림 | — | **수정** → `URL_LINE`. vitest 35 · tsc · eslint · build 재통과 |
+| B | 숏츠 2건(놀라운 교환 · 낯선 의) 태그 오타 `#오직 믿음` → description 끝에 `믿음`, keywords에 `오직` | 2건 | **데이터 수정(사용자 몫)** — 본문을 `#오직믿음`으로. 코드 변경 없음 |
+| C | 정규식이 끝 문장부호·URL 속 `#`도 태그로 잡음 | 0건 | 수용 — 철학시가 기존 정규식 유지(spec) |
+| D | URL 포함 줄 전체 제거 · 문장 중간 태그 제거 | 0건 | 수용 — spec 설계 |
+| E | 일반 영상 meta/Article/VideoObject description 불일치 | 기존 | 수용 — spec 비목표 |
+| F | `'숏츠'` 리터럴 2곳 | — | 수용 — 폼 `CATEGORIES`가 비공개 로컬 상수 |
+| G | generateMetadata·페이지 이중 조회 | 기존 | 수용 — 상세 17개 공통 패턴 |
+| H | 대소문자만 다른 태그 중복 | 0건 | 수용 |
+
+- 참고: code-review 첫 실행은 대상이 `85190d9` 단일 커밋(임원 페이지)으로 잡혀 폐기하고 범위를 명시해 재실행
+
