@@ -16,6 +16,7 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
 | 미착수 | [에디터 이미지 고아 파일 — 탭 닫기·뒤로가기 경로 정리](#미착수-에디터-이미지-고아-파일--탭-닫기뒤로가기-경로-정리) | 탭 닫기·뒤로가기로 이탈하면 업로드 이미지가 버킷에 남는다 |
 | 보류 | [404/500 페이지에서 "이전 페이지" 버튼(BackButton) 클릭 후 GNB 애니메이션·인터랙션 불작동](#보류-404500-페이지에서-이전-페이지-버튼backbutton-클릭-후-gnb-애니메이션인터랙션-불작동) | `router.back()` 후 GNB 애니메이션·hover 불작동. 여러 접근 모두 실패 |
 | 보류 | [Server Action 공통 부채 — board 필터 · 0건 판정 · 상세 revalidate](#보류-server-action-공통-부채--board-필터--0건-판정--상세-revalidate) | 액션 6개 전부 해당. **인지 후 의도적 보류** — 재검토 조건 명시 |
+| 보류 | [해시태그 링크 · 태그별 목록 페이지](#보류-해시태그-링크--태그별-목록-페이지) | 태그를 내부 링크로 만들면 실질 SEO 이득. 태그당 글이 적어 thin content 위험 — 게시물이 쌓인 뒤 |
 | 참고 | [PWA 개발 시 서비스 워커 stale 캐시 주의](#참고-pwa-개발-시-서비스-워커-stale-캐시-주의) | `npm start` 한 번이면 SW가 등록돼 `npm run dev`에서도 요청을 가로챈다 |
 | 완료 | [관리자 권한 — 모든 게시글 수정/삭제](#완료-관리자-권한--모든-게시글-수정삭제) | `profiles.is_admin` 기반으로 수정·삭제 권한에 관리자 예외 추가 |
 | 완료 | [관련기사 상세 페이지 및 카카오톡 공유 기능](#완료-관련기사-상세-페이지-및-카카오톡-공유-기능) | 외부 기사를 카카오로 공유하려고 마레카 도메인 상세 페이지를 둠 |
@@ -30,6 +31,7 @@ CLAUDE.md에서 분리한 작업 목록. 상태 표기는 `[미착수]` / `[보�
 | 완료 | [게시판 추가 — 최더함의 철학시가 (1·2차)](features/philosophia.md) | 다크 잉크 네이비 영상 아카이브. **별도 문서** · 검증 1건 남음 |
 | 완료 | [유튜브 영상 게시판 상세 — VideoObject JSON-LD 추가](#완료-유튜브-영상-게시판-상세--videoobject-json-ld-추가) | ReformedTV·철학시가 상세가 구글에 영상 페이지로 인식되도록. 화면 변경 없음 |
 | 완료 | [JSON-LD `</script>` 탈출 XSS — 전 라우트 `toJsonLdHtml` 적용 (운영 중 취약점)](#완료-json-ld-script-탈출-xss--전-라우트-tojsonldhtml-적용-운영-중-취약점) | 모든 JSON-LD `<script>`(31개 파일)를 `toJsonLdHtml`로 직렬화. 2026-11-02 |
+| 완료 | [본문 해시태그 SEO 활용 — ReformedTV 숏츠 · 철학시가](#완료-본문-해시태그-seo-활용--reformedtv-숏츠--철학시가) | 숏츠 description을 `{제목} — {본문}`으로, 본문 `#태그`를 JSON-LD keywords로. 2026-11-19 |
 
 ---
 
@@ -119,6 +121,13 @@ Supabase UPDATE/DELETE는 필터·RLS에 걸려 0행이어도 `error`가 `null`�
 - (2) `.select('id')` 후 0건이면 throw — 액션당 2~4줄
 - (3) `revalidatePath(\`${BASE_PATH}/${id}\`)` 한 줄씩 추가 — 3파일
 - (4) 두 폼에서 `category`를 hidden input으로 보내거나 초기값을 검증
+
+### [보류] 해시태그 링크 · 태그별 목록 페이지
+
+- 배경: 본문 `#태그`는 평문이라 구글에는 일반 단어 이상의 의미가 없다. 실질 이득은 태그를 링크로 만들어 태그별 목록 페이지(내부 링크 · 키워드 랜딩)를 둘 때 나온다
+- 보류 이유: 태그 하나당 글이 1~2건이면 내용이 빈약한 페이지(thin content)가 돼 오히려 손해. 태그 파싱 · 목록 라우트 · sitemap까지 필요
+- 재검토 조건: 같은 태그를 쓰는 글이 태그당 5~10건 이상 쌓였을 때. 추출은 `src/lib/hashtags.ts`의 `extractHashtags`를 재사용
+- 관련: [본문 해시태그 SEO 활용](#완료-본문-해시태그-seo-활용--reformedtv-숏츠--철학시가) (2026-11-19, keywords · description까지만 적용)
 
 ---
 
@@ -333,3 +342,16 @@ Supabase UPDATE/DELETE는 필터·RLS에 걸려 0행이어도 `error`가 `null`�
   - 홈·정적 5곳·동적 상세 12개 게시판의 JSON-LD를 실제로 `JSON.parse` — 전부 정상, 원문에 `<` 없음
   - 로그인·접근 제한 경로(`resources/*`, `report/minutes`, `online-admin/plan`)는 HTML 실측 못 함 — 같은 기계적 치환이며 타입체크·빌드 통과
 - 앞으로 새 JSON-LD는 `toJsonLdHtml`로만 넣는다 (`CLAUDE.md` SEO 가이드 "새 동적 라우트")
+
+### [완료] 본문 해시태그 SEO 활용 — ReformedTV 숏츠 · 철학시가
+
+- 배경: 숏츠·철학시가 본문 끝의 `#태그`가 SEO에 쓰이지 않았다. 숏츠는 description이 본문 앞 120자 단순 절단이라 채널 URL이 들어갔고, **같은 강의에서 잘라낸 숏츠끼리 본문이 같아 description이 중복**됐다
+- 조치
+  - `src/lib/hashtags.ts` — `extractHashtags` · `stripHashtags` (철학시가 `philosophiaKeywords`를 공용화)
+  - `src/features/reformed-tv/content-meta.ts` — `shortsDescription`: `{제목} — {본문}`, 채널 URL · 공통 문구(`마스터스 Reformed TV` 등) · 태그 줄 제거
+  - ReformedTV 상세 — **숏츠(`category = 숏츠`)만** 새 description(meta · OG · Twitter · Article · VideoObject · 카카오 공유) + Article · VideoObject `keywords`. 일반 영상 출력은 불변
+  - 철학시가 상세 — VideoObject `keywords` 추가, 카카오 공유 문구를 태그 없는 description으로
+  - `youtubeVideoObjectJsonLd`에 `keywords?` (비면 필드 생략)
+- 효과 범위: 구글은 `keywords`를 순위에 거의 쓰지 않는다. 실효는 **description 고유화**(중복 해소 · 스니펫 품질)이고 keywords는 네이버 · AI 검색엔진용 보조
+- 남은 것: [해시태그 링크 · 태그별 목록 페이지](#보류-해시태그-링크--태그별-목록-페이지) 보류
+- 기록: spec · plan · 검증은 [`docs/plans/2026-11-19-hashtag-seo/`](plans/2026-11-19-hashtag-seo/plan.md)

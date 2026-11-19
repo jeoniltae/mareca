@@ -48,7 +48,7 @@ ReformedTV **숏츠**의 description을 `{제목} — {정리된 본문}`으로 
 - [ ] 사용자 확인 후 다음으로 진행
 
 ### 3단계: 문서
-- [ ] 작업 6: 문서 갱신
+- [x] 작업 6: 문서 갱신
 
 ### 체크포인트: 완료
 - [ ] spec 성공 기준 모두 충족
@@ -175,7 +175,7 @@ Article·VideoObject 양쪽에 넘기고, `ShareButtons`의 `description`을 `po
 `CLAUDE.md` SEO 가이드의 JSON-LD(VideoObject) 설명에 keywords를 한 줄 반영한다. `context-notes.md`는 SHIP에서 기록한다.
 
 **완료 기준:**
-- [ ] 세 문서에 이번 변경과 보류 항목이 반영됨
+- [x] 세 문서에 이번 변경과 보류 항목이 반영됨
 
 **검증:**
 - [ ] 수동 확인: 문서의 함수명·경로가 실제 코드와 일치 (`grep`)
